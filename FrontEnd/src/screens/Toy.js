@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image, TextInput } from 'react-native';
 import { useSelector } from 'react-redux';
 import * as ImagePicker from 'expo-image-picker';
 import { v4 as uuidv4 } from 'uuid';
+
 import { S3Client, bucketName, region } from '../../config.js';
 import { createToy } from '../API/toyAPI';
 
+
 export default function Toy() {
   const [image, setImage] = useState(null);
-  const { user } = useSelector((state) => state.user); 
-  console.log("user", user);
+  const [user_id, setUser_id] = useState(''); // Add user_id state
 
+  const { user } = useSelector((state) => state.user);
 
   const onSubmit = async () => {
-    if (!image || !user) {
+    if (!image || !user_id) {
       return;
     }
 
@@ -44,14 +46,16 @@ export default function Toy() {
 
     try {
       const data = await s3UploadPromise;
-      const imageUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${destinationFileKey}`;
+      const imageUrl = `https://${bucketName}.s3.amazonaws.com/${destinationFileKey}`;
+      console.log('imageUrl', imageUrl)
 
-      // Create toy using the image URL
-      //const createdToy = await createToy({ image_url: imageUrl });
-      const createdToy = await createToy({ image_url: imageUrl, user_id: user.id });
+      // Create toy using the image URL and user_id
+      const createdToy = await createToy({ image_url: imageUrl, user_id });
       console.log('Toy created:', createdToy);
+
       // Reset state and navigate back to the front page or toybox
       setImage(null);
+      setUser_id('');
       // navigation.navigate(...)  // navigate back to the front page or toybox
     } catch (error) {
       console.error('Error creating toy:', error);
@@ -73,8 +77,8 @@ export default function Toy() {
       quality: 1,
     });
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
+    if (!result.cancelled) {
+      setImage(result.uri);
     }
   };
 
@@ -84,10 +88,15 @@ export default function Toy() {
         <Text>Upload Image</Text>
       </TouchableOpacity>
       {image && <Image source={{ uri: image }} style={{ width: 100, height: 100 }} />}
+      <TextInput
+        placeholder="User ID"
+        value={user_id}
+        onChangeText={setUser_id} // Simplified onChangeText
+        style={{ borderWidth: 1, padding: 5, marginVertical: 10 }}
+      />
       <TouchableOpacity onPress={onSubmit}>
         <Text>Submit</Text>
       </TouchableOpacity>
     </View>
   );
 }
-

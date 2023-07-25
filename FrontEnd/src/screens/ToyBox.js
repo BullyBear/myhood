@@ -1,3 +1,7 @@
+//ToyBox.js: Displays a grid of toy thumbnails from the user's toy collection (toyBox). 
+//It allows pagination and navigation to the ToyDetails screen.
+
+
 import React, { useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { connect } from 'react-redux';
@@ -23,10 +27,15 @@ function ToyBox({ toyBox }) {
     );
   };
 
-  const renderFooter = () => {
-    if (toyBox.length <= ITEMS_PER_PAGE) {
-      return null;
-    }
+  // const renderFooter = () => {
+  //   if (toyBox.length <= ITEMS_PER_PAGE) {
+  //     return null;
+  //   }
+
+    const renderFooter = () => {
+      if (!toyBox || toyBox.length <= ITEMS_PER_PAGE) {
+        return null;
+      }
 
     const numPages = Math.ceil(toyBox.length / ITEMS_PER_PAGE);
     const pageButtons = [];
@@ -52,7 +61,9 @@ function ToyBox({ toyBox }) {
 
   const startIdx = (page - 1) * ITEMS_PER_PAGE;
   const endIdx = startIdx + ITEMS_PER_PAGE;
-  const toysToShow = toyBox.slice(startIdx, endIdx);
+  //const toysToShow = toyBox.slice(startIdx, endIdx);
+  const toysToShow = Array.isArray(toyBox) ? toyBox.slice(startIdx, endIdx) : [];
+
 
   return (
     <View style={styles.container}>
@@ -70,7 +81,7 @@ function ToyBox({ toyBox }) {
 
 
 const mapStateToProps = (state) => ({
-  toyBox: state.toy.toys,
+  toyBox: state.toys.toyBox,
 });
 
 

@@ -1,24 +1,44 @@
-import React, { useEffect } from 'react';
-import { View, Text, Animated, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Animated, Image } from 'react-native';
+import { useSelector, useDispatch } from 'react-redux';
 import { PanGestureHandler } from 'react-native-gesture-handler';
-import { connect } from 'react-redux';
-import { fetchToys } from '../actions/toyActions';
-import { addToyToBox } from '../actions/userActions'; // import addToyToBox action
 
-function Carousel({ toys, fetchToys, addToyToBox }) {
+import { fetchToysFromAPI, addToyToBox, removeToyFromCarousel } from '../slices/toySlice';
+
+function Carousel() {
+  const dispatch = useDispatch();
+  //const { toys, toyBox, loading, error } = useSelector((state) => state.toys);
+  //const { toys, toyBox, loading, error } = useSelector((state) => state.toy);
+  const { toys, loading, error } = useSelector((state) => state.toy);
+
+
+
   useEffect(() => {
-    fetchToys();
-  }, []);
+    if (!toys.length) {
+      dispatch(fetchToysFromAPI());
+    }
+  }, [dispatch, toys]);
 
+  const [currentIndex, setCurrentIndex] = useState(0);
+  
   const translateX = new Animated.Value(0);
   const onGestureEvent = Animated.event(
     [{ nativeEvent: { translationX: translateX } }],
     { useNativeDriver: true }
   );
 
-  const onSwipeRight = (toy) => {
-    addToyToBox(toy);
+  const onSwipeRight = () => {
+    const toyToAdd = toys[currentIndex];
+    dispatch(addToyToBox(toyToAdd));
+    dispatch(removeToyFromCarousel(toyToAdd));
+    setCurrentIndex(prevIndex => (prevIndex < toys.length - 1 ? prevIndex + 1 : 0));
   };
+  
+  const onSwipeLeft = () => {
+    setCurrentIndex(prevIndex => (prevIndex < toys.length - 1 ? prevIndex + 1 : 0));
+  };
+  
+
 
   return (
     <View>
@@ -26,7 +46,10 @@ function Carousel({ toys, fetchToys, addToyToBox }) {
         onGestureEvent={onGestureEvent}
         onHandlerStateChange={({ nativeEvent }) => {
           if (nativeEvent.translationX >= 100) {
-            onSwipeRight(toys[0]);
+            onSwipeRight();
+            translateX.setValue(0);
+          } else if (nativeEvent.translationX <= -100) {
+            onSwipeLeft();
             translateX.setValue(0);
           } else {
             Animated.spring(translateX, {
@@ -42,26 +65,18 @@ function Carousel({ toys, fetchToys, addToyToBox }) {
             transform: [{ translateX }],
           }}
         >
-          {toys.map((toy, index) => (
+          {loading && <Text>Loading...</Text>}
+          {error && <Text>Error: {error}</Text>}
+          {toys[currentIndex] && (
             <Image
-              key={index}
-              source={{ uri: toy.image_url }}
+              source={{ uri: toys[currentIndex].image_url }}
               style={{ width: 100, height: 100, marginRight: 10 }}
             />
-          ))}
+          )}
         </Animated.View>
       </PanGestureHandler>
     </View>
   );
 }
 
-const mapStateToProps = (state) => ({
-  toys: state.toy.toys,
-});
-
-const mapDispatchToProps = {
-  fetchToys,
-  addToyToBox,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Carousel);
+export default Carousel;

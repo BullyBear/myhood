@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, Text, Image, TouchableOpacity } from 'react-native';
 import { connect } from 'react-redux';
-import { fetchUsersByIds } from '../actions/userActions';
+import { fetchUsersByIds } from '../slices/userSlice';
 import ToyBox from './ToyBox';
 
 

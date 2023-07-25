@@ -1,9 +1,11 @@
-from flask import Flask, request
+from flask import Flask
 from flask_restful import Api, Resource
-from models import User, Toy
+from models import User, Toy, UserSchema, ToySchema
 from config import DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
-from API import user_resources, toy_resources
-from extensions import db, ma, bcrypt, jwt, cors  
+from extensions import db, ma, bcrypt, jwt, cors
+
+from API.toy_resources import ToyList, ToyResourceTime
+from API.user_resources import Users, Register, Login
 
 app = Flask(__name__)
 
@@ -32,15 +34,11 @@ class Home(Resource):
 api.add_resource(Home, '/')
 
 # The rest of your routes
-api.add_resource(user_resources.Register, '/register')
-api.add_resource(user_resources.Login, '/login')
-api.add_resource(toy_resources.ToyList, '/toys')
-api.add_resource(toy_resources.ToyResourceTime, '/toys/<int:toy_id>')
-
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', port=8000, debug=True)
+api.add_resource(Users, '/users')
+api.add_resource(Register, '/register')
+api.add_resource(Login, '/login')
+api.add_resource(ToyList, '/toys')
+api.add_resource(ToyResourceTime, '/toys/<int:toy_id>')
 
 if __name__ == '__main__':
-    app.run(host='192.168.1.142', port=8000, debug=True)
-
-
+    app.run(host='0.0.0.0', port=8000, debug=True)

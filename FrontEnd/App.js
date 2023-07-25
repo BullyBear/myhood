@@ -1,3 +1,9 @@
+//App.js: Sets up the main navigation stack using React Navigation. 
+//It includes screens such as FrontPage, NavigationPage, Toy, ToyBox, 
+//ToyDetails, Profile, UserBox, UserDetails, and ChatScreen. It also wraps the app 
+//with Redux's Provider and PaperProvider for state management and UI components.
+
+
 import React from 'react';
 import { Provider } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native';
@@ -6,6 +12,7 @@ import { PaperProvider } from 'react-native-paper';
 
 import store from './src/store/store';
 
+import AuthNavigator from './src/components/AuthNavigator';
 import FrontPage from './src/screens/FrontPage';
 import NavigationPage from './src/screens/NavigationPage';
 import Toy from './src/screens/Toy';
@@ -16,6 +23,7 @@ import UserBox from './src/screens/UserBox';
 import UserDetails from './src/screens/UserDetails';
 import ChatScreen from './src/screens/ChatScreen';
 
+
 const Stack = createStackNavigator();
 
 const App = () => {
@@ -24,6 +32,7 @@ const App = () => {
       <PaperProvider>
       <NavigationContainer>
         <Stack.Navigator>
+        <Stack.Screen name="Auth" component={AuthNavigator} />
           <Stack.Screen name="FrontPage" component={FrontPage} />
           <Stack.Screen name="NavigationPage" component={NavigationPage} />
           <Stack.Screen name="Toy" component={Toy} />
