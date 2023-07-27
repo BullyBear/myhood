@@ -1,0 +1,4 @@
+# Ignore AWS credentials
+emails.py
+config.py
+.env

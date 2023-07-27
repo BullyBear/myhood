@@ -1,24 +1,18 @@
-import { S3, SES } from 'aws-sdk';
+import Constants from 'expo-constants';
 
-//const API_URL = 'http://127.0.0.1:5000';
-// const API_URL = 'http://localhost:5000';
-//const API_URL = 'http://192.168.1.142:5000';
-
-const API_URL = 'http://192.168.1.141:8000';
-//const API_URL = 'http://127.0.0.1:8000';
-
+const API_URL = Constants.manifest.extra.API_URL || 'http://localhost:8000';
+const AWS_ACCESS_KEY = Constants.manifest.extra.AWS_ACCESS_KEY_ID;
+const AWS_SECRET_KEY = Constants.manifest.extra.AWS_SECRET_ACCESS_KEY;
+const BUCKET_NAME = Constants.manifest.extra.BUCKET_NAME || 'mytoybox';
+const AWS_REGION = Constants.manifest.extra.AWS_REGION || 'us-east-1';
 
 const awsConfig = {
-  accessKeyId: 'AKIA5WL22M73IQ2N7F4K',
-  secretAccessKey: '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',
-  region: 'us-east-1',
+  accessKeyId: AWS_ACCESS_KEY,
+  secretAccessKey: AWS_SECRET_KEY,
+  region: AWS_REGION,
 };
-
-const bucketName = 'mytoybox';
 
 const s3 = new S3(awsConfig);
 const ses = new SES(awsConfig);
 
-export { API_URL, s3 as S3Client, ses as SESClient, bucketName };
-
-
+export { API_URL, s3 as S3Client, ses as SESClient, BUCKET_NAME };
