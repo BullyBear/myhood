@@ -1,6 +1,18 @@
+// userSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-import { registerUser as registerUserFromAPI, loginUser as loginUserFromAPI, updateUser as updateUserFromAPI, resetPassword as resetPasswordFromAPI, inviteUser as inviteUserFromAPI } from '../API/userAPI';
+import {
+  registerUser as registerUserFromAPI,
+  loginUser as loginUserFromAPI,
+  updateUser as updateUserFromAPI,
+  resetPassword as resetPasswordFromAPI,
+  inviteUser as inviteUserFromAPI,
+} from '../API/userAPI';
+
+const initialState = {
+  usersByIds: [], // existing users data
+  userInteractions: {}, // new property to store user interactions with toys
+};
 
 const userSlice = createSlice({
   name: 'user',
@@ -73,7 +85,16 @@ const userSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-  }
+    // Action to handle user swipe right on a toy
+    addUserInteraction: (state, action) => {
+      const { toyId, userId } = action.payload;
+      const userInteractions = state.userInteractions[toyId] || [];
+      if (!userInteractions.includes(userId)) {
+        userInteractions.push(userId);
+        state.userInteractions[toyId] = userInteractions;
+      }
+    },
+  },
 });
 
 export const { 

@@ -1,41 +1,36 @@
-//ToyBox.js: Displays a grid of toy thumbnails from the user's toy collection (toyBox). 
-//It allows pagination and navigation to the ToyDetails screen.
-
-
 import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { connect } from 'react-redux';
+import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions } from 'react-native';
+import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 
-
+const { width, height } = Dimensions.get('window');
 const ITEMS_PER_PAGE = 10;
 
-function ToyBox({ toyBox }) {
+function ToyBox() {
   const [page, setPage] = useState(1);
 
   const navigation = useNavigation();
+  const toyBox = useSelector((state) => state.toy.toyBox);
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
   };
 
-  const renderThumbnail = ({ item }) => {
+  const renderThumbnail = (item, index) => {
+    let imageSize = toysToShow.length <= 1 ? width * 0.6 : width * 0.3;
+
     return (
-      <TouchableOpacity onPress={() => navigation.navigate('ToyDetails', { toy: item })}>
-        <Image source={{ uri: item.image_url }} style={styles.thumbnail} />
+      <TouchableOpacity key={item.id} onPress={() => navigation.navigate('ToyDetails', { toyId: item.id })} style={styles.imageContainer}>
+        <Image source={{ uri: item.image_url }} style={{ width: imageSize, height: imageSize }} />
       </TouchableOpacity>
     );
-  };
+};
 
-  // const renderFooter = () => {
-  //   if (toyBox.length <= ITEMS_PER_PAGE) {
-  //     return null;
-  //   }
 
-    const renderFooter = () => {
-      if (!toyBox || toyBox.length <= ITEMS_PER_PAGE) {
-        return null;
-      }
+  const renderFooter = () => {
+    if (!toyBox || toyBox.length <= ITEMS_PER_PAGE) {
+      return null;
+    }
 
     const numPages = Math.ceil(toyBox.length / ITEMS_PER_PAGE);
     const pageButtons = [];
@@ -58,66 +53,38 @@ function ToyBox({ toyBox }) {
       </View>
     );
   };
-
+  
   const startIdx = (page - 1) * ITEMS_PER_PAGE;
   const endIdx = startIdx + ITEMS_PER_PAGE;
-  //const toysToShow = toyBox.slice(startIdx, endIdx);
   const toysToShow = Array.isArray(toyBox) ? toyBox.slice(startIdx, endIdx) : [];
-
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={toysToShow}
-        renderItem={renderThumbnail}
-        keyExtractor={(item) => item.id.toString()}
-        numColumns={5}
-        ListFooterComponent={renderFooter}
-        columnWrapperStyle={styles.columnWrapper}
-      />
+      <View style={styles.contentContainer}>
+        {toysToShow.map(renderThumbnail)}
+      </View>
+      {renderFooter()}
     </View>
   );
 }
 
-
-const mapStateToProps = (state) => ({
-  toyBox: state.toys.toyBox,
-});
-
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
-    backgroundColor: '#fff',
-  },
-  columnWrapper: {
-    justifyContent: 'space-between',
-  },
-  thumbnail: {
-    width: 70,
-    height: 70,
-    margin: 5,
-  },
-  paginationContainer: {
-    flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 20,
+    alignItems: 'center',
   },
-  pageButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    marginHorizontal: 5,
-    borderRadius: 5,
-    backgroundColor: '#ccc',
+  contentContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
   },
-  currentPageButton: {
-    backgroundColor: '#007aff',
+  imageContainer: {
+    margin: 10,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
-  pageButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
+  // ... other styles here
 });
 
-export default connect(mapStateToProps)(ToyBox);
+export default ToyBox;

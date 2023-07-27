@@ -1,22 +1,15 @@
 // FrontPage.js
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Button } from '@rneui/base';
-
 import Carousel from '../components/Carousel';
 import { fetchToysFromAPI } from '../slices/toySlice';
 import { logoutUser } from '../slices/userSlice';
 
-
 const FrontPage = ({ navigation }) => {
   const dispatch = useDispatch();
-  //const { toys, loading, error } = useSelector((state) => state.toys);
-  //const { toys, toyBox, loading, error } = useSelector((state) => state.toy);
   const { toys, loading, error } = useSelector((state) => state.toy);
-
-
-
 
   useEffect(() => {
     dispatch(fetchToysFromAPI());
@@ -24,10 +17,8 @@ const FrontPage = ({ navigation }) => {
 
   const handleLogout = () => {
     dispatch(logoutUser());
-    // Add any additional logic you need for logging out (e.g., clearing local storage, resetting state, etc.)
     navigation.navigate('Login');
   };
-
 
   if (loading) {
     return <Text>Loading...</Text>;
@@ -38,15 +29,35 @@ const FrontPage = ({ navigation }) => {
   }
 
   return (
-    <View>
-      <Button title="Hello World" />
-      <Carousel />
-      <TouchableOpacity onPress={() => navigation.navigate('NavigationPage')}>
-        <Text>Go to Navigation</Text>
-      </TouchableOpacity>
-      <Button title="Logout" onPress={handleLogout} />
+    <View style={styles.container}>
+      <View style={styles.carouselContainer}>
+        <Carousel />
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button title="Go to Navigation" onPress={() => navigation.navigate('NavigationPage')} style={styles.button} />
+        <Button title="Logout" onPress={handleLogout} style={styles.button} />
+      </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  carouselContainer: {
+    flex: 8,
+  },
+  buttonContainer: {
+    flex: 2,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  button: {
+    width: 100,
+    height: 40,
+  },
+});
 
 export default FrontPage;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function Profile() {
@@ -30,19 +30,50 @@ export default function Profile() {
   };
 
   return (
-    <View>
-      <TouchableOpacity onPress={pickImage}>
-        <Text>Upload Image</Text>
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.button} onPress={pickImage}>
+        <Text style={styles.buttonText}>Upload Image</Text>
       </TouchableOpacity>
-      {image && <Image source={{ uri: image }} style={{ width: 100, height: 100 }} />}
+      {image && <Image source={{ uri: image }} style={styles.image} />}
       <TextInput
         placeholder="Enter a description"
         value={description}
         onChangeText={setDescription}
+        style={styles.input}
       />
-      <TouchableOpacity onPress={onSubmit}>
-        <Text>Submit</Text>
+      <TouchableOpacity style={styles.button} onPress={onSubmit}>
+        <Text style={styles.buttonText}>Submit</Text>
       </TouchableOpacity>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  button: {
+    backgroundColor: '#008CBA',
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    textAlign: 'center',
+  },
+  image: {
+    width: 100, 
+    height: 100, 
+    marginVertical: 10
+  },
+  input: {
+    borderWidth: 1, 
+    padding: 5, 
+    marginVertical: 10,
+    width: '80%',
+    textAlign: 'center'
+  },
+});

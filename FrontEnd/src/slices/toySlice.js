@@ -1,7 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { getAllToys, getToysWithinRadius } from '../API/toyAPI';
 
-import { getAllToys } from '../API/toyAPI';
-
+export const fetchToysWithinRadiusFromAPI = createAsyncThunk(
+  'toys/fetchToysWithinRadius',
+  async (latitude, longitude) => {
+    const data = await getToysWithinRadius(latitude, longitude);
+    return data;
+  }
+);
 
 export const fetchToysFromAPI = createAsyncThunk(
   'toys/fetchToys',

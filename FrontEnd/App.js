@@ -32,7 +32,7 @@ const App = () => {
       <PaperProvider>
       <NavigationContainer>
         <Stack.Navigator>
-        <Stack.Screen name="Auth" component={AuthNavigator} />
+        {/*<Stack.Screen name="Auth" component={AuthNavigator} />*/}
           <Stack.Screen name="FrontPage" component={FrontPage} />
           <Stack.Screen name="NavigationPage" component={NavigationPage} />
           <Stack.Screen name="Toy" component={Toy} />

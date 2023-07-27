@@ -1,8 +1,3 @@
-#toy_resources.py: Defines the resource classes for toy-related routes. 
-#It includes methods for fetching all toys, creating a new toy with an uploaded image, 
-#retrieving a specific toy by ID, updating a toy, and deleting a toy
-
-
 from flask import request
 from flask_restful import Resource
 from extensions import db
@@ -11,10 +6,10 @@ import boto3
 from botocore.exceptions import BotoCoreError, NoCredentialsError
 import uuid
 from config import bucketName, region
+from geopy.distance import geodesic
 
 toy_schema = ToySchema()
 toys_schema = ToySchema(many=True)
-
 
 class ToyList(Resource):
     def get(self):
@@ -49,47 +44,18 @@ class ToyList(Resource):
         # Get the image URL
         image_url = f"https://{bucketName}.s3.amazonaws.com/{destination_file_key}"
 
+        # Get the user's latitude and longitude
+        user_latitude = user.user_latitude
+        user_longitude = user.user_longitude
+
         # Create a new toy instance
-        new_toy = Toy(image_url=image_url, user_id=user_id)
+        new_toy = Toy(image_url=image_url, user_id=user_id, toy_latitude=user_latitude, toy_longitude=user_longitude)
 
         # Save the new toy to the database
         db.session.add(new_toy)
         db.session.commit()
 
         return toy_schema.dump(new_toy), 201
-
-
-# class ToyList(Resource):
-#     def get(self):
-#         toys = Toy.query.all()
-#         return toys_schema.dump(toys)
-
-#     def post(self):
-#         if 'user_id' not in request.json:
-#             return {"message": "No user_id provided"}, 400
-
-#         user_id = request.json['user_id']
-#         user = User.query.get(user_id)
-#         if not user:
-#             return {"message": "User not found"}, 404
-        
-#         if 'image_url' not in request.json:
-#             return {"message": "No image_url provided"}, 400
-
-#         image_url = request.json['image_url']
-
-#         # Create a new toy instance
-#         new_toy = Toy(image_url=image_url, user_id=user_id)
-
-#         # Save the new toy to the database
-#         db.session.add(new_toy)
-#         db.session.commit()
-
-#         return toy_schema.dump(new_toy), 201
-
-
-
-
 
 class ToyResourceTime(Resource):
     def get(self, toy_id):
@@ -113,3 +79,15 @@ class ToyResourceTime(Resource):
         db.session.delete(toy)
         db.session.commit()
         return '', 204
+
+class ToysInRadius(Resource):
+    def get(self):
+        # Assuming you have a user's location data as latitude and longitude in the request
+        user_latitude = float(request.args.get('user_latitude'))
+        user_longitude = float(request.args.get('user_longitude'))
+
+        # Filter toys based on geolocation within a certain radius (e.g., 10 miles)
+        max_distance = 10
+        toys_within_radius = [toy for toy in Toy.query.all() if geodesic((user_latitude, user_longitude), (toy.toy_latitude, toy.toy_longitude)).miles <= max_distance]
+
+        return toys_schema.dump(toys_within_radius)

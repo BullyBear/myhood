@@ -1,44 +1,99 @@
+// UserBox.js
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, Text, Image, TouchableOpacity } from 'react-native';
+import { View, FlatList, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { connect } from 'react-redux';
 import { fetchUsersByIds } from '../slices/userSlice';
-import ToyBox from './ToyBox';
 
+const { width } = Dimensions.get('window');
+const ITEMS_PER_PAGE = 10;
 
-function UserBox({ userBox, usersByIds, fetchUsersByIds }) {
+function UserBox({ userBox, usersByIds, fetchUsersByIds, userInteractions }) {
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    fetchUsersByIds(userBox.slice(0, 10));
-  }, []);
+    if (userBox && userBox.length > 0) {
+      fetchUsersByIds(userBox.slice(0, 10));
+    }
+  }, [userBox, fetchUsersByIds]);
 
-  const handleLoadMore = () => {
-    setPage(page + 1);
-    fetchUsersByIds(userBox.slice(page * 10, page * 10 + 10));
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
   };
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('UserDetails', { userId: item.id })}>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Image source={{ uri: item.image_url }} style={{ width: 50, height: 50, marginRight: 10 }} />
-        <Text>{item.name}</Text>
+  const renderThumbnail = (item, index) => {
+    let imageSize = usersToShow.length <= 1 ? width * 0.6 : width * 0.3;
+
+    return (
+      <TouchableOpacity onPress={() => navigation.navigate('UserDetails', { user: item })} style={styles.imageContainer}>
+        <Image source={{ uri: item.image_url }} style={{ width: imageSize, height: imageSize }} />
+      </TouchableOpacity>
+    );
+  };
+
+  const renderFooter = () => {
+    if (!userBox || userBox.length <= ITEMS_PER_PAGE) {
+      return null;
+    }
+
+    const numPages = Math.ceil(userBox.length / ITEMS_PER_PAGE);
+    const pageButtons = [];
+
+    for (let i = 1; i <= numPages; i++) {
+      pageButtons.push(
+        <TouchableOpacity
+          key={i}
+          style={[styles.pageButton, i === page ? styles.currentPageButton : null]}
+          onPress={() => handlePageChange(i)}
+        >
+          <Text style={styles.pageButtonText}>{i}</Text>
+        </TouchableOpacity>
+      );
+    }
+
+    return (
+      <View style={styles.paginationContainer}>
+        {pageButtons}
       </View>
-    </TouchableOpacity>
-  );
+    );
+  };
+  
+  const startIdx = (page - 1) * ITEMS_PER_PAGE;
+  const endIdx = startIdx + ITEMS_PER_PAGE;
+  const usersToShow = Array.isArray(userBox) ? userBox.slice(startIdx, endIdx) : [];
 
   return (
-    <FlatList
-      data={usersByIds}
-      renderItem={renderItem}
-      keyExtractor={(item) => item.id.toString()}
-      onEndReached={handleLoadMore}
-      onEndReachedThreshold={0.1}
-    />
+    <View style={styles.container}>
+      <View style={styles.contentContainer}>
+        {usersToShow.map(renderThumbnail)}
+      </View>
+      {renderFooter()}
+    </View>
   );
 }
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  contentContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  imageContainer: {
+    margin: 10,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  // ... other styles here
+});
+
 const mapStateToProps = (state) => ({
   usersByIds: state.user.usersByIds,
+  userInteractions: state.user.userInteractions,
+  user: state.user.user,
 });
 
 const mapDispatchToProps = {

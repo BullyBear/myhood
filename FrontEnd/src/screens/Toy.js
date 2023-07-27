@@ -1,31 +1,24 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import * as ImagePicker from 'expo-image-picker';
 import { v4 as uuidv4 } from 'uuid';
-
 import { S3Client, bucketName, region } from '../../config.js';
 import { createToy } from '../API/toyAPI';
 
-
 export default function Toy() {
   const [image, setImage] = useState(null);
-  const [user_id, setUser_id] = useState(''); // Add user_id state
-
+  const [user_id, setUser_id] = useState('');
   const { user } = useSelector((state) => state.user);
 
   const onSubmit = async () => {
-    if (!image || !user_id) {
+    if (!image || !user || !user.user_id) {
       return;
     }
 
-    // Generate a unique file name
     const uniqueFileName = `${uuidv4()}.jpg`;
-
-    // Set the destination file key
     const destinationFileKey = `images/${uniqueFileName}`;
 
-    // Prepare the upload params
     const uploadParams = {
       Bucket: bucketName,
       Key: destinationFileKey,
@@ -33,7 +26,6 @@ export default function Toy() {
       ContentType: 'image/jpeg',
     };
 
-    // Upload the image to S3
     const s3UploadPromise = new Promise((resolve, reject) => {
       S3Client.putObject(uploadParams, function (err, data) {
         if (err) {
@@ -49,17 +41,13 @@ export default function Toy() {
       const imageUrl = `https://${bucketName}.s3.amazonaws.com/${destinationFileKey}`;
       console.log('imageUrl', imageUrl)
 
-      // Create toy using the image URL and user_id
       const createdToy = await createToy({ image_url: imageUrl, user_id });
       console.log('Toy created:', createdToy);
 
-      // Reset state and navigate back to the front page or toybox
       setImage(null);
       setUser_id('');
-      // navigation.navigate(...)  // navigate back to the front page or toybox
     } catch (error) {
       console.error('Error creating toy:', error);
-      // Display error message to the user
     }
   };
 
@@ -83,20 +71,50 @@ export default function Toy() {
   };
 
   return (
-    <View>
-      <TouchableOpacity onPress={pickImage}>
-        <Text>Upload Image</Text>
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.button} onPress={pickImage}>
+        <Text style={styles.buttonText}>Upload Image</Text>
       </TouchableOpacity>
-      {image && <Image source={{ uri: image }} style={{ width: 100, height: 100 }} />}
+      {image && <Image source={{ uri: image }} style={styles.image} />}
       <TextInput
         placeholder="User ID"
         value={user_id}
-        onChangeText={setUser_id} // Simplified onChangeText
-        style={{ borderWidth: 1, padding: 5, marginVertical: 10 }}
+        onChangeText={setUser_id}
+        style={styles.input}
       />
-      <TouchableOpacity onPress={onSubmit}>
-        <Text>Submit</Text>
+      <TouchableOpacity style={styles.button} onPress={onSubmit}>
+        <Text style={styles.buttonText}>Submit</Text>
       </TouchableOpacity>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  button: {
+    backgroundColor: '#008CBA', // replace with desired color
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 10,
+  },
+  buttonText: {
+    color: '#fff', // replace with desired color
+    textAlign: 'center',
+  },
+  image: {
+    width: 100, 
+    height: 100, 
+    marginVertical: 10
+  },
+  input: {
+    borderWidth: 1, 
+    padding: 5, 
+    marginVertical: 10,
+    width: '80%',
+    textAlign: 'center'
+  },
+});

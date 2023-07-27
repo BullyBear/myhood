@@ -1,39 +1,38 @@
-//NavigationPage.js: Displays a navigation view with buttons to navigate to different screens, 
-//including the FrontPage, Toy, Profile, ToyBox, UserBox, and other screens.
-
-
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { List, MD3Colors } from 'react-native-paper';
+import { View, StyleSheet } from 'react-native';
+import { ListItem } from 'react-native-elements';
+import Icon from 'react-native-vector-icons/FontAwesome'; // Using FontAwesome as an example.
 
+const ListItems = [
+  { title: 'Carousel', icon: 'home', navigateTo: 'FrontPage' }, // 'home' icon as an example
+  { title: 'My ToyBox', icon: 'gift', navigateTo: 'ToyBox' }, // 'gift' icon as an example
+  { title: 'Create Toy', icon: 'plus-circle', navigateTo: 'Toy' }, // 'plus-circle' icon as an example
+  { title: 'My UserBox', icon: 'users', navigateTo: 'UserBox' }, // 'users' icon as an example
+  { title: 'Create Profile', icon: 'user-circle', navigateTo: 'Profile' }, // 'user-circle' icon as an example
+];
 
 export default function NavigationPage({ navigation }) {
   return (
-    // <View>
-    //   <TouchableOpacity onPress={() => navigation.navigate('FrontPage')}>
-    //     <Text>Carousel</Text>
-    //   </TouchableOpacity>
-    //   <TouchableOpacity onPress={() => navigation.navigate('Toy')}>
-    //     <Text>Create Toy</Text>
-    //   </TouchableOpacity>
-    //   <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-    //     <Text>Create Profile</Text>
-    //   </TouchableOpacity>
-    //   <TouchableOpacity onPress={() => navigation.navigate('ToyBox')}>
-    //     <Text>My ToyBox</Text>
-    //   </TouchableOpacity>
-    //   <TouchableOpacity onPress={() => navigation.navigate('UserBox')}>
-    //     <Text>My UserBox</Text>
-    //   </TouchableOpacity>
-    //   {/* ... other buttons */}
-    // </View>
-    <List.Section>
-    <List.Subheader>Welcome to Myhood</List.Subheader>
-    <List.Item title="Carousel" onPress={() => navigation.navigate('FrontPage')} left={() => <List.Icon icon="view-carousel" />} />
-    <List.Item title="My ToyBox" onPress={() => navigation.navigate('ToyBox')} left={() => <List.Icon color={MD3Colors.tertiary70} icon="airballoon" />} />
-    <List.Item title="Create Toy" onPress={() => navigation.navigate('Toy')} left={() => <List.Icon color={MD3Colors.tertiary30} icon="toy-brick" />} />
-    <List.Item title="My UserBox" onPress={() => navigation.navigate('UserBox')} left={() => <List.Icon color={MD3Colors.tertiary50} icon="human-handsup" />} />
-    <List.Item title="Create Profile" onPress={() => navigation.navigate('Profile')} left={() => <List.Icon color={MD3Colors.tertiary10} icon="face-man-profile" />} />
-    </List.Section>
+    <View style={styles.container}>
+      {ListItems.map((item, index) => (
+        <ListItem key={index} bottomDivider onPress={() => navigation.navigate(item.navigateTo)}>
+          <Icon name={item.icon} size={20} color="#000" />
+          <ListItem.Content>
+            <ListItem.Title style={styles.centeredText}>{item.title}</ListItem.Title>
+          </ListItem.Content>
+        </ListItem>
+      ))}
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  centeredText: {
+    textAlign: 'center',
+    width: '100%',
+  },
+});

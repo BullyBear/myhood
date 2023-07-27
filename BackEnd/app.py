@@ -1,9 +1,11 @@
-from flask import Flask
+from flask import Flask, request
 from flask_restful import Api, Resource
-from models import User, Toy, UserSchema, ToySchema
 from config import DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 from extensions import db, ma, bcrypt, jwt, cors
+from flask_migrate import Migrate
+from geopy.distance import geodesic
 
+from models import User, Toy, UserSchema, ToySchema
 from API.toy_resources import ToyList, ToyResourceTime
 from API.user_resources import Users, Register, Login
 
@@ -19,21 +21,20 @@ bcrypt.init_app(app)
 jwt.init_app(app)
 cors.init_app(app)
 
+migrate = Migrate(app, db)
+
 api = Api(app)
 
 @app.before_first_request
 def create_tables():
     db.create_all()
 
-# Add the Home class here
 class Home(Resource):
     def get(self):
         return {'message': 'Hello, World!'}
 
-# Register the Home route here
 api.add_resource(Home, '/')
 
-# The rest of your routes
 api.add_resource(Users, '/users')
 api.add_resource(Register, '/register')
 api.add_resource(Login, '/login')

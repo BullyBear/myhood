@@ -3,9 +3,9 @@ import { S3, SES } from 'aws-sdk';
 //const API_URL = 'http://127.0.0.1:5000';
 // const API_URL = 'http://localhost:5000';
 //const API_URL = 'http://192.168.1.142:5000';
-// const API_URL = 'http://192.168.1.142:8000';
 
-const API_URL = 'http://127.0.0.1:8000';
+const API_URL = 'http://192.168.1.141:8000';
+//const API_URL = 'http://127.0.0.1:8000';
 
 
 const awsConfig = {
