@@ -1,58 +1,81 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Text } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { Formik } from 'formik';
+import * as yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
+import { loginUser } from '../slices/userSlice';
 
-import { loginUserRequest, loginUserSuccess, loginUserFailure } from '../slices/userSlice';
-import { loginUser } from '../API/userAPI';
-//import { loginUserFromAPI } from '../API/userAPI';
+const validationSchema = yup.object().shape({
+  email: yup.string().email().required('Email is a required field.'),
+  password: yup.string().required('Password is a required field.'),
+});
 
-const LoginScreen = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
-
+const LoginScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const { loading, error } = useSelector((state) => state.user);
-  const navigation = useNavigation();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const userFromStore = useSelector((state) => state.user.user);
 
-  const handleLogin = async () => {
+  const onSubmit = async (values) => {
+    setError(null);
+    setSuccessMessage(null);
+    setIsLoading(true);
+
     try {
-      dispatch(loginUserRequest()); // Dispatch loginUserRequest action
-      // Dispatch the loginUser action with the login credentials
-      const response = await loginUser({ email, password });
-      dispatch(loginUserSuccess(response.data)); // Dispatch loginUserSuccess action with the response data
-      navigation.navigate('FrontPage');
-    } catch (error) {
-      console.log('Login Error:', error.message); // Log the error message to the console
-      dispatch(loginUserFailure(error.message)); // Dispatch loginUserFailure action with the error message
-      setErrorMsg('Login failed. Please try again.');
+      await dispatch(loginUser(values));
+      setIsLoading(false);
+
+      // Check if user exists in the Redux store
+      if (userFromStore) {
+        navigation.navigate('FrontPage', { name: userFromStore.name });
+      } else {
+        setError('Login failed.');
+      }
+    } catch (err) {
+      setError(err.message || 'Something went wrong. Please try again.');
+      setIsLoading(false);
     }
   };
-  
 
   return (
     <View style={styles.container}>
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.input}
-      />
-      {errorMsg && <Text style={styles.errorText}>{errorMsg}</Text>}
-      {loading ? (
-        <Button title="Loading..." disabled />
-      ) : (
-        <Button title="Login" onPress={handleLogin} />
-      )}
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      <Formik
+        initialValues={{ email: '', password: '' }}
+        onSubmit={onSubmit}
+        validationSchema={validationSchema}
+      >
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+          <View>
+            <Text>Email</Text>
+            <TextInput
+              name="email"
+              onChangeText={handleChange('email')}
+              onBlur={handleBlur('email')}
+              value={values.email}
+              style={styles.input}
+            />
+            {touched.email && errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+            <Text>Password</Text>
+            <TextInput
+              name="password"
+              onChangeText={handleChange('password')}
+              onBlur={handleBlur('password')}
+              value={values.password}
+              secureTextEntry
+              style={styles.input}
+            />
+            {touched.password && errors.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
+            {error && <Text style={styles.errorText}>{error}</Text>}
+            {successMessage && <Text style={styles.successText}>{successMessage}</Text>}
+            <Button title={isLoading ? 'Loading...' : 'Submit'} onPress={handleSubmit} disabled={isLoading} />
+          </View>
+        )}
+      </Formik>
+      <Button title="Forgot Password?" onPress={() => navigation.navigate('ForgotPassword')} />
+      <Button title="Invite User" onPress={() => navigation.navigate('InviteUser')} />
     </View>
   );
 };
@@ -60,21 +83,21 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    alignItems: 'center',
     justifyContent: 'center',
+    padding: 16,
   },
   input: {
-    width: '100%',
     height: 40,
-    borderWidth: 1,
     borderColor: 'gray',
-    marginBottom: 10,
+    borderWidth: 1,
+    marginBottom: 15,
     paddingHorizontal: 10,
   },
   errorText: {
     color: 'red',
-    marginTop: 10,
+  },
+  successText: {
+    color: 'green',
   },
 });
 

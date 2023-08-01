@@ -1,15 +1,32 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Text } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { Formik } from 'formik';
+import * as yup from 'yup';
 
-const RegistrationScreen = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
-  const navigation = useNavigation();
+const validationSchema = yup.object().shape({
+  name: yup.string().required('Name is a required field.'),
+  email: yup.string().email().required('Email is a required field.'),
+  password: yup.string()
+    .required('Password is a required field.')
+    .min(8, 'Password must be at least 8 characters long.')
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$/,
+      'Password must have at least one uppercase letter, one lowercase letter, and one number.'
+    ),
+});
 
-  const handleRegister = async () => {
+
+const RegistrationScreen = ({ navigation }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+
+  const handleRegister = async (values) => {
+    setIsLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+
     // Make a POST request to the server's register route
     try {
       const response = await fetch('http://127.0.0.1:8000/register', {
@@ -17,47 +34,69 @@ const RegistrationScreen = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify(values),
       });
 
       if (response.ok) {
-        // Registration successful, navigate to the Login screen
-        navigation.navigate('Login');
+        // Registration successful
+        setSuccessMessage('Registration successful! You can now login.');
+        setIsLoading(false);
       } else {
-        console.error('Registration failed');
+        setError('Registration failed. Please try again.');
+        setIsLoading(false);
       }
     } catch (error) {
-      console.error('Error occurred while registering:', error);
+      setError('An error occurred. Please try again.');
+      setIsLoading(false);
     }
-  };
-
-  const handleLoginNavigation = () => {
-    navigation.navigate('Login'); // Navigate to the Login screen
   };
 
   return (
     <View style={styles.container}>
-      <TextInput
-        placeholder="Name"
-        value={name}
-        onChangeText={setName}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.input}
-      />
-      <Button title="Register" onPress={handleRegister} />
-      <Button title="Go to Login" onPress={handleLoginNavigation} />
+      <Formik
+        initialValues={{ name: '', email: '', password: '' }}
+        onSubmit={handleRegister}
+        validationSchema={validationSchema}
+      >
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+          <View>
+            <Text>Name</Text>
+            <TextInput
+              name="name"
+              onChangeText={handleChange('name')}
+              onBlur={handleBlur('name')}
+              value={values.name}
+              style={styles.input}
+            />
+            {touched.name && errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+            <Text>Email</Text>
+            <TextInput
+              name="email"
+              onChangeText={handleChange('email')}
+              onBlur={handleBlur('email')}
+              value={values.email}
+              style={styles.input}
+            />
+            {touched.email && errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+            <Text>Password</Text>
+            <TextInput
+              name="password"
+              onChangeText={handleChange('password')}
+              onBlur={handleBlur('password')}
+              value={values.password}
+              secureTextEntry
+              style={styles.input}
+            />
+            {touched.password && errors.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
+            {error && <Text style={styles.errorText}>{error}</Text>}
+            {successMessage && <Text style={styles.successText}>{successMessage}</Text>}
+            <Button title={isLoading ? 'Loading...' : 'Register'} onPress={handleSubmit} disabled={isLoading} />
+            <Button title="Go to Login" onPress={() => navigation.navigate('Login')} />
+          </View>
+        )}
+      </Formik>
     </View>
   );
 };
@@ -65,17 +104,21 @@ const RegistrationScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    alignItems: 'center',
     justifyContent: 'center',
+    padding: 16,
   },
   input: {
-    width: '100%',
     height: 40,
-    borderWidth: 1,
     borderColor: 'gray',
-    marginBottom: 10,
+    borderWidth: 1,
+    marginBottom: 15,
     paddingHorizontal: 10,
+  },
+  errorText: {
+    color: 'red',
+  },
+  successText: {
+    color: 'green',
   },
 });
 

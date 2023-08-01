@@ -1,33 +1,47 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, TextInput, Button, StyleSheet, Text } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { inviteUser } from '../slices/userSlice';
+import { Formik } from 'formik';
+import * as yup from 'yup';
 
 const InviteUserScreen = () => {
-  const [email, setEmail] = useState('');
   const dispatch = useDispatch();
   const { loading, error, message } = useSelector((state) => state.user);
 
-  const handleInviteUser = () => {
-    dispatch(inviteUser(email));
-  };
+  const validationSchema = yup.object().shape({
+    email: yup.string().email().required('Email is a required field.'),
+  });
 
   return (
-    <View style={styles.container}>
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-      />
-      {loading ? (
-        <Button title="Loading..." disabled />
-      ) : (
-        <Button title="Invite User" onPress={handleInviteUser} />
+    <Formik
+      initialValues={{ email: '' }}
+      onSubmit={(values) => {
+        dispatch(inviteUser(values.email));
+      }}
+      validationSchema={validationSchema}
+    >
+      {({ handleChange, handleBlur, handleSubmit, values, errors }) => (
+        <View style={styles.container}>
+          <TextInput
+            name="email"
+            placeholder="Email"
+            onChangeText={handleChange('email')}
+            onBlur={handleBlur('email')}
+            value={values.email}
+            style={styles.input}
+          />
+          {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+          {loading ? (
+            <Button title="Loading..." disabled />
+          ) : (
+            <Button title="Invite User" onPress={handleSubmit} />
+          )}
+          {error && <Text style={styles.errorText}>{error}</Text>}
+          {message && <Text style={styles.messageText}>{message}</Text>}
+        </View>
       )}
-      {error && <Text style={styles.errorText}>{error}</Text>}
-      {message && <Text style={styles.messageText}>{message}</Text>}
-    </View>
+    </Formik>
   );
 };
 

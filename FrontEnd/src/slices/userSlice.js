@@ -114,6 +114,7 @@ export const registerUser = (userData) => async (dispatch) => {
   }
 };
 
+
 export const loginUser = (credentials) => async (dispatch) => {
   dispatch(loginUserRequest());
   try {
@@ -126,6 +127,7 @@ export const loginUser = (credentials) => async (dispatch) => {
     dispatch(loginUserFailure(error.message));
   }
 };
+
 
 
 
