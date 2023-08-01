@@ -15,6 +15,30 @@ const initialState = {
   error: null,
 };
 
+export const updateUser = createAsyncThunk(
+  'user/updateUser',
+  async (userUpdateData, { rejectWithValue }) => {
+    try {
+      const response = await updateUserFromAPI(userUpdateData);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk(
+  'user/resetPassword',
+  async (email, { rejectWithValue }) => {
+    try {
+      const response = await resetPasswordFromAPI(email);
+      return response.data.message;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -58,18 +82,6 @@ const userSlice = createSlice({
     logoutUser: (state) => {
       state.user = null;
     },
-    resetPasswordRequest: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    resetPasswordSuccess: (state, action) => {
-      state.loading = false;
-      state.user = action.payload;
-    },
-    resetPasswordFailure: (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
     inviteUserRequest: (state) => {
       state.loading = true;
       state.error = null;
@@ -83,6 +95,32 @@ const userSlice = createSlice({
       state.error = action.payload;
     },
   },
+  extraReducers: {
+    [updateUser.pending]: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    [updateUser.fulfilled]: (state, action) => {
+      state.loading = false;
+      state.user = action.payload;
+    },
+    [updateUser.rejected]: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    [resetPassword.pending]: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    [resetPassword.fulfilled]: (state, action) => {
+      state.loading = false;
+      state.message = action.payload;
+    },
+    [resetPassword.rejected]: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+  },
 });
 
 export const { 
@@ -92,13 +130,7 @@ export const {
   loginUserRequest, 
   loginUserSuccess, 
   loginUserFailure,
-  updateUserRequest, 
-  updateUserSuccess, 
-  updateUserFailure,
   logoutUser,
-  resetPasswordRequest, 
-  resetPasswordSuccess, 
-  resetPasswordFailure,
   inviteUserRequest,
   inviteUserSuccess,
   inviteUserFailure
@@ -114,7 +146,6 @@ export const registerUser = (userData) => async (dispatch) => {
   }
 };
 
-
 export const loginUser = (credentials) => async (dispatch) => {
   dispatch(loginUserRequest());
   try {
@@ -128,36 +159,9 @@ export const loginUser = (credentials) => async (dispatch) => {
   }
 };
 
-
-
-
 export const logout = () => (dispatch) => {
   dispatch(logoutUser());
 };
-
-export const updateUser = createAsyncThunk(
-  'user/updateUser',
-  async (userUpdateData, { rejectWithValue }) => {
-    try {
-      const response = await updateUserFromAPI(userUpdateData);
-      return response.data;
-    } catch (err) {
-      return rejectWithValue(err.response.data);
-    }
-  }
-);
-
-export const resetPassword = createAsyncThunk(
-  'user/resetPassword',
-  async (email, { rejectWithValue }) => {
-    try {
-      const response = await resetPasswordFromAPI(email);
-      return response.data;
-    } catch (err) {
-      return rejectWithValue(err.response.data);
-    }
-  }
-);
 
 export const inviteUser = (email) => async (dispatch) => {
   dispatch(inviteUserRequest());

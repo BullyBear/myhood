@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TextInput, Button, StyleSheet, Text } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Formik } from 'formik';
@@ -11,13 +11,15 @@ const InviteUserScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { loading, error, user } = useSelector((state) => state.user);
+  const [invitationSent, setInvitationSent] = useState(false);
 
   const validationSchema = yup.object().shape({
     email: yup.string().email().required('Email is a required field.'),
   });
 
-  const handleInviteUser = (email) => {
-    dispatch(inviteUser(email));
+  const handleInviteUser = async (email) => {
+    await dispatch(inviteUser(email));
+    setInvitationSent(true);
   };
 
   useEffect(() => {
@@ -54,7 +56,7 @@ const InviteUserScreen = () => {
             </>
           )}
           {error && <Text style={styles.errorText}>{error}</Text>}
-          {user && <Text style={styles.messageText}>Invitation sent successfully!</Text>}
+          {invitationSent && <Text style={styles.messageText}>Invitation sent successfully!</Text>}
         </View>
       )}
     </Formik>

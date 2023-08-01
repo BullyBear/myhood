@@ -69,3 +69,19 @@ class Invite(Resource):
         # TODO: Use a third-party service to send an invitation email to the provided email address
 
         return {'message': 'Invite sent successfully'}, 201
+    
+
+
+class Forgot(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('email', type=str, required=True)  # Only expect 'email'
+        args = parser.parse_args()
+
+        email = args['email']
+
+        # TODO: Implement logic for sending password reset email to the provided email address.
+        # This usually involves creating a unique, time-limited token and including it in the reset link.
+        # The user would then use this link to reset their password.
+
+        return {'message': 'Password reset email sent successfully'}, 200
