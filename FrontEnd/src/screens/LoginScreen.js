@@ -4,7 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 
 import { loginUserRequest, loginUserSuccess, loginUserFailure } from '../slices/userSlice';
-import { loginUserFromAPI } from '../API/userAPI';
+import { loginUser } from '../API/userAPI';
+//import { loginUserFromAPI } from '../API/userAPI';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -19,14 +20,16 @@ const LoginScreen = () => {
     try {
       dispatch(loginUserRequest()); // Dispatch loginUserRequest action
       // Dispatch the loginUser action with the login credentials
-      const response = await loginUserFromAPI({ email, password });
+      const response = await loginUser({ email, password });
       dispatch(loginUserSuccess(response.data)); // Dispatch loginUserSuccess action with the response data
       navigation.navigate('FrontPage');
     } catch (error) {
+      console.log('Login Error:', error.message); // Log the error message to the console
       dispatch(loginUserFailure(error.message)); // Dispatch loginUserFailure action with the error message
       setErrorMsg('Login failed. Please try again.');
     }
   };
+  
 
   return (
     <View style={styles.container}>

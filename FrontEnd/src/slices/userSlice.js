@@ -10,17 +10,14 @@ import {
 } from '../API/userAPI';
 
 const initialState = {
-  usersByIds: [], // existing users data
-  userInteractions: {}, // new property to store user interactions with toys
+  user: null,
+  loading: false,
+  error: null,
 };
 
 const userSlice = createSlice({
   name: 'user',
-  initialState: {
-    user: null,
-    loading: false,
-    error: null,
-  },
+  initialState,
   reducers: {
     registerUserRequest: (state) => {
       state.loading = true;
@@ -40,7 +37,7 @@ const userSlice = createSlice({
     },
     loginUserSuccess: (state, action) => {
       state.loading = false;
-      state.user = action.payload;
+      state.user = action.payload.user;
     },
     loginUserFailure: (state, action) => {
       state.loading = false;
@@ -85,15 +82,6 @@ const userSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    // Action to handle user swipe right on a toy
-    addUserInteraction: (state, action) => {
-      const { toyId, userId } = action.payload;
-      const userInteractions = state.userInteractions[toyId] || [];
-      if (!userInteractions.includes(userId)) {
-        userInteractions.push(userId);
-        state.userInteractions[toyId] = userInteractions;
-      }
-    },
   },
 });
 
@@ -120,18 +108,19 @@ export const registerUser = (userData) => async (dispatch) => {
   dispatch(registerUserRequest());
   try {
     const response = await registerUserFromAPI(userData);
-    console.log(response); // Log the full response to see what it looks like
     dispatch(registerUserSuccess(response.data));
   } catch (error) {
     dispatch(registerUserFailure(error.message));
   }
 };
 
-
 export const loginUser = (credentials) => async (dispatch) => {
   dispatch(loginUserRequest());
   try {
     const response = await loginUserFromAPI(credentials);
+    if (response.status !== 200) {
+      throw new Error('Login failed.');
+    }
     dispatch(loginUserSuccess(response.data));
   } catch (error) {
     dispatch(loginUserFailure(error.message));
@@ -167,8 +156,6 @@ export const resetPassword = createAsyncThunk(
     }
   }
 );
-
-
 
 export const inviteUser = (email) => async (dispatch) => {
   dispatch(inviteUserRequest());

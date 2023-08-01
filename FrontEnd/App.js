@@ -12,6 +12,7 @@ import { PaperProvider } from 'react-native-paper';
 
 import store from './src/store/store';
 
+import LandingPage from './src/screens/LandingPage';
 import AuthNavigator from './src/components/AuthNavigator';
 import FrontPage from './src/screens/FrontPage';
 import NavigationPage from './src/screens/NavigationPage';
@@ -32,7 +33,8 @@ const App = () => {
       <PaperProvider>
       <NavigationContainer>
         <Stack.Navigator>
-        {/*<Stack.Screen name="Auth" component={AuthNavigator} />*/}
+        <Stack.Screen name="Landing" component={LandingPage} /> 
+          <Stack.Screen name="Auth" component={AuthNavigator} />
           <Stack.Screen name="FrontPage" component={FrontPage} />
           <Stack.Screen name="NavigationPage" component={NavigationPage} />
           <Stack.Screen name="Toy" component={Toy} />

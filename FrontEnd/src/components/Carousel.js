@@ -53,23 +53,23 @@ function Carousel() {
     <View style={styles.carouselContainer}>
       <PanGestureHandler
         onGestureEvent={onGestureEvent}
-        onHandlerStateChange={({ nativeEvent }) => {
-          if (nativeEvent.oldState === State.ACTIVE) {
-            if (nativeEvent.translationX >= 100) {
-              onSwipeRight();
-              translateX.setValue(0);
-            } else if (nativeEvent.translationX <= -100) {
-              onSwipeLeft();
-              translateX.setValue(0);
-            } else {
-              Animated.spring(translateX, {
-                toValue: 0,
-                useNativeDriver: true,
-              }).start();
-            }
-          }
-        }}
-        
+    onHandlerStateChange={({ nativeEvent }) => {
+      if (nativeEvent.oldState === State.ACTIVE) {
+        if (nativeEvent.translationX >= 100) {
+          onSwipeRight();
+          translateX.setValue(0);
+        } else if (nativeEvent.translationX <= -100) {
+          onSwipeLeft();
+          translateX.setValue(0);
+        } else {
+          Animated.spring(translateX, {
+            toValue: 0,
+            useNativeDriver: true,
+          }).start();
+        }
+      }
+    }}
+
         
       >
         <Animated.View
