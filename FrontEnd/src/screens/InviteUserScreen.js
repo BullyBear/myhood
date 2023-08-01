@@ -1,23 +1,36 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, TextInput, Button, StyleSheet, Text } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { inviteUser } from '../slices/userSlice';
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import { useNavigation } from '@react-navigation/native';
+
+import { inviteUser } from '../slices/userSlice';
 
 const InviteUserScreen = () => {
+  const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { loading, error, message } = useSelector((state) => state.user);
+  const { loading, error, user } = useSelector((state) => state.user);
 
   const validationSchema = yup.object().shape({
     email: yup.string().email().required('Email is a required field.'),
   });
 
+  const handleInviteUser = (email) => {
+    dispatch(inviteUser(email));
+  };
+
+  useEffect(() => {
+    if (user && !loading) {
+      navigation.navigate('Login');
+    }
+  }, [user, loading]);
+
   return (
     <Formik
       initialValues={{ email: '' }}
       onSubmit={(values) => {
-        dispatch(inviteUser(values.email));
+        handleInviteUser(values.email);
       }}
       validationSchema={validationSchema}
     >
@@ -35,10 +48,13 @@ const InviteUserScreen = () => {
           {loading ? (
             <Button title="Loading..." disabled />
           ) : (
-            <Button title="Invite User" onPress={handleSubmit} />
+            <>
+              <Button title="Invite User" onPress={handleSubmit} />
+              <Button title="Go Back" onPress={() => navigation.navigate('Login')} />
+            </>
           )}
           {error && <Text style={styles.errorText}>{error}</Text>}
-          {message && <Text style={styles.messageText}>{message}</Text>}
+          {user && <Text style={styles.messageText}>Invitation sent successfully!</Text>}
         </View>
       )}
     </Formik>

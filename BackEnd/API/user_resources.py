@@ -56,3 +56,16 @@ class Login(Resource):
             }, 200
         else:
             return {'message': 'Invalid credentials'}, 401
+
+
+class Invite(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('email', type=str, required=True)  # Only expect 'email'
+        args = parser.parse_args()
+
+        email = args['email']
+
+        # TODO: Use a third-party service to send an invitation email to the provided email address
+
+        return {'message': 'Invite sent successfully'}, 201
