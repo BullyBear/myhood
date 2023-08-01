@@ -5,32 +5,29 @@ import { Button } from '@rneui/base';
 import Carousel from '../components/Carousel';
 import { fetchToysFromAPI } from '../slices/toySlice';
 import { logoutUser } from '../slices/userSlice';
-import jwt_decode from 'jwt-decode';  // <-- Add this line
-
+import jwt_decode from 'jwt-decode';
 
 const FrontPage = ({ navigation }) => {
   const dispatch = useDispatch();
   const { toys, loading, error } = useSelector((state) => state.toy);
   const { user } = useSelector((state) => state.user);
   const state = useSelector((state) => state);
-  const [userName, setUserName] = useState(null); // <-- Add this line
-
+  const [userName, setUserName] = useState(null);
 
   useEffect(() => {
     dispatch(fetchToysFromAPI());
   }, [dispatch]);
 
+  // Update this useEffect hook
   useEffect(() => {
-    if(user?.access_token) {
-      const decoded = jwt_decode(user.access_token);
-      setUserName(decoded.name);  // Assume `name` is a field in your JWT payload
-      console.log(decoded);
+    if(user?.name) {
+      setUserName(user.name);
+      console.log(user.name);
     }
   }, [user]);
 
-
   useEffect(() => {
-    console.log(state); // This will log the user object to the console
+    console.log(state);
   }, [state]);
 
   const handleLogout = () => {
