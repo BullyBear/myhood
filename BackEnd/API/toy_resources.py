@@ -1,5 +1,5 @@
-from flask import request
-from flask_restful import Resource
+from flask import request, jsonify, Flask
+from flask_restful import Resource, reqparse
 from extensions import db
 from models import Toy, User, ToySchema, UserSchema
 import boto3
@@ -7,36 +7,51 @@ from botocore.exceptions import BotoCoreError, NoCredentialsError
 import uuid
 from config import bucketName, region
 from geopy.distance import geodesic
+import requests
+from PIL import Image
+from io import BytesIO
+
+# Helper function to get image file-like object from URL
+def get_image_from_url(image_url):
+    response = requests.get(image_url)
+    img_data = BytesIO(response.content)
+    return img_data
 
 toy_schema = ToySchema()
 toys_schema = ToySchema(many=True)
 
 class ToyList(Resource):
     def get(self):
-        toys = Toy.query.all()
-        return toys_schema.dump(toys)
+        # Get all toys from the database
+        all_toys = Toy.query.all()
+        # Return all toys in JSON format
+        return jsonify(toys_schema.dump(all_toys))
 
     def post(self):
-        if 'user_id' not in request.json:
-            return {"message": "No user_id provided"}, 400
+        data = request.get_json()
+        if 'user_id' not in data or 'image_url' not in data:
+            return {"message": "User ID and image must be provided in the request body"}, 400
 
-        user_id = request.json['user_id']
-        user = User.query.get(user_id)
-        if not user:
-            return {"message": "User not found"}, 404
+        user_id = data['user_id']
+        image_url = data['image_url']
 
-        image_file = request.files['image']
-
-        # Generate a unique file name
+        # Generate a unique filename and set the S3 destination file key
         unique_filename = f'{uuid.uuid4().hex}.jpg'
-
-        # Set the S3 destination file key
         destination_file_key = f'images/{unique_filename}'
+
+        # use the helper function to get a file-like object
+        image = get_image_from_url(image_url)
+
+        # Open the image with PIL (Python Imaging Library) for further processing
+        image = Image.open(image)
 
         # Upload the image to AWS S3
         s3 = boto3.client('s3')
         try:
-            s3.upload_fileobj(image_file, bucketName, destination_file_key)
+            with BytesIO() as output:
+                image.save(output, format="JPEG")
+                output.seek(0)
+                s3.upload_fileobj(output, bucketName, destination_file_key)
         except (BotoCoreError, NoCredentialsError) as e:
             print(f"Error uploading image to S3: {str(e)}")
             return {'message': 'Error uploading image'}, 500
@@ -44,9 +59,9 @@ class ToyList(Resource):
         # Get the image URL
         image_url = f"https://{bucketName}.s3.amazonaws.com/{destination_file_key}"
 
-        # Get the user's latitude and longitude
-        user_latitude = user.user_latitude
-        user_longitude = user.user_longitude
+        # Get the user's latitude and longitude from the request
+        user_latitude = float(request.args.get('user_latitude'))
+        user_longitude = float(request.args.get('user_longitude'))
 
         # Create a new toy instance
         new_toy = Toy(image_url=image_url, user_id=user_id, toy_latitude=user_latitude, toy_longitude=user_longitude)
@@ -55,7 +70,10 @@ class ToyList(Resource):
         db.session.add(new_toy)
         db.session.commit()
 
-        return toy_schema.dump(new_toy), 201
+        return jsonify(toy_schema.dump(new_toy)), 201
+
+
+
 
 class ToyResourceTime(Resource):
     def get(self, toy_id):
@@ -79,15 +97,28 @@ class ToyResourceTime(Resource):
         db.session.delete(toy)
         db.session.commit()
         return '', 204
+    
+
+
 
 class ToysInRadius(Resource):
     def get(self):
-        # Assuming you have a user's location data as latitude and longitude in the request
         user_latitude = float(request.args.get('user_latitude'))
         user_longitude = float(request.args.get('user_longitude'))
+        user_location = (user_latitude, user_longitude)
+        
+        max_distance = 10  # miles
+        toys_within_radius = []
 
-        # Filter toys based on geolocation within a certain radius (e.g., 10 miles)
-        max_distance = 10
-        toys_within_radius = [toy for toy in Toy.query.all() if geodesic((user_latitude, user_longitude), (toy.toy_latitude, toy.toy_longitude)).miles <= max_distance]
+        # Get all toys from the database
+        all_toys = Toy.query.all()
 
-        return toys_schema.dump(toys_within_radius)
+        for toy in all_toys:
+            toy_location = (toy.toy_latitude, toy.toy_longitude)
+            distance = geodesic(user_location, toy_location).miles
+            if distance <= max_distance:
+                toys_within_radius.append(toy)
+        
+        return jsonify(toys_schema.dump(toys_within_radius))
+
+

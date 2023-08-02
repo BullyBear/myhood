@@ -1,38 +1,43 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getAllToys, getToysWithinRadius } from '../API/toyAPI';
+import { getToysWithinRadius, getAllToys } from '../API/toyAPI';
 
-export const fetchToysWithinRadiusFromAPI = createAsyncThunk(
-  'toys/fetchToysWithinRadius',
-  async (latitude, longitude) => {
-    const data = await getToysWithinRadius(latitude, longitude);
-    return data;
+// Fetch toys from the API
+export const fetchToysFromAPI = createAsyncThunk('toy/fetchToys', async () => {
+  try {
+    const toys = await getAllToys();
+    return toys;
+  } catch (error) {
+    console.error('Error fetching toys:', error.message);
+    throw error;
   }
-);
+});
 
-export const fetchToysFromAPI = createAsyncThunk(
-  'toys/fetchToys',
-  async () => {
-    const data = await getAllToys();
-    return data;
+// Fetch toys within a certain radius from the API
+export const fetchToysWithinRadiusFromAPI = createAsyncThunk(
+  'toy/fetchToysWithinRadius',
+  async ({ latitude, longitude }) => {
+    try {
+      const toys = await getToysWithinRadius(latitude, longitude);
+      return toys;
+    } catch (error) {
+      console.error('Error fetching toys within radius:', error.message);
+      throw error;
+    }
   }
 );
 
 const toySlice = createSlice({
-  name: 'toys',
-  initialState: {
-    toys: [],
-    toyBox: [],
-    loading: false,
-    error: null,
-  },
+  name: 'toy',
+  initialState: { toys: [], loading: false, error: null },
   reducers: {
     addToyToBox: (state, action) => {
       const toy = action.payload;
       state.toyBox.push(toy);
+      state.toys = state.toys.filter((item) => item.id !== toy.id);
     },
     removeToyFromCarousel: (state, action) => {
-      const toy = action.payload;
-      state.toys = state.toys.filter(t => t.id !== toy.id);
+      const toyToRemove = action.payload;
+      state.toys = state.toys.filter((item) => item.id !== toyToRemove.id);
     },
   },
   extraReducers: (builder) => {
@@ -41,11 +46,23 @@ const toySlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchToysFromAPI.fulfilled, (state, action) => {
-        console.log(action.payload);
-        state.loading = false;
         state.toys = action.payload;
+        state.loading = false;
+        state.error = null;
       })
       .addCase(fetchToysFromAPI.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchToysWithinRadiusFromAPI.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchToysWithinRadiusFromAPI.fulfilled, (state, action) => {
+        state.toys = action.payload;
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(fetchToysWithinRadiusFromAPI.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });
