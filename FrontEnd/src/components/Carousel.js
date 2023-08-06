@@ -16,12 +16,23 @@ function Carousel() {
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const translateX = new Animated.Value(0);
 
+
+  // useEffect(() => {
+  //   if (!toys.length) {
+  //     dispatch(fetchToysFromAPI());
+  //   }
+  //   fetchToysWithinRadius();
+  // }, [dispatch, toys]);
+
+
   useEffect(() => {
-    if (!toys.length) {
+    if (toys.length === 0) {
       dispatch(fetchToysFromAPI());
+      fetchToysWithinRadius();
     }
-    fetchToysWithinRadius();
-  }, [dispatch, toys]);
+}, [dispatch, toys]);
+
+  
 
   const fetchToysWithinRadius = () => {
     if (user && user.latitude && user.longitude) {

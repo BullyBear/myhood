@@ -12,7 +12,8 @@ class User(db.Model):
     user_latitude = db.Column(db.Float, nullable=True)
     user_longitude = db.Column(db.Float, nullable=True)
 
-    toys = db.relationship('Toy', backref='user', lazy=True)
+    #toys = db.relationship('Toy', backref='user', lazy=True)
+    toys = db.relationship('Toy', backref='user', lazy='dynamic')
 
 class Toy(db.Model):
     __tablename__ = 'toys'
@@ -23,6 +24,8 @@ class Toy(db.Model):
     toy_longitude = db.Column(db.Float, nullable=True)
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
+    toys = ma.Nested('ToySchema', many=True)
+
     class Meta:
         model = User
         fields = ('id', 'name', 'email', 'password', 'profile_picture', 'bio', 'user_latitude', 'user_longitude', 'toys')

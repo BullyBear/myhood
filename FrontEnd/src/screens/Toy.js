@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import * as ImagePicker from 'expo-image-picker';
 import { v4 as uuidv4 } from 'uuid';
+import * as Location from 'expo-location'; 
+
 import { S3Client, BUCKET_NAME, region } from '../../config.js';
 import { createToy } from '../API/toyAPI';
 
@@ -14,6 +16,16 @@ export default function Toy() {
     if (!image || !user || !user.id) {
       return;
     }
+
+    // Request the user's location
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      console.log('Permission to access location was denied');
+      return;
+    }
+  
+    let location = await Location.getCurrentPositionAsync({});
+    const { latitude, longitude } = location.coords;
 
     const uniqueFileName = `${uuidv4()}.jpg`;
     const destinationFileKey = `images/${uniqueFileName}`;
@@ -39,17 +51,19 @@ export default function Toy() {
       const data = await s3UploadPromise;
       const imageUrl = `https://${BUCKET_NAME}.s3.amazonaws.com/${destinationFileKey}`;
 
-      const formData = new FormData();
-      formData.append('image', {
-        uri: imageUrl,
-        name: 'image.jpg',
-        type: 'image/jpeg',
-      });
-      formData.append('user_id', user.id);
+      const toyData = {
+        image_url: imageUrl,
+        user_id: user.id,
+        user_latitude: latitude,
+        user_longitude: longitude,
+      };
 
       const response = await fetch('http://127.0.0.1:8000/toys', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(toyData),
       });
 
       if (response.ok) {
