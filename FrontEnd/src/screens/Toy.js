@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import * as ImagePicker from 'expo-image-picker';
+import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
-import * as Location from 'expo-location'; 
+import * as Location from 'expo-location';
+import { useNavigation } from '@react-navigation/native';
+
 
 import { S3Client, BUCKET_NAME, region } from '../../config.js';
 import { createToy } from '../API/toyAPI';
@@ -11,6 +14,8 @@ import { createToy } from '../API/toyAPI';
 export default function Toy() {
   const [image, setImage] = useState(null);
   const { user } = useSelector((state) => state.user);
+  const navigation = useNavigation();
+
 
   console.log("[Toy Component] - Rendered with", { image, user });
 
@@ -42,6 +47,8 @@ export default function Toy() {
       Body: image,
       ContentType: 'image/jpeg',
     };
+
+    console.log("[onSubmit] - About to POST toy data with image URI:", image);
     
     const s3UploadPromise = new Promise((resolve, reject) => {
       S3Client.putObject(uploadParams, function (err, data) {
@@ -82,6 +89,7 @@ export default function Toy() {
       if (response.ok) {
         console.log("[onSubmit] - Toy creation success");
         setImage(null);
+        navigation.navigate('NavigationPage');
       } else {
         console.error('[onSubmit] - Failed to create toy:', response.status);
       }
@@ -107,6 +115,7 @@ export default function Toy() {
 
     if (!result.cancelled) {
       console.log("[pickImage] - Image selected. URI:", result.uri);
+      console.log("[pickImage] - Image type:", result.type, ", Image width:", result.width, ", Image height:", result.height);
       setImage(result.uri);
     }
   };

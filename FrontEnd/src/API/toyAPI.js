@@ -45,6 +45,7 @@ export const getToyById = async (toyId) => {
   }
 };
 
+
 export async function createToy({ image_url, user_id }) {
   console.log("[createToy] - Called with", { image_url, user_id });
   const data = new FormData();
@@ -54,19 +55,26 @@ export async function createToy({ image_url, user_id }) {
     type: 'image/jpeg'
   });
   data.append('user_id', user_id);
-  const response = await fetch(`${API_URL}/toys`, {
-    method: 'POST',
-    body: data,
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-  console.log("[createToy] - Response:", await response.json());
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+  try {
+    const response = await fetch(`${API_URL}/toys`, {
+      method: 'POST',
+      body: data,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    console.log("[createToy] - Response:", await response.json());
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating toy:', error.message);
+    throw error;
   }
-  return await response.json();
 }
+
+
 
 export const updateToy = async (toyId, toyData) => {
   console.log("[updateToy] - Called with", { toyId, toyData });

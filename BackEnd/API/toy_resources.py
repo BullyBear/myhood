@@ -18,14 +18,24 @@ toys_schema = ToySchema(many=True)
 
 # Helper function to get image file-like object from URL
 def get_image_from_url(image_url):
-    response = requests.get(image_url)
-    img_data = BytesIO(response.content)
-    return img_data
+    try:
+        response = requests.get(image_url)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        img_data = BytesIO(response.content)
+        # Check if the content type is an image
+        if 'image' not in response.headers.get('Content-Type', ''):
+            raise ValueError("URL content is not an image")
+        return img_data
+    except Exception as e:
+        print(f"Error fetching image from URL: {str(e)}")
+        return None
+
 
 
 class ToyList(Resource):
 
     def get(self):
+        print("[ToyList GET] - Fetching all toys.")
         toys = Toy.query.all()
         # Serialize the toys
         toy_schema = ToySchema(many=True)
@@ -55,29 +65,36 @@ class ToyList(Resource):
         print(f"[ToyList POST] - Received data: user_id={user_id}, image_url={image_url}, user_latitude={user_latitude}, user_longitude={user_longitude}")
         
         # Generate a unique filename and set the S3 destination file key
-        unique_filename = f'{uuid.uuid4().hex}.jpg'
-        destination_file_key = f'images/{unique_filename}'
+        # unique_filename = f'{uuid.uuid4().hex}.jpg'
+        # destination_file_key = f'images/{unique_filename}'
 
         # use the helper function to get a file-like object
-        image = get_image_from_url(image_url)
+        # image = get_image_from_url(image_url)
 
-        # Open the image with PIL (Python Imaging Library) for further processing
-        image = Image.open(image)
+        # print(f"Type of image object: {type(image)}")
 
-        # Upload the image to AWS S3
-        s3 = boto3.client('s3')
-        try:
-            with BytesIO() as output:
-                image.save(output, format="JPEG")
-                output.seek(0)
-                s3.upload_fileobj(output, bucketName, destination_file_key)
-            print("[ToyList POST] - Image uploaded to S3 successfully.")
-        except (BotoCoreError, NoCredentialsError) as e:
-            print(f"[ToyList POST] - Error uploading image to S3: {str(e)}")
-            return {'message': 'Error uploading image'}, 500
+        # # Open the image with PIL (Python Imaging Library) for further processing
+        # try:
+        #     # Open the image with PIL (Python Imaging Library) for further processing
+        #     image = Image.open(image)
+        # except Exception as e:
+        #     print(f"Error opening image with PIL: {str(e)}")
+        #     return {"message": "Failed to process image."}, 500
 
-        # Get the image URL
-        image_url = f"https://{bucketName}.s3.amazonaws.com/{destination_file_key}"
+        # # Upload the image to AWS S3
+        # s3 = boto3.client('s3')
+        # try:
+        #     with BytesIO() as output:
+        #         image.save(output, format="JPEG")
+        #         output.seek(0)
+        #         s3.upload_fileobj(output, bucketName, destination_file_key)
+        #     print("[ToyList POST] - Image uploaded to S3 successfully.")
+        # except (BotoCoreError, NoCredentialsError) as e:
+        #     print(f"[ToyList POST] - Error uploading image to S3: {str(e)}")
+        #     return {'message': 'Error uploading image'}, 500
+
+        # # Get the image URL
+        # image_url = f"https://{bucketName}.s3.amazonaws.com/{destination_file_key}"
 
         new_toy = Toy(image_url=image_url, user_id=user_id, toy_latitude=user_latitude, toy_longitude=user_longitude)
 
