@@ -12,8 +12,12 @@ export default function Toy() {
   const [image, setImage] = useState(null);
   const { user } = useSelector((state) => state.user);
 
+  console.log("[Toy Component] - Rendered with", { image, user });
+
   const onSubmit = async () => {
+    console.log("[onSubmit] - Initiated");
     if (!image || !user || !user.id) {
+      console.log("[onSubmit] - Missing data. Exiting...");
       return;
     }
 
@@ -26,6 +30,8 @@ export default function Toy() {
   
     let location = await Location.getCurrentPositionAsync({});
     const { latitude, longitude } = location.coords;
+
+    console.log("[onSubmit] - Got user location:", { latitude, longitude });
 
     const uniqueFileName = `${uuidv4()}.jpg`;
     const destinationFileKey = `images/${uniqueFileName}`;
@@ -51,6 +57,8 @@ export default function Toy() {
       const data = await s3UploadPromise;
       const imageUrl = `https://${BUCKET_NAME}.s3.amazonaws.com/${destinationFileKey}`;
 
+      console.log("[onSubmit] - Image uploaded. Image URL:", imageUrl);
+
       const toyData = {
         image_url: imageUrl,
         user_id: user.id,
@@ -58,7 +66,10 @@ export default function Toy() {
         user_longitude: longitude,
       };
 
-      const response = await fetch('http://127.0.0.1:8000/toys', {
+      console.log("[onSubmit] - About to POST toy data:", toyData);
+
+      //const response = await fetch('http://127.0.0.1:8000/toys', {
+      const response = await fetch('http://192.168.1.146:8000/toys', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -66,19 +77,21 @@ export default function Toy() {
         body: JSON.stringify(toyData),
       });
 
+      console.log("[onSubmit] - Received response from server:", response);
+
       if (response.ok) {
-        // Toy successfully created, do something
+        console.log("[onSubmit] - Toy creation success");
         setImage(null);
       } else {
-        // Handle error if needed
-        console.error('Failed to create toy:', response.status);
+        console.error('[onSubmit] - Failed to create toy:', response.status);
       }
-    } catch (error) {
-      console.error('Error creating toy:', error);
-    }
+      } catch (error) {
+        console.error('[onSubmit] - Error creating toy:', error);
+      }
   };
 
   const pickImage = async () => {
+    console.log("[pickImage] - Initiated");
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       console.log('Permission denied');
@@ -93,6 +106,7 @@ export default function Toy() {
     });
 
     if (!result.cancelled) {
+      console.log("[pickImage] - Image selected. URI:", result.uri);
       setImage(result.uri);
     }
   };

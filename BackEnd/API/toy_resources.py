@@ -24,14 +24,7 @@ def get_image_from_url(image_url):
 
 
 class ToyList(Resource):
-    # def get(self):
-    #     # Get all toys from the database
-    #     all_toys = Toy.query.all()
-    #     serialized_toys = toys_schema.dump(all_toys)
-    #     # Return the JSON data from the serialized_toys
-    #     #return jsonify(serialized_toys)
-    #     #return jsonify(toys_schema.dump(all_toys))
-    #     return serialized_toys
+
     def get(self):
         toys = Toy.query.all()
         # Serialize the toys
@@ -39,54 +32,12 @@ class ToyList(Resource):
         result = toy_schema.dump(toys)
         return {"toys": result}, 200
 
-    # def post(self):
-    #     data = request.get_json()
-    #     if 'user_id' not in data or 'image_url' not in data:
-    #         return {"message": "User ID and image must be provided in the request body"}, 400
-
-    #     user_id = data['user_id']
-    #     image_url = data['image_url']
-
-    #     # Generate a unique filename and set the S3 destination file key
-    #     unique_filename = f'{uuid.uuid4().hex}.jpg'
-    #     destination_file_key = f'images/{unique_filename}'
-
-    #     # use the helper function to get a file-like object
-    #     image = get_image_from_url(image_url)
-
-    #     # Open the image with PIL (Python Imaging Library) for further processing
-    #     image = Image.open(image)
-
-    #     # Upload the image to AWS S3
-    #     s3 = boto3.client('s3')
-    #     try:
-    #         with BytesIO() as output:
-    #             image.save(output, format="JPEG")
-    #             output.seek(0)
-    #             s3.upload_fileobj(output, bucketName, destination_file_key)
-    #     except (BotoCoreError, NoCredentialsError) as e:
-    #         print(f"Error uploading image to S3: {str(e)}")
-    #         return {'message': 'Error uploading image'}, 500
-
-    #     # Get the image URL
-    #     image_url = f"https://{bucketName}.s3.amazonaws.com/{destination_file_key}"
-
-    #     # Get the user's latitude and longitude from the request
-    #     user_latitude = float(request.args.get('user_latitude'))
-    #     user_longitude = float(request.args.get('user_longitude'))
-
-    #     # Create a new toy instance
-    #     new_toy = Toy(image_url=image_url, user_id=user_id, toy_latitude=user_latitude, toy_longitude=user_longitude)
-
-    #     # Save the new toy to the database
-    #     db.session.add(new_toy)
-    #     db.session.commit()
-
-    #     return jsonify(toy_schema.dump(new_toy)), 201
-
 
 
     def post(self):
+
+        print("[ToyList POST] - Request received.")
+
         user_id = request.json.get('user_id')
         if not user_id:
             return {"message": "User ID must be provided in the request body"}, 400
@@ -100,6 +51,8 @@ class ToyList(Resource):
 
         if user_latitude is None or user_longitude is None:
             return {"message": "User latitude and longitude must be provided in the request body"}, 400
+        
+        print(f"[ToyList POST] - Received data: user_id={user_id}, image_url={image_url}, user_latitude={user_latitude}, user_longitude={user_longitude}")
         
         # Generate a unique filename and set the S3 destination file key
         unique_filename = f'{uuid.uuid4().hex}.jpg'
@@ -118,8 +71,9 @@ class ToyList(Resource):
                 image.save(output, format="JPEG")
                 output.seek(0)
                 s3.upload_fileobj(output, bucketName, destination_file_key)
+            print("[ToyList POST] - Image uploaded to S3 successfully.")
         except (BotoCoreError, NoCredentialsError) as e:
-            print(f"Error uploading image to S3: {str(e)}")
+            print(f"[ToyList POST] - Error uploading image to S3: {str(e)}")
             return {'message': 'Error uploading image'}, 500
 
         # Get the image URL
@@ -129,6 +83,8 @@ class ToyList(Resource):
 
         db.session.add(new_toy)
         db.session.commit()
+        
+        print("[ToyList POST] - Toy added to the database.")
 
         serialized_toy = toy_schema.dump(new_toy)
         #return jsonify(serialized_toy), 201
