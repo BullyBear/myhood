@@ -27,9 +27,10 @@ const RegistrationScreen = ({ navigation }) => {
     setError(null);
     setSuccessMessage(null);
 
-    // Make a POST request to the server's register route
+    // Make a POST request to the server's register route  
     try {
-      const response = await fetch('http://127.0.0.1:8000/register', {
+      //const response = await fetch('http://127.0.0.1:8000/register', {  
+      const response = await fetch('http://192.168.1.146:8000/register', {  
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

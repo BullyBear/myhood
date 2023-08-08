@@ -46,7 +46,9 @@ const FrontPage = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.carouselContainer}>
+
         <Carousel />
+
       </View>
       <Text style={styles.userNameText}>Hello, {userName ? userName : 'No User'}</Text> 
       <View style={styles.buttonContainer}>

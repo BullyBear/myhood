@@ -46,33 +46,33 @@ export const getToyById = async (toyId) => {
 };
 
 
-export async function createToy({ image_url, user_id }) {
-  console.log("[createToy] - Called with", { image_url, user_id });
-  const data = new FormData();
-  data.append('image', {
-    uri: image_url,
-    name: 'image.jpg',
-    type: 'image/jpeg'
-  });
-  data.append('user_id', user_id);
+export async function createToy(toyData) {
+  console.log("[createToy] - Called with", toyData);
+
   try {
     const response = await fetch(`${API_URL}/toys`, {
       method: 'POST',
-      body: data,
+      body: JSON.stringify(toyData),
       headers: {
-        'Content-Type': 'multipart/form-data',
+        'Content-Type': 'application/json',
       },
     });
-    console.log("[createToy] - Response:", await response.json());
+    
+    const responseData = await response.json();
+    console.log("[createToy] - Response:", responseData);
+    
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return await response.json();
+    
+    return responseData;
   } catch (error) {
     console.error('Error creating toy:', error.message);
     throw error;
   }
 }
+
+
 
 
 
