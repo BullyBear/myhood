@@ -22,11 +22,12 @@ function Carousel() {
   // const toyState = useSelector((state) => state.toy);
   // const { toys, loading, error } = toyState;
 
-  //const { toys, loading, error } = useSelector((state) => state.toy);
-  const { toys, loading, error } = useSelector((state) => state.toy.toys);
+  const { toys, loading, error } = useSelector((state) => state.toy);
+  //const { toys, loading, error } = useSelector((state) => state.toy.toys);
 
 
   const { user } = useSelector((state) => state.user);
+  //const { user } = useSelector((state) => state.user.users);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loaded, setLoaded] = useState(false);
@@ -36,22 +37,21 @@ function Carousel() {
   console.log('useEffect triggered');
 
   console.log('Entire Toys Array:', toys);
-  console.log('Current Toy at Index:', toys[currentIndex]);
-  console.log('Current Toy Image URL:', toys[currentIndex]?.image_url);
+  console.log('Current Toy at Index:', [currentIndex]);
+  console.log('Current Toy Image URL:', toys.toys[currentIndex]?.image_url);
 
 
   useEffect(() => {
-      if (toys.length === 0) {
-        dispatch(fetchToysFromAPI());
-      }
-      
-      if (user && user.latitude && user.longitude) {
-        console.log('fetchToysWithinRadiusFromAPI', fetchToysWithinRadiusFromAPI);
-        dispatch(fetchToysWithinRadiusFromAPI({ latitude: user.latitude, longitude: user.longitude }));
-      }
-
-      
-  }, [user.latitude, user.longitude]);
+    if (toys.length === 0) {
+      dispatch(fetchToysFromAPI());
+    }
+        
+    if (user && user.latitude && user.longitude) {
+      console.log('fetchToysWithinRadiusFromAPI', fetchToysWithinRadiusFromAPI);
+      dispatch(fetchToysWithinRadiusFromAPI({ latitude: user.latitude, longitude: user.longitude }));
+    }
+  }, [user]);
+  
   
   useEffect(() => {
       if (toys.length > 0) {
@@ -128,7 +128,7 @@ function Carousel() {
           
       
           <Image
-            source={{ uri: toys[currentIndex]?.image_url || 'https://deplorablesnowflake.com/static/american.jpg' }}
+            source={{ uri: toys.toys[currentIndex]?.image_url || 'https://deplorablesnowflake.com/static/american.jpg' }}
             style={styles.toyImage}
             onLoadStart={() => setImageLoadingError(false)}
             onError={(error) => {
