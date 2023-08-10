@@ -22,8 +22,8 @@ function Carousel() {
   // const toyState = useSelector((state) => state.toy);
   // const { toys, loading, error } = toyState;
 
-  const { toys, loading, error } = useSelector((state) => state.toy);
-  // const { toys, loading, error } = useSelector((state) => state.toy.toys);
+  //const { toys, loading, error } = useSelector((state) => state.toy);
+  const { toys, loading, error } = useSelector((state) => state.toy.toys);
 
 
   const { user } = useSelector((state) => state.user);
@@ -37,7 +37,7 @@ function Carousel() {
 
   console.log('Entire Toys Array:', toys);
   console.log('Current Toy at Index:', toys[currentIndex]);
-  console.log('Current Toy Image URL:', toys.toys[currentIndex]?.image_url);
+  console.log('Current Toy Image URL:', toys[currentIndex]?.image_url);
 
 
   useEffect(() => {
@@ -50,8 +50,6 @@ function Carousel() {
         dispatch(fetchToysWithinRadiusFromAPI({ latitude: user.latitude, longitude: user.longitude }));
       }
 
-      console.log('Toys in useEffect:', toys);
-      console.log('Current Index in useEffect:', currentIndex);
       
   }, [user.latitude, user.longitude]);
   
