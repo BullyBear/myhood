@@ -16,6 +16,10 @@ class Register(Resource):
         parser.add_argument('name', required=True)
         parser.add_argument('email', required=True)
         parser.add_argument('password', required=True)
+        parser.add_argument('bio', type=str, required=False, trim=True, help="Bio cannot be more than 300 characters.", location="json")
+        parser.add_argument('profile_picture', type=str, required=False, help="URL of the profile picture.", location="json")
+        parser.add_argument('user_latitude', type=float, required=False) 
+        parser.add_argument('user_longitude', type=float, required=False) 
         args = parser.parse_args()
 
         existing_user = User.query.filter_by(email=args['email']).first()
@@ -26,6 +30,10 @@ class Register(Resource):
             name=args['name'],
             email=args['email'],
             password=bcrypt.generate_password_hash(args['password']).decode('utf-8'),
+            bio=args['bio'][:300],  
+            profile_picture=args['profile_picture'],
+            user_latitude=args['user_latitude'],  
+            user_longitude=args['user_longitude']
         )
 
         db.session.add(new_user)

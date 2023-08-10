@@ -10,6 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import { S3Client, BUCKET_NAME, region } from '../../config.js';
 import { createToy } from '../API/toyAPI';
 
+
 export default function Toy() {
   const [image, setImage] = useState(null);
   const { user } = useSelector((state) => state.user);
