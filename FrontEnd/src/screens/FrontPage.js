@@ -2,21 +2,26 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Button } from '@rneui/base';
-import Carousel from '../components/Carousel';
-import { fetchToysFromAPI } from '../slices/toySlice';
-import { logoutUser } from '../slices/userSlice';
 import jwt_decode from 'jwt-decode';
+
+import Carousel from '../components/Carousel';
+//import { fetchToysFromAPI } from '../slices/toySlice';
+import { logoutUser } from '../slices/userSlice';
+
 
 const FrontPage = ({ navigation }) => {
   const dispatch = useDispatch();
   const { toys, loading, error } = useSelector((state) => state.toy);
   const { user } = useSelector((state) => state.user);
-  const state = useSelector((state) => state);
+  const state = useSelector((state) => state);  
   const [userName, setUserName] = useState(null);
 
-  useEffect(() => {
-    dispatch(fetchToysFromAPI());
-  }, [dispatch]);
+
+
+  // useEffect(() => {
+  //   dispatch(fetchToysFromAPI());
+  // }, [dispatch]);
+
 
   // Update this useEffect hook
   useEffect(() => {

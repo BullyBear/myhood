@@ -39,6 +39,7 @@ const toySlice = createSlice({
       const toy = action.payload;
       console.log('[addToyToBox] - Adding toy to box:', toy);
       state.toyBox.push(toy);
+      console.log('[Debug] - state.toys value:', state.toys);
       state.toys = state.toys.filter((item) => item.id !== toy.id);
     },
     removeToyFromCarousel: (state, action) => {

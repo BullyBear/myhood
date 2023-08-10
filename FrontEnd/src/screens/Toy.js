@@ -7,7 +7,6 @@ import { v4 as uuidv4 } from 'uuid';
 import * as Location from 'expo-location';
 import { useNavigation } from '@react-navigation/native';
 
-
 import { S3Client, BUCKET_NAME, region } from '../../config.js';
 import { createToy } from '../API/toyAPI';
 
@@ -15,7 +14,6 @@ export default function Toy() {
   const [image, setImage] = useState(null);
   const { user } = useSelector((state) => state.user);
   const navigation = useNavigation();
-
 
   console.log("[Toy Component] - Rendered with", { image, user });
 
@@ -32,11 +30,14 @@ export default function Toy() {
       console.log('Permission to access location was denied');
       return;
     }
-  
+
     let location = await Location.getCurrentPositionAsync({});
     const { latitude, longitude } = location.coords;
 
     console.log("[onSubmit] - Got user location:", { latitude, longitude });
+
+    const response = await fetch(image); // Fetching the binary data from local URI
+    const blob = await response.blob(); // Convert the response into a blob
 
     const uniqueFileName = `${uuidv4()}.jpg`;
     const destinationFileKey = `images/${uniqueFileName}`;
@@ -44,12 +45,12 @@ export default function Toy() {
     const uploadParams = {
       Bucket: BUCKET_NAME,
       Key: destinationFileKey,
-      Body: image,
+      Body: blob, // Use the blob data
       ContentType: 'image/jpeg',
     };
 
     console.log("[onSubmit] - About to POST toy data with image URI:", image);
-    
+
     const s3UploadPromise = new Promise((resolve, reject) => {
       S3Client.putObject(uploadParams, function (err, data) {
         if (err) {
@@ -75,7 +76,6 @@ export default function Toy() {
 
       console.log("[onSubmit] - About to POST toy data:", toyData);
 
-      //const response = await fetch('http://127.0.0.1:8000/toys', {
       const response = await fetch('http://192.168.1.146:8000/toys', {
         method: 'POST',
         headers: {
@@ -93,9 +93,9 @@ export default function Toy() {
       } else {
         console.error('[onSubmit] - Failed to create toy:', response.status);
       }
-      } catch (error) {
-        console.error('[onSubmit] - Error creating toy:', error);
-      }
+    } catch (error) {
+      console.error('[onSubmit] - Error creating toy:', error);
+    }
   };
 
   const pickImage = async () => {
@@ -115,7 +115,6 @@ export default function Toy() {
 
     if (!result.cancelled) {
       console.log("[pickImage] - Image selected. URI:", result.uri);
-      console.log("[pickImage] - Image type:", result.type, ", Image width:", result.width, ", Image height:", result.height);
       setImage(result.uri);
     }
   };
@@ -140,18 +139,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   button: {
-    backgroundColor: '#008CBA', // replace with desired color
+    backgroundColor: '#008CBA',
     padding: 10,
     borderRadius: 5,
     marginVertical: 10,
   },
   buttonText: {
-    color: '#fff', // replace with desired color
+    color: '#fff',
     textAlign: 'center',
   },
   image: {
-    width: 100, 
-    height: 100, 
+    width: 100,
+    height: 100,
     marginVertical: 10
   },
 });
