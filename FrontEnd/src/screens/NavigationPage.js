@@ -5,9 +5,10 @@ import Icon from 'react-native-vector-icons/FontAwesome'; // Using FontAwesome a
 
 const ListItems = [
   { title: 'Carousel', icon: 'home', navigateTo: 'FrontPage' }, // 'home' icon as an example
-  { title: 'My ToyBox', icon: 'gift', navigateTo: 'ToyBox' }, // 'gift' icon as an example
   { title: 'Create Toy', icon: 'plus-circle', navigateTo: 'Toy' }, // 'plus-circle' icon as an example
+  { title: 'My ToyBox', icon: 'gift', navigateTo: 'ToyBox' }, // 'gift' icon as an example
   { title: 'My UserBox', icon: 'users', navigateTo: 'UserBox' }, // 'users' icon as an example
+
   { title: 'Create Profile', icon: 'user-circle', navigateTo: 'Profile' }, // 'user-circle' icon as an example
 ];
 

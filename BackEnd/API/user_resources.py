@@ -1,7 +1,8 @@
 from flask_restful import Resource, reqparse
-from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
 from models import User, UserSchema
 from extensions import bcrypt, db
+
 
 users_schema = UserSchema(many=True)
 
@@ -64,6 +65,41 @@ class Login(Resource):
             }, 200
         else:
             return {'message': 'Invalid credentials'}, 401
+        
+
+
+class UserUpdate(Resource):
+   # @jwt_required()  
+    def put(self):
+        # current_user_id = get_jwt_identity()  
+        
+        # user = User.query.get(current_user_id)
+        
+        # if not user:
+        #     return {'message': 'User not found'}, 404
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('user_id', type=int, required=True, help="User ID is required.")
+        parser.add_argument('bio', type=str, required=True, help="Bio is required.")
+        parser.add_argument('profile_picture', type=str, required=False, help="URL of the profile picture.")
+        
+        args = parser.parse_args()
+
+        user = User.query.get(args['user_id'])
+        
+        if not user:
+            return {'message': 'User not found'}, 404
+
+        user.bio = args['bio'][:300] 
+        if args['profile_picture']:
+            user.profile_picture = args['profile_picture']
+
+        db.session.commit()
+
+        return {'message': 'User updated successfully'}, 200
+
+
+
 
 
 class Invite(Resource):

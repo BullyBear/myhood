@@ -22,6 +22,14 @@ export const resetPassword = async (email) => {
   return await axios.post(`${API_URL}/forgot`, { email }, { headers });
 };
 
-export const updateUser = async (userId, userData) => {
-  return await axios.put(`${API_URL}/users/${userId}`, userData, { headers });
+
+export const updateUser = async (userData, userId) => {
+  // Add the user's ID to the request data
+  userData.user_id = userId;
+
+  return await axios.put(`${API_URL}/user/update`, userData, { headers });
 };
+
+
+
+

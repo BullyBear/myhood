@@ -38,7 +38,7 @@ function Carousel() {
 
   console.log('Entire Toys Array:', toys);
   console.log('Current Toy at Index:', [currentIndex]);
-  console.log('Current Toy Image URL:', toys.toys[currentIndex]?.image_url);
+  console.log('Current Toy Image URL:', toys[currentIndex]?.image_url);
 
 
   useEffect(() => {
@@ -128,7 +128,7 @@ function Carousel() {
           
       
           <Image
-            source={{ uri: toys.toys[currentIndex]?.image_url || 'https://deplorablesnowflake.com/static/american.jpg' }}
+            source={{ uri: toys[currentIndex]?.image_url || 'https://deplorablesnowflake.com/static/american.jpg' }}
             style={styles.toyImage}
             onLoadStart={() => setImageLoadingError(false)}
             onError={(error) => {
