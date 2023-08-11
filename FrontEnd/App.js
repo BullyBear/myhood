@@ -4,11 +4,13 @@
 //with Redux's Provider and PaperProvider for state management and UI components.
 
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import * as SplashScreen from 'expo-splash-screen';
 import { Provider } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PaperProvider } from 'react-native-paper';
+import * as Font from 'expo-font';
 
 import store from './src/store/store';
 
@@ -25,9 +27,45 @@ import UserDetails from './src/screens/UserDetails';
 import ChatScreen from './src/screens/ChatScreen';
 
 
+const fetchFonts = () => {
+  return Font.loadAsync({
+    'Roboto-Regular': require('./assets/fonts/Roboto-Regular.ttf'),
+    'Roboto-Bold': require('./assets/fonts/Roboto-Bold.ttf'),
+    // Add other font variations if needed
+  });
+};
+
 const Stack = createStackNavigator();
 
 const App = () => {
+
+  const [fontLoaded, setFontLoaded] = useState(false);
+
+  useEffect(() => {
+    async function loadResources() {
+      try {
+        await SplashScreen.preventAutoHideAsync();
+        await fetchFonts();
+      } catch (error) {
+        console.warn(error);
+      } finally {
+        setFontLoaded(true);
+      }
+    }
+
+    loadResources();
+  }, []);
+
+  useEffect(() => {
+    if (fontLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontLoaded]);
+
+  if (!fontLoaded) {
+    return null;  // You can return a placeholder view here if needed
+  }
+
   return (
     <Provider store={store}>
       <PaperProvider>

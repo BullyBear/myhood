@@ -128,7 +128,7 @@ function Carousel() {
           
       
           <Image
-            source={{ uri: toys.toys[currentIndex]?.image_url || 'https://deplorablesnowflake.com/static/american.jpg' }}
+            source={{ uri: toys[currentIndex]?.image_url || 'https://deplorablesnowflake.com/static/american.jpg' }}
             style={styles.toyImage}
             onLoadStart={() => setImageLoadingError(false)}
             onError={(error) => {

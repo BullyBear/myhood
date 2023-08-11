@@ -29,17 +29,20 @@ const styles = StyleSheet.create({
   lottie: {
     width: 300,
     height: 300,
-    marginBottom: 50,
+    marginBottom: 30,
   },
   title: {
-    fontSize: 48,
     marginBottom: 20,
     color: 'black',
+    fontFamily: 'Roboto-Regular',
+    fontSize: 48,
   },
   subtitle: {
     fontSize: 24,
     marginBottom: 30,
     color: 'white',
+    fontFamily: 'Roboto-Regular',
+    fontSize: 24,
   },
 });
 
