@@ -23,12 +23,10 @@ export const resetPassword = async (email) => {
 };
 
 
-export const updateUser = async (userData, userId) => {
-  // Add the user's ID to the request data
-  userData.user_id = userId;
-
+export const updateUser = async (userData) => {
   return await axios.put(`${API_URL}/user/update`, userData, { headers });
 };
+
 
 
 

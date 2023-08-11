@@ -68,12 +68,11 @@ const Profile = ({ navigation }) => {
     const updatedData = {
       bio: values.bio,
       profile_picture: image || user.profile_picture,
-      // Add other fields if needed
+      user_id: user.id  // Add this line
     };
-
-
-    dispatch(updateUser(updatedData)); // Dispatch the updateUser action to redux
+    dispatch(updateUser(updatedData)); // Dispatch only with updatedData since user ID is now included
   };
+  
 
 
   return (
