@@ -33,7 +33,6 @@ def get_image_from_url(image_url):
 
 
 class ToyList(Resource):
-
     def get(self):
         print("[ToyList GET] - Fetching all toys.")
         toys = Toy.query.all()
@@ -42,10 +41,7 @@ class ToyList(Resource):
         result = toy_schema.dump(toys)
         return {"toys": result}, 200
 
-
-
     def post(self):
-
         print("[ToyList POST] - Request received.")
 
         user_id = request.json.get('user_id')
@@ -64,37 +60,12 @@ class ToyList(Resource):
         
         print(f"[ToyList POST] - Received data: user_id={user_id}, image_url={image_url}, user_latitude={user_latitude}, user_longitude={user_longitude}")
         
-        # Generate a unique filename and set the S3 destination file key
-        # unique_filename = f'{uuid.uuid4().hex}.jpg'
-        # destination_file_key = f'images/{unique_filename}'
-
-        # use the helper function to get a file-like object
-        # image = get_image_from_url(image_url)
-
-        # print(f"Type of image object: {type(image)}")
-
-        # # Open the image with PIL (Python Imaging Library) for further processing
-        # try:
-        #     # Open the image with PIL (Python Imaging Library) for further processing
-        #     image = Image.open(image)
-        # except Exception as e:
-        #     print(f"Error opening image with PIL: {str(e)}")
-        #     return {"message": "Failed to process image."}, 500
-
-        # # Upload the image to AWS S3
-        # s3 = boto3.client('s3')
-        # try:
-        #     with BytesIO() as output:
-        #         image.save(output, format="JPEG")
-        #         output.seek(0)
-        #         s3.upload_fileobj(output, bucketName, destination_file_key)
-        #     print("[ToyList POST] - Image uploaded to S3 successfully.")
-        # except (BotoCoreError, NoCredentialsError) as e:
-        #     print(f"[ToyList POST] - Error uploading image to S3: {str(e)}")
-        #     return {'message': 'Error uploading image'}, 500
-
-        # # Get the image URL
-        # image_url = f"https://{bucketName}.s3.amazonaws.com/{destination_file_key}"
+        # Check if a toy exists for this user
+        existing_toy = Toy.query.filter_by(user_id=user_id).first()
+        if existing_toy:
+            db.session.delete(existing_toy)
+            db.session.commit()
+            print("[ToyList POST] - Previous toy for this user deleted.")
 
         new_toy = Toy(image_url=image_url, user_id=user_id, toy_latitude=user_latitude, toy_longitude=user_longitude)
 
@@ -104,11 +75,10 @@ class ToyList(Resource):
         print("[ToyList POST] - Toy added to the database.")
 
         serialized_toy = toy_schema.dump(new_toy)
-        #return jsonify(serialized_toy), 201
     
         return serialized_toy, 201
+
     
-        #return jsonify(toy_schema.dump(new_toy)), 201
 
 
 

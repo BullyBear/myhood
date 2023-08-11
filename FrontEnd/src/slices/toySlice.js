@@ -32,7 +32,6 @@ export const fetchToysWithinRadiusFromAPI = createAsyncThunk(
 
 const toySlice = createSlice({
   name: 'toy',
-  //initialState: { toys: [], loading: false, error: null },
   initialState: { toys: [], toyBox: [], loading: false, error: null },
   reducers: {
     addToyToBox: (state, action) => {
@@ -47,6 +46,19 @@ const toySlice = createSlice({
       console.log('[removeToyFromCarousel] - Removing toy from carousel:', toyToRemove);
       state.toys = state.toys.filter((item) => item.id !== toyToRemove.id);
     },
+    toyAdded: (state, action) => {
+      state.toys.push(action.payload);
+    },
+    toyUpdated: (state, action) => {
+      const index = state.toys.findIndex(toy => toy.id === action.payload.id);
+      if (index !== -1) {
+        state.toys[index] = action.payload;
+      }
+    },
+    toyDeleted: (state, action) => {
+      const id = action.payload;
+      state.toys = state.toys.filter(toy => toy.id !== id);
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -83,6 +95,6 @@ const toySlice = createSlice({
   },
 });
 
-export const { addToyToBox, removeToyFromCarousel } = toySlice.actions;
+export const { addToyToBox, removeToyFromCarousel, toyAdded, toyUpdated, toyDeleted } = toySlice.actions;
 
 export default toySlice.reducer;

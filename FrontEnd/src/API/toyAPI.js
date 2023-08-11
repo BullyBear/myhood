@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { API_URL } from '../../config';
 
+
 export const getToysWithinRadius = async (latitude, longitude) => {
   console.log("[getToysWithinRadius] - Called with", { latitude, longitude });
   try {
@@ -46,33 +47,48 @@ export const getToyById = async (toyId) => {
 };
 
 
-export async function createToy(toyData) {
+// export async function createToy(toyData) {
+//   console.log("[createToy] - Called with", toyData);
+
+//   try {
+//     const response = await fetch(`${API_URL}/toys`, {
+//       method: 'POST',
+//       body: JSON.stringify(toyData),
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//     });
+    
+//     const responseData = await response.json();
+//     console.log("[createToy] - Response:", responseData);
+    
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
+    
+//     return responseData;
+//   } catch (error) {
+//     console.error('Error creating toy:', error.message);
+//     throw error;
+//   }
+// }
+
+
+export const createToy = async (toyData) => {
   console.log("[createToy] - Called with", toyData);
 
   try {
-    const response = await fetch(`${API_URL}/toys`, {
-      method: 'POST',
-      body: JSON.stringify(toyData),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    
-    const responseData = await response.json();
-    console.log("[createToy] - Response:", responseData);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return responseData;
+    const response = await axios.post(`${API_URL}/toys`, toyData);
+    console.log("[createToy] - Response:", response.data);
+    return response.data;
   } catch (error) {
     console.error('Error creating toy:', error.message);
+    if (error.response) {
+      console.error('Server Response:', error.response);
+    }
     throw error;
   }
-}
-
-
+};
 
 
 
