@@ -9,7 +9,7 @@ const ListItems = [
   { title: 'My ToyBox', icon: 'gift', navigateTo: 'ToyBox' }, // 'gift' icon as an example
   { title: 'My UserBox', icon: 'users', navigateTo: 'UserBox' }, // 'users' icon as an example
 
-  { title: 'Create Profile', icon: 'user-circle', navigateTo: 'Profile' }, // 'user-circle' icon as an example
+  { title: 'Edit Profile', icon: 'user-circle', navigateTo: 'Profile' }, // 'user-circle' icon as an example
 ];
 
 export default function NavigationPage({ navigation }) {
