@@ -14,7 +14,7 @@ import { addUserInteraction } from '../slices/userSlice';
 
 function Carousel() {
 
-  //const defaultImageUrl = 'https://deplorablesnowflake.com/static/american.jpg';
+  const defaultImageUrl = 'https://deplorablesnowflake.com/static/american.jpg';
 
   const dispatch = useDispatch();
 
@@ -39,6 +39,7 @@ function Carousel() {
   console.log('Entire Toys Array:', toys);
   console.log('Current Toy at Index:', [currentIndex]);
   console.log('Current Toy Image URL:', toys[currentIndex]?.image_url);
+
 
 
   useEffect(() => {
@@ -68,31 +69,65 @@ function Carousel() {
     { useNativeDriver: true }
   );
 
+
   const onSwipeRight = () => {
-    if (currentIndex < toys.length - 1) {
-      const newCurrentIndex = currentIndex + 1;
-      const toyToAdd = toys[newCurrentIndex];
-      console.log('Toy to Add:', toyToAdd);
-      console.log('Current Index on Swipe Right:', newCurrentIndex);
-      setCurrentIndex(newCurrentIndex);
-      dispatch(addToyToBox(toyToAdd));
-      dispatch(removeToyFromCarousel(toyToAdd));
-      if (user && user.id) {
+    const toyToAdd = toys[currentIndex];
+    console.log('Swiping Right');
+    //console.log('Current Toy to Add to Box:', toyToAdd.name, '| Index:', currentIndex);
+    dispatch(addToyToBox(toyToAdd));
+    dispatch(removeToyFromCarousel(toyToAdd));
+    if (user && user.id) {
+      console.log('Recording User Interaction for User:', user.id);
         dispatch(addUserInteraction({ userId: user.id, toyId: toyToAdd.id }));
-      }
     }
+    setCurrentIndex((prevIndex) => {
+      const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
+      console.log('New Current Index after Swipe Right:', newIndex);
+      return newIndex;
+    });
   };
+
+
+  // const onSwipeRight = () => {
+  //   if (currentIndex < toys.length - 1) {
+  //     const newCurrentIndex = currentIndex + 1;
+  //     const toyToAdd = toys[newCurrentIndex];
+  //     console.log('Toy to Add:', toyToAdd);
+  //     console.log('Current Index on Swipe Right:', newCurrentIndex);
+  //     setCurrentIndex(newCurrentIndex);
+  //     dispatch(addToyToBox(toyToAdd));
+  //     dispatch(removeToyFromCarousel(toyToAdd));
+  //     if (user && user.id) {
+  //       dispatch(addUserInteraction({ userId: user.id, toyId: toyToAdd.id }));
+  //     }
+  //   }
+  // };
   
+
   const onSwipeLeft = () => {
-    if (currentIndex > 0) {
-      const newCurrentIndex = currentIndex - 1;
-      const toyToRemove = toys[newCurrentIndex];
-      console.log('Toy to Remove:', toyToRemove);
-      console.log('Current Index on Swipe Left:', newCurrentIndex);
-      setCurrentIndex(newCurrentIndex);
-      dispatch(removeToyFromCarousel(toyToRemove));
-    }
-  };
+    const toyToRemove = toys[currentIndex];
+    console.log('Swiping Left');
+    console.log('Current Toy to Remove:', toyToRemove.name, '| Index:', currentIndex);
+    dispatch(removeToyFromCarousel(toyToRemove));
+    setCurrentIndex((prevIndex) => {
+        const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
+        console.log('New Current Index after Swipe Left:', newIndex);
+        return newIndex;
+      });
+    };
+
+
+//   const onSwipeLeft = () => {
+//     if (currentIndex < toys.length - 1) {
+//         const newCurrentIndex = currentIndex + 1;
+//         const toyToRemove = toys[newCurrentIndex];
+//         console.log('Toy to Remove:', toyToRemove);
+//         console.log('Current Index on Swipe Left:', newCurrentIndex);
+//         setCurrentIndex(newCurrentIndex);
+//         dispatch(removeToyFromCarousel(toyToRemove));
+//     }
+// };
+
   
   return (
     <View style={styles.carouselContainer}>
