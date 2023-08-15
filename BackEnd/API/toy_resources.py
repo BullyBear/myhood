@@ -93,14 +93,12 @@ class ToyResourceTime(Resource):
     def put(self, toy_id):
         toy = Toy.query.get_or_404(toy_id)
         toy.user_id = request.json.get('user_id', toy.user_id)
+        toy.image_url = request.json.get('image_url', toy.image_url)
+        toy.toy_latitude = request.json.get('user_latitude', toy.toy_latitude)
+        toy.toy_longitude = request.json.get('user_longitude', toy.toy_longitude)
         db.session.commit()
-        new_user_id = request.json.get('user_id')
-        new_user = User.query.get(new_user_id)
-        if not new_user:
-            return {"message": "User not found"}, 404
-        toy.user_id = new_user_id
-
         return toy_schema.dump(toy)
+
 
     def delete(self, toy_id):
         toy = Toy.query.get_or_404(toy_id)
