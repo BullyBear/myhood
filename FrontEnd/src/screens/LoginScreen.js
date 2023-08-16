@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginUser } from '../slices/userSlice';
+import { loginUser, loginUserSuccess, loginUserFailure } from '../slices/userSlice';
+
 
 const validationSchema = yup.object().shape({
   email: yup.string().email().required('Email is a required field.'),
@@ -18,25 +19,30 @@ const LoginScreen = ({ navigation }) => {
   const userFromStore = useSelector((state) => state.user.user);
 
   const onSubmit = async (values) => {
+    console.log('Submitting login with values:', values); 
     setError(null);
     setSuccessMessage(null);
     setIsLoading(true);
 
     try {
-      await dispatch(loginUser(values));
+      const resultAction = await dispatch(loginUser(values));
       setIsLoading(false);
-
-      // Check if user exists in the Redux store
-      if (userFromStore) {
-        navigation.navigate('FrontPage', { name: userFromStore.name });
-      } else {
+      
+      // Check the result of dispatched action
+      if (resultAction.type === loginUserSuccess.type) {
+        navigation.navigate('FrontPage', { name: resultAction.payload.user.name });
+      } else if (resultAction.type === loginUserFailure.type) {
         setError('Login failed.');
       }
+      
+
     } catch (err) {
+      console.error('Login error:', err.message); 
       setError(err.message || 'Something went wrong. Please try again.');
       setIsLoading(false);
     }
-  };
+};
+
 
   return (
     <View style={styles.container}>

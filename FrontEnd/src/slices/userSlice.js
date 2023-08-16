@@ -140,6 +140,7 @@ export const registerUser = (userData) => async (dispatch) => {
   dispatch(registerUserRequest());
   try {
     const response = await registerUserFromAPI(userData);
+    console.log('')
     dispatch(registerUserSuccess(response.data));
   } catch (error) {
     dispatch(registerUserFailure(error.message));
@@ -153,11 +154,12 @@ export const loginUser = (credentials) => async (dispatch) => {
     if (response.status !== 200) {
       throw new Error('Login failed.');
     }
-    dispatch(loginUserSuccess(response.data));
+    return dispatch(loginUserSuccess(response.data)); // Return the dispatched action.
   } catch (error) {
-    dispatch(loginUserFailure(error.message));
+    return dispatch(loginUserFailure(error.message)); // Return the dispatched action.
   }
 };
+
 
 export const logout = () => (dispatch) => {
   dispatch(logoutUser());
