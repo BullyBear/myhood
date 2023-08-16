@@ -6,7 +6,9 @@ import { Formik } from 'formik';
 import * as yup from 'yup';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
-import { S3Client, BUCKET_NAME_TWO } from '../../config.js'; 
+import { S3Client, BUCKET_NAME_TWO } from '../../config.js';
+import { useDispatch, useSelector } from 'react-redux';
+import { registerUser, registerUserRequest, registerUserSuccess, registerUserFailure } from '../slices/userSlice'; 
 
 
 const getLocation = async () => {
@@ -37,9 +39,6 @@ const pickImage = async () => {
 };
 
 
-
-
-
 const validationSchema = yup.object().shape({
   name: yup.string().required('Name is a required field.'),
   email: yup.string().email().required('Email is a required field.'),
@@ -53,9 +52,12 @@ const validationSchema = yup.object().shape({
   bio: yup.string(),
 });
 
+
 const RegistrationScreen = ({ navigation }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  const userState = useSelector((state) => state.user);
+  const isLoading = userState.loading;
+  const error = userState.error;
   const [successMessage, setSuccessMessage] = useState(null);
   const [image, setImage] = useState(null);
 
@@ -94,44 +96,27 @@ const RegistrationScreen = ({ navigation }) => {
     }
   };
 
-
-
   const handleRegister = async (values) => {
-    setIsLoading(true);
-    setError(null);
-    setSuccessMessage(null);
+    dispatch(registerUserRequest());
 
     try {
-      const location = await getLocation();
-      values.user_latitude = location.coords.latitude;
-      values.user_longitude = location.coords.longitude;
-      values.profile_picture = image;
-      console.log("Registration data being sent:", values);
+        const location = await getLocation();
+        values.user_latitude = location.coords.latitude;
+        values.user_longitude = location.coords.longitude;
+        values.profile_picture = image;
 
-      const response = await fetch('http://192.168.1.146:8000/register', {  
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(values),
-      });
-
-      console.log("Response received:", response);
-      const responseBody = await response.json();
-      console.log("Response body:", responseBody);
-
-      if (response.ok) {
-        setSuccessMessage('Registration successful! You can now login.');
-      } else {
-        setError('Registration failed. Please try again.');
-      }
+        // Using the redux action creator instead of direct API call
+        dispatch(registerUser(values)).then((resultAction) => {
+            if (registerUser.fulfilled.match(resultAction)) {
+                setSuccessMessage('Registration successful! You can now login.');
+            } else {
+                setError('Registration failed. Please try again.');
+            }
+        });
     } catch (error) {
-      setError('An error occurred. Please try again.');
-      console.error("Registration error:", error);
-    } finally {
-      setIsLoading(false);
+        dispatch(registerUserFailure(error.message));
     }
-  };
+};
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

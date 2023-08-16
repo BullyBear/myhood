@@ -19,7 +19,7 @@ app.config['JWT_SECRET_KEY'] = 'your-secret-key'
 db.init_app(app)
 ma.init_app(app)
 bcrypt.init_app(app)
-jwt.init_app(app)
+#jwt.init_app(app)
 #cors.init_app(app)
 
 cors = CORS(app, resources={r"*": {"origins": "*"}})

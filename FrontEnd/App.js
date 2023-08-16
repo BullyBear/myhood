@@ -1,9 +1,3 @@
-//App.js: Sets up the main navigation stack using React Navigation. 
-//It includes screens such as FrontPage, NavigationPage, Toy, ToyBox, 
-//ToyDetails, Profile, UserBox, UserDetails, and ChatScreen. It also wraps the app 
-//with Redux's Provider and PaperProvider for state management and UI components.
-
-
 import React, { useState, useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { Provider } from 'react-redux';
@@ -72,7 +66,7 @@ const App = () => {
       <NavigationContainer>
         <Stack.Navigator>
         <Stack.Screen name="Landing" component={LandingPage} /> 
-          <Stack.Screen name="Auth" component={AuthNavigator} />
+        <Stack.Screen name="Auth" component={AuthNavigator} />
           <Stack.Screen name="FrontPage" component={FrontPage} />
           <Stack.Screen name="NavigationPage" component={NavigationPage} />
           <Stack.Screen name="Toy" component={Toy} />

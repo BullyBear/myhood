@@ -14,41 +14,6 @@ class Users(Resource):
         return users_schema.dump(users)
     
 
-class Login(Resource):
-    def post(self):
-        print('Login POST received.')
-        parser = reqparse.RequestParser()
-        parser.add_argument('email', required=True)
-        parser.add_argument('password', required=True)
-        args = parser.parse_args()
-
-        print('Parsed arguments:', args)
-
-        user = User.query.filter_by(email=args['email']).first()
-
-        if user:
-            print(f'User found with email: {args["email"]}')  
-        else:
-            print(f'No user found with email: {args["email"]}') 
-
-        if user and bcrypt.check_password_hash(user.password, args['password']):
-            # include user id and name in the access token
-            access_token = create_access_token(identity={'id': user.id, 'name': user.name})
-            refresh_token = create_refresh_token(identity=user.id)
-
-            user_data = UserSchema(exclude=("password",)).dump(user) 
-
-            print('Login successful!')
-
-            return {
-                'access_token': access_token,
-                'refresh_token': refresh_token,
-                'user': user_data
-            }, 200
-        else:
-            print('Invalid credentials!')
-            return {'message': 'Invalid credentials'}, 401
-        
 
 class Register(Resource):
     def post(self):
@@ -85,6 +50,45 @@ class Register(Resource):
         db.session.commit()
 
         return {'message': 'User registered successfully'}, 201
+    
+
+class Login(Resource):
+    def post(self):
+        print('Login POST received.')
+        parser = reqparse.RequestParser()
+        parser.add_argument('email', required=True)
+        parser.add_argument('password', required=True)
+        args = parser.parse_args()
+
+        print('Parsed arguments:', args)
+
+        user = User.query.filter_by(email=args['email']).first()
+
+        if user:
+            print(f'User found with email: {args["email"]}')  
+        else:
+            print(f'No user found with email: {args["email"]}') 
+
+        if user and bcrypt.check_password_hash(user.password, args['password']):
+            # include user id and name in the access token
+            access_token = create_access_token(identity={'id': user.id, 'name': user.name})
+            refresh_token = create_refresh_token(identity=user.id)
+
+            user_data = UserSchema(exclude=("password",)).dump(user) 
+
+            print('Login successful!')
+
+            return {
+                'access_token': access_token,
+                'refresh_token': refresh_token,
+                'user': user_data
+            }, 200
+        else:
+            print('Invalid credentials!')
+            return {'message': 'Invalid credentials'}, 401
+        
+
+
 
  
 

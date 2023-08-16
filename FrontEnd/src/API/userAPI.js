@@ -7,6 +7,7 @@ const headers = {
 };
 
 export const registerUser = async (userData) => {
+  console.log('REGISTER API - AM I WORKING?', registerUser)
   return await axios.post(`${API_URL}/register`, userData, { headers });
 };
 
