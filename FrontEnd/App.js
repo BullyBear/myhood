@@ -5,8 +5,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { PaperProvider } from 'react-native-paper';
 import * as Font from 'expo-font';
+import { PersistGate } from 'redux-persist/integration/react';
 
-import store from './src/store/store';
+import { store, persistor } from './src/store/store';
 
 import LandingPage from './src/screens/LandingPage';
 import AuthNavigator from './src/components/AuthNavigator';
@@ -62,6 +63,7 @@ const App = () => {
 
   return (
     <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
       <PaperProvider>
       <NavigationContainer>
         <Stack.Navigator>
@@ -79,6 +81,7 @@ const App = () => {
         </Stack.Navigator>
       </NavigationContainer>
       </PaperProvider>
+      </PersistGate>
     </Provider>
   );
 };

@@ -100,4 +100,6 @@ const mapDispatchToProps = {
   fetchUsersByIds,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(UserBox);
+// export default connect(mapStateToProps, mapDispatchToProps)(UserBox);
+
+export default UserBox;

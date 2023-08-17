@@ -84,7 +84,6 @@ class ToyList(Resource):
 
 
 
-
 class ToyResourceTime(Resource):
     def get(self, toy_id):
         toy = Toy.query.get_or_404(toy_id)

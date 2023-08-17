@@ -121,5 +121,3 @@ export const deleteToy = async (toyId) => {
     return null;
   }
 };
-
-

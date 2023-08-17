@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getToysWithinRadius, getAllToys } from '../API/toyAPI';
+import { getToysWithinRadius, getAllToys, createToy as createToyAPI, updateToy as updateToyAPI, deleteToy as deleteToyAPI, getToyById } from '../API/toyAPI';
 
 // Fetch toys from the API
 export const fetchToysFromAPI = createAsyncThunk('toy/fetchToys', async () => {
@@ -30,15 +30,56 @@ export const fetchToysWithinRadiusFromAPI = createAsyncThunk(
   }
 );
 
+export const fetchToyByIdFromAPI = createAsyncThunk('toy/fetchToyById', async (toyId) => {
+  try {
+    const toy = await getToyById(toyId);
+    return toy; // Return the fetched toy directly
+  } catch (error) {
+    console.error('Error fetching toy by ID:', error.message);
+    throw error;
+  }
+});
+
+
+
+export const createToyInAPI = createAsyncThunk('toy/create', async (toyData) => {
+  const response = await createToyAPI(toyData);
+  return response;
+});
+
+export const updateToyInAPI = createAsyncThunk('toy/update', async ({toyId, toyData}) => {
+  const response = await updateToyAPI(toyId, toyData);
+  return response;
+});
+
+export const deleteToyInAPI = createAsyncThunk('toy/delete', async (toyId) => {
+  const response = await deleteToyAPI(toyId);
+  return response;
+});
+
+const initialState = { toys: [], toyBox: [], loading: false, error: null };
+console.log("Initial state:", initialState);
+
 const toySlice = createSlice({
   name: 'toy',
-  initialState: { toys: [], toyBox: [], loading: false, error: null },
+  initialState: initialState,
   reducers: {
+    loadToy: (state, action) => {
+      const toy = action.payload;
+      console.log('[loadToy] - Loading toy data:', toy);
+      const index = state.toys.findIndex(t => t.id === toy.id);
+      if (index === -1) { // if the toy isn't already in the list
+        state.toys.push(toy);
+      } else {
+        state.toys[index] = toy; // update existing toy data
+      }
+    },
     addToyToBox: (state, action) => {
       const toy = action.payload;
       console.log('[addToyToBox] - Adding toy to box:', toy);
       state.toyBox.push(toy);
       console.log('[Debug] - state.toys value:', state.toys);
+      console.log('Current state.toys:', state.toys);
       state.toys = state.toys.filter((item) => item.id !== toy.id);
     },
     removeToyFromCarousel: (state, action) => {
@@ -91,10 +132,38 @@ const toySlice = createSlice({
         console.error('[fetchToysWithinRadiusFromAPI.rejected] - Fetching toys within radius rejected:', action.error.message);
         state.loading = false;
         state.error = action.error.message;
+      })
+      .addCase(createToyInAPI.fulfilled, (state, action) => {
+        state.toys.push(action.payload);
+      })
+      .addCase(updateToyInAPI.fulfilled, (state, action) => {
+        const index = state.toys.findIndex(toy => toy.id === action.payload.id);
+        if(index !== -1) {
+          state.toys[index] = action.payload;
+        }
+      })
+      .addCase(fetchToyByIdFromAPI.fulfilled, (state, action) => {
+        console.log("Fetched toy by ID:", action.payload);
+        const existingToyIndex = state.toys.findIndex(t => t.id === action.payload.id);
+        
+        if (existingToyIndex !== -1) {
+          state.toys[existingToyIndex] = action.payload;
+        } else {
+          state.toys.push(action.payload);
+        }
+        
+        state.loading = false;
+        state.error = null;
+      }) 
+      .addCase(deleteToyInAPI.fulfilled, (state, action) => {
+        const index = state.toys.findIndex(toy => toy.id === action.payload);
+        if(index !== -1) {
+          state.toys.splice(index, 1);
+        }
       });
   },
 });
 
-export const { addToyToBox, removeToyFromCarousel, toyAdded, toyUpdated, toyDeleted } = toySlice.actions;
+export const { loadToy, addToyToBox, removeToyFromCarousel, toyAdded, toyUpdated, toyDeleted } = toySlice.actions;
 
 export default toySlice.reducer;

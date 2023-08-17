@@ -1,128 +1,84 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import * as ImagePicker from 'expo-image-picker';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import * as Location from 'expo-location';
 import { useNavigation } from '@react-navigation/native';
 
-import { S3Client, BUCKET_NAME, region } from '../../config.js';
-import { createToy, updateToy, deleteToy } from '../API/toyAPI';
-import { toyAdded, toyUpdated, toyDeleted } from '../slices/toySlice';
+import { S3Client, BUCKET_NAME, region, API_URL } from '../../config.js';
 
-export default function Toy({ toyId }) {
-  const [toy, setToy] = useState(null); 
+import { getToysWithinRadius, getAllToys, createToy, updateToy, deleteToy } from '../API/toyAPI';
+import ToyDetails from './ToyDetails.js';
+
+
+export default function Toy() {
   const [image, setImage] = useState(null);
+  const [toys, setToys] = useState([]);
   const { user } = useSelector((state) => state.user);
-  const toys = useSelector((state) => state.toys);
-  const dispatch = useDispatch();
+  //const toy  = useSelector((state) => state.toy);
   const navigation = useNavigation();
 
+  console.log("[Toy Component] - Rendered with", { image, user });
+
   useEffect(() => {
-    if(toyId) {
-      const toyData = toys.find(t => t.id === toyId);
-      setToy(toyData);
-      if(toyData) setImage(toyData.image_url);
-    }
-  }, [toyId, toys]);
+    const fetchToys = async () => {
+      try {
+        const response = await fetch(`${API_URL}/toys`);
+        console.log('RESPONSE', response);
+        const data = await response.json();
+        console.log('DATA', data);
+        setToys(data);
+      } catch (error) {
+        console.error("Error fetching toys:", error);
+      }
+    };
+  
+    fetchToys();
+  }, []);
+  
+  // Log the updated toys array
+  useEffect(() => {
+    console.log("Updated toys array:", toys);
+  }, [toys]);
+  
 
   const onSubmit = async () => {
+    console.log("[onSubmit] - Initiated");
     if (!image || !user || !user.id) {
+      console.log("[onSubmit] - Missing data. Exiting...");
       return;
     }
 
-    let location = await requestUserLocation();
+    // Request the user's location
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      console.log('Permission to access location was denied');
+      return;
+    }
 
-    if (!location) return;
-
+    let location = await Location.getCurrentPositionAsync({});
     const { latitude, longitude } = location.coords;
 
-    const imageUrl = await uploadImageToS3(image);
+    console.log("[onSubmit] - Got user location:", { latitude, longitude });
 
-    if (!imageUrl) return;
+    const response = await fetch(image); // Fetching the binary data from local URI
+    const blob = await response.blob(); // Convert the response into a blob
 
-    const toyData = {
-      image_url: imageUrl,
-      user_id: user.id,
-      user_latitude: latitude,
-      user_longitude: longitude,
+    const uniqueFileName = `${uuidv4()}.jpg`;
+    const destinationFileKey = `images/${uniqueFileName}`;
+
+    const uploadParams = {
+      Bucket: BUCKET_NAME,
+      Key: destinationFileKey,
+      Body: blob, // Use the blob data
+      ContentType: 'image/jpeg',
     };
 
-    let response;
-    if(toy) {
-      response = await updateToy(toy.id, toyData);
-      if(response) {
-        dispatch(toyUpdated(response));
-      }
-    } else {
-      response = await createToy(toyData);
-      if(response) {
-        dispatch(toyAdded(response));
-      }
-    }
+    console.log("[onSubmit] - About to POST toy data with image URI:", image);
 
-    if(response) navigation.navigate('NavigationPage');
-  };
-
-  const onDelete = async () => {
-    if(!toy) return;
-
-    const response = await deleteToy(toy.id);
-    if(response) {
-      dispatch(toyDeleted(toy.id));
-      navigation.navigate('NavigationPage');
-    }
-  };
-
-  const pickImage = async () => {
-    const result = await requestImageFromLibrary();
-
-    if (!result.cancelled) {
-      setImage(result.uri);
-    }
-  };
-
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={pickImage}>
-        <Text style={styles.buttonText}>Upload Image</Text>
-      </TouchableOpacity>
-      {image && <Image source={{ uri: image }} style={styles.image} />}
-      <TouchableOpacity style={styles.button} onPress={onSubmit}>
-        <Text style={styles.buttonText}>{toy ? "Update" : "Submit"}</Text>
-      </TouchableOpacity>
-      {toy && (
-        <TouchableOpacity style={[styles.button, { backgroundColor: '#FF0000' }]} onPress={onDelete}>
-          <Text style={styles.buttonText}>Delete</Text>
-        </TouchableOpacity>
-      )}
-    </View>
-  );
-}
-
-const requestUserLocation = async () => {
-  let { status } = await Location.requestForegroundPermissionsAsync();
-  if (status !== 'granted') {
-    return null;
-  }
-  return await Location.getCurrentPositionAsync({});
-}
-
-const uploadImageToS3 = async (image) => {
-  const response = await fetch(image);
-  const blob = await response.blob();
-  const uniqueFileName = `${uuidv4()}.jpg`;
-  const destinationFileKey = `images/${uniqueFileName}`;
-  const uploadParams = {
-    Bucket: BUCKET_NAME,
-    Key: destinationFileKey,
-    Body: blob,
-    ContentType: 'image/jpeg',
-  };
-
-  try {
-    await new Promise((resolve, reject) => {
+    const s3UploadPromise = new Promise((resolve, reject) => {
       S3Client.putObject(uploadParams, function (err, data) {
         if (err) {
           reject(err);
@@ -131,25 +87,95 @@ const uploadImageToS3 = async (image) => {
         resolve(data);
       });
     });
-    return `https://${BUCKET_NAME}.s3.amazonaws.com/${destinationFileKey}`;
-  } catch (error) {
-    console.error('Error uploading image:', error);
-    return null;
-  }
-}
 
-const requestImageFromLibrary = async () => {
-  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  if (status !== 'granted') {
-    return { cancelled: true };
-  }
-  return await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    allowsEditing: true,
-    aspect: [4, 3],
-    quality: 1,
-  });
-}
+    try {
+      const data = await s3UploadPromise;
+      const imageUrl = `https://${BUCKET_NAME}.s3.amazonaws.com/${destinationFileKey}`;
+
+      console.log("[onSubmit] - Image uploaded. Image URL:", imageUrl);
+
+      const toyData = {
+        image_url: imageUrl,
+        user_id: user.id,
+        user_latitude: latitude,
+        user_longitude: longitude,
+      };
+
+      console.log("[onSubmit] - About to POST toy data:", toyData);
+
+      const response = await fetch(`${API_URL}/toys`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(toyData),
+      });
+
+      console.log("[onSubmit] - Received response from server:", response);
+
+      if (response.ok) {
+        console.log("[onSubmit] - Toy creation success");
+        setImage(null);
+        navigation.navigate('NavigationPage');
+      } else {
+        console.error('[onSubmit] - Failed to create toy:', response.status);
+      }
+    } catch (error) {
+      console.error('[onSubmit] - Error creating toy:', error);
+    }
+  };
+
+  const pickImage = async () => {
+    console.log("[pickImage] - Initiated");
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      console.log('Permission denied');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.cancelled) {
+      console.log("[pickImage] - Image selected. URI:", result.uri);
+      setImage(result.uri);
+    }
+  };
+
+  console.log('Filtered toys:', toys);
+  console.log('User ID:', user.id);
+
+
+  return (
+<View style={styles.container}>
+  {toys && toys.toys && toys.toys.length > 0 && user ? (
+    toys.toys
+      .filter(toy => toy.user_id === user.id) 
+      .map(toy => (
+        <View key={toy.id} style={styles.toyItem}>
+          <Image source={{ uri: toy.image_url }} style={styles.toyImage} />
+        </View>
+      ))
+  ) : (
+    <Text>No toys available.</Text>
+  )}
+
+  <TouchableOpacity style={styles.button} onPress={pickImage}>
+    <Text style={styles.buttonText}>Upload Image</Text>
+  </TouchableOpacity>
+  {image && <Image source={{ uri: image }} style={styles.image} />}
+  <TouchableOpacity style={styles.button} onPress={onSubmit}>
+    <Text style={styles.buttonText}>Submit</Text>
+  </TouchableOpacity>
+</View>
+
+
+  );
+ }
 
 const styles = StyleSheet.create({
   container: {
@@ -172,4 +198,17 @@ const styles = StyleSheet.create({
     height: 100,
     marginVertical: 10
   },
+  toyItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderBottomColor: '#ccc',
+    borderBottomWidth: 1,
+  },
+  toyImage: {
+    width: 250,
+    height: 250,
+    marginRight: 10,
+    borderRadius: 25,
+  }
 });
