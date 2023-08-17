@@ -15,6 +15,20 @@ const initialState = {
   error: null,
 };
 
+
+export const fetchUserDataAction = createAsyncThunk(
+  'user/fetchUserData',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await fetchDataFromAPI(); // Implement this function to fetch user data
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+
+
 export const updateUser = createAsyncThunk(
   'user/updateUser',
   async (userUpdateData, { rejectWithValue }) => {

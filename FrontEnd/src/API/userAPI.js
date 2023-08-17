@@ -28,6 +28,9 @@ export const updateUser = async (userData) => {
   return await axios.put(`${API_URL}/user/update`, userData, { headers });
 };
 
+export const fetchDataFromAPI = async () => {
+  return await axios.get(`${API_URL}/user/data`, { headers }); // Replace with your API endpoint
+};
 
 
 

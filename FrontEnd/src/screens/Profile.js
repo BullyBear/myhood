@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Image, ScrollView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Formik } from 'formik';
@@ -7,7 +7,7 @@ import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { updateUser } from '../slices/userSlice';
+import { fetchUserDataAction, updateUser } from '../slices/userSlice';
 import { S3Client, BUCKET_NAME_TWO } from '../../config.js'; 
 
 const validationSchema = yup.object().shape({
@@ -20,6 +20,11 @@ const Profile = ({ navigation }) => {
   const dispatch = useDispatch();
   
   const user = useSelector(state => state.user.user); // Access user data from the redux store
+
+    // Log when the component re-renders
+    useEffect(() => {
+      dispatch(fetchUserDataAction()); // Fetch updated user data when the component mounts
+    }, []);
 
 
   const handleImagePick = async () => {
@@ -70,7 +75,8 @@ const Profile = ({ navigation }) => {
       profile_picture: image || user.profile_picture,
       user_id: user.id  // Add this line
     };
-    dispatch(updateUser(updatedData)); // Dispatch only with updatedData since user ID is now included
+    await dispatch(updateUser(updatedData)); // Wait for the update to complete
+    dispatch(fetchUserDataAction()); // Fetch updated user data after updating
   };
   
 
