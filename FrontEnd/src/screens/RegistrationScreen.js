@@ -8,7 +8,8 @@ import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import { S3Client, BUCKET_NAME_TWO } from '../../config.js';
 import { useDispatch, useSelector } from 'react-redux';
-import { registerUser, registerUserRequest, registerUserSuccess, registerUserFailure } from '../slices/userSlice'; 
+//import { registerUser, registerUserRequest, registerUserSuccess, registerUserFailure } from '../slices/userSlice';
+import { registerUser, setSuccessMessage, setImageUrl, setError } from '../slices/userSlice';
 
 
 const getLocation = async () => {
@@ -56,10 +57,13 @@ const validationSchema = yup.object().shape({
 const RegistrationScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const userState = useSelector((state) => state.user);
-  const isLoading = userState.loading;
-  const error = userState.error;
-  const [successMessage, setSuccessMessage] = useState(null);
-  const [image, setImage] = useState(null);
+  const { isLoading, error, successMessage, image } = userState;
+  //const isLoading = userState.loading;
+  //const error = userState.error;
+  //const [successMessage, setSuccessMessage] = useState(null);
+  //const [image, setImage] = useState(null);
+  //const [errorMessage, setError] = useState(null);
+
 
 
   const handleImagePick = async () => {
@@ -89,15 +93,18 @@ const RegistrationScreen = ({ navigation }) => {
         });
         await s3UploadPromise;
         const imageUrl = `https://${BUCKET_NAME_TWO}.s3.amazonaws.com/${destinationFileKey}`;
-        setImage(imageUrl);
+        dispatch(setImageUrl(imageUrl)); 
+        console.log('Image successfully uploaded:', imageUrl);
       }
     } catch (error) {
       console.error("Error picking and uploading image:", error);
+      dispatch(setError("Error picking and uploading image"));
     }
   };
 
   const handleRegister = async (values) => {
-    dispatch(registerUserRequest());
+    // Remove this manual dispatch, let the thunk handle it
+    // dispatch(registerUserRequest());
 
     try {
         const location = await getLocation();
@@ -105,18 +112,16 @@ const RegistrationScreen = ({ navigation }) => {
         values.user_longitude = location.coords.longitude;
         values.profile_picture = image;
 
-        // Using the redux action creator instead of direct API call
-        dispatch(registerUser(values)).then((resultAction) => {
-            if (registerUser.fulfilled.match(resultAction)) {
-                setSuccessMessage('Registration successful! You can now login.');
-            } else {
-                setError('Registration failed. Please try again.');
-            }
-        });
+        // Let this dispatch handle everything
+        dispatch(registerUser(values)); 
+      
     } catch (error) {
-        dispatch(registerUserFailure(error.message));
+        console.error("Error during registration:", error.message);
+        // dispatch(registerUserFailure(error.message)); // Remove this
     }
 };
+
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

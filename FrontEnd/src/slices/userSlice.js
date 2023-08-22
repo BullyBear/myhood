@@ -13,7 +13,25 @@ const initialState = {
   user: null,
   loading: false,
   error: null,
+  successMessage: null,  
+  image: null,           
+  errorMessage: null,    
 };
+
+
+
+export const registerUserThunk = createAsyncThunk(
+  'user/registerUser',
+  async (userData, { rejectWithValue }) => {
+    try {
+      const response = await registerUserFromAPI(userData);
+      console.log('API Response:', response);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response ? err.response.data : "Unknown error");
+    }
+  }
+);
 
 
 export const fetchUserDataAction = createAsyncThunk(
@@ -57,6 +75,15 @@ const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
+    setImageUrl: (state, action) => {
+      state.image = action.payload;
+    },
+    setSuccessMessage: (state, action) => {
+      state.successMessage = action.payload;
+    },
+    setError: (state, action) => {
+      state.errorMessage = action.payload;
+    },
     registerUserRequest: (state) => {
       state.loading = true;
       state.error = null;
@@ -134,10 +161,25 @@ const userSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    [registerUserThunk.pending]: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    [registerUserThunk.fulfilled]: (state, action) => {
+      state.loading = false;
+      state.user = action.payload;
+    },
+    [registerUserThunk.rejected]: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
   },
 });
 
-export const { 
+export const {
+  setImageUrl,
+  setSuccessMessage,
+  setError,
   registerUserRequest, 
   registerUserSuccess, 
   registerUserFailure,
@@ -150,16 +192,21 @@ export const {
   inviteUserFailure
 } = userSlice.actions;
 
+
 export const registerUser = (userData) => async (dispatch) => {
-  dispatch(registerUserRequest());
+  // Instead of manually dispatching request/success/failure, use the thunk
   try {
-    const response = await registerUserFromAPI(userData);
-    console.log('')
-    dispatch(registerUserSuccess(response.data));
+    const action = await dispatch(registerUserThunk(userData));
+    console.log('Registration action:', action);
+    if (action.error) {
+      console.error('Error from registerUserThunk:', action.error);
+    }
   } catch (error) {
-    dispatch(registerUserFailure(error.message));
+    console.error("Error registering user:", error.message);
   }
 };
+
+
 
 export const loginUser = (credentials) => async (dispatch) => {
   dispatch(loginUserRequest());

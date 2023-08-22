@@ -21,54 +21,43 @@ import UserBox from './src/screens/UserBox';
 import UserDetails from './src/screens/UserDetails';
 import ChatScreen from './src/screens/ChatScreen';
 
-
-const fetchFonts = () => {
-  return Font.loadAsync({
-    'Roboto-Regular': require('./assets/fonts/Roboto-Regular.ttf'),
-    'Roboto-Bold': require('./assets/fonts/Roboto-Bold.ttf'),
-    // Add other font variations if needed
-  });
-};
-
 const Stack = createStackNavigator();
 
-const App = () => {
-
+export default function App() {
   const [fontLoaded, setFontLoaded] = useState(false);
 
   useEffect(() => {
-    async function loadResources() {
+    const loadFonts = async () => {
       try {
         await SplashScreen.preventAutoHideAsync();
-        await fetchFonts();
-      } catch (error) {
-        console.warn(error);
-      } finally {
+        await Font.loadAsync({
+          'Roboto-Regular': require('./assets/fonts/Roboto-Regular.ttf'),
+          'Roboto-Bold': require('./assets/fonts/Roboto-Bold.ttf'),
+          // ... add other font variations if needed
+        });
         setFontLoaded(true);
+      } catch (error) {
+        console.error("Error loading fonts", error);
+      } finally {
+        SplashScreen.hideAsync();
       }
-    }
+    };
 
-    loadResources();
+    loadFonts();
   }, []);
 
-  useEffect(() => {
-    if (fontLoaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontLoaded]);
-
   if (!fontLoaded) {
-    return null;  // You can return a placeholder view here if needed
+    return null;
   }
 
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-      <PaperProvider>
-      <NavigationContainer>
-        <Stack.Navigator>
-        <Stack.Screen name="Landing" component={LandingPage} /> 
-        <Stack.Screen name="Auth" component={AuthNavigator} />
+        <PaperProvider>
+        <NavigationContainer>
+        <Stack.Navigator initialRouteName="Landing">
+          <Stack.Screen name="Landing" component={LandingPage} />
+          <Stack.Screen name="Auth" component={AuthNavigator} />
           <Stack.Screen name="FrontPage" component={FrontPage} />
           <Stack.Screen name="NavigationPage" component={NavigationPage} />
           <Stack.Screen name="Toy" component={Toy} />
@@ -80,10 +69,9 @@ const App = () => {
           <Stack.Screen name="ChatScreen" component={ChatScreen} />
         </Stack.Navigator>
       </NavigationContainer>
-      </PaperProvider>
+
+        </PaperProvider>
       </PersistGate>
     </Provider>
   );
-};
-
-export default App;
+}

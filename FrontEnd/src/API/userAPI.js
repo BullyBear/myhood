@@ -6,10 +6,37 @@ const headers = {
   'Content-Type': 'application/json',
 };
 
+// export const registerUser = async (userData) => {
+//   console.log('REGISTER API - AM I WORKING?', registerUser)
+//   return await axios.post(`${API_URL}/register`, userData, { headers });
+// };
+
+
+
 export const registerUser = async (userData) => {
-  console.log('REGISTER API - AM I WORKING?', registerUser)
-  return await axios.post(`${API_URL}/register`, userData, { headers });
+  console.log('REGISTER API - AM I WORKING?', registerUser);
+
+  try {
+    const response = await axios.post(`${API_URL}/register`, userData, { headers });
+    
+    console.log("API RESPONSE:", response);
+    
+    return response;
+  } catch (err) {
+    console.error("API Call Error:", err);
+
+    // If error response is available, log it for more clarity
+    if (err.response) {
+      console.error("Error Response:", err.response);
+      throw new Error(`API responded with status ${err.response.status} and message ${err.response.data}`);
+    } else {
+      // If there's no error response, it's likely a network issue or issue with the Axios request itself
+      throw new Error("Network error or issue with Axios request");
+    }
+  }
 };
+
+
 
 export const loginUser = async (credentials) => {
   return await axios.post(`${API_URL}/login`, credentials, { headers });
@@ -31,6 +58,8 @@ export const updateUser = async (userData) => {
 export const fetchDataFromAPI = async () => {
   return await axios.get(`${API_URL}/user/data`, { headers }); // Replace with your API endpoint
 };
+
+
 
 
 
