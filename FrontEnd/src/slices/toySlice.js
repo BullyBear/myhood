@@ -74,19 +74,45 @@ const toySlice = createSlice({
         state.toys[index] = toy; // update existing toy data
       }
     },
-    addToyToBox: (state, action) => {
+    // Dont use this anymore 
+    addProfileToUserBox: (state, action) => {
       const toy = action.payload;
-      console.log('[addToyToBox] - Adding toy to box:', toy);
-      state.toyBox.push(toy);
-      console.log('[Debug] - state.toys value:', state.toys);
-      console.log('Current state.toys:', state.toys);
-      state.toys = state.toys.filter((item) => item.id !== toy.id);
-    },
+  
+      if (!toy) {
+          console.error('[addProfileToUserBox] - Toy payload is undefined');
+          return;
+      }
+  
+      console.log('[addProfileToUserBox] - Adding toy to box:', toy);
+      
+      if (state.toyBox) {  // ensure toyBox exists and is an array
+          state.toyBox.push(toy);
+      } else {
+          console.error('[addProfileToUserBox] - state.toyBox is not initialized or is not an array');
+          state.toyBox = [toy]; // Initialize it if not done
+      }
+  
+      // Ensure state.toys and state.toys.toys both exist and the latter is an array
+      if (state.toys && Array.isArray(state.toys.toys)) {
+          console.log('[Debug] - state.toys.toys value:', state.toys.toys);
+          state.toys.toys = state.toys.toys.filter((item) => item.id !== toy.id);
+      } else {
+          console.error('state.toys.toys is not an array or is undefined');
+      }
+  },
     removeToyFromCarousel: (state, action) => {
       const toyToRemove = action.payload;
       console.log('[removeToyFromCarousel] - Removing toy from carousel:', toyToRemove);
+    
+      // Check if state.toys is an array before performing array operations on it
+      if (!Array.isArray(state.toys)) {
+        console.error('state.toys is not an array or is undefined');
+        return;
+      }
+    
       state.toys = state.toys.filter((item) => item.id !== toyToRemove.id);
     },
+    
     toyAdded: (state, action) => {
       state.toys.push(action.payload);
     },
@@ -164,6 +190,6 @@ const toySlice = createSlice({
   },
 });
 
-export const { loadToy, addToyToBox, removeToyFromCarousel, toyAdded, toyUpdated, toyDeleted } = toySlice.actions;
+export const { loadToy, addProfileToUserBox, removeToyFromCarousel, toyAdded, toyUpdated, toyDeleted } = toySlice.actions;
 
 export default toySlice.reducer;

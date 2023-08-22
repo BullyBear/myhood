@@ -6,9 +6,14 @@ import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import {
   fetchToysFromAPI,
   fetchToysWithinRadiusFromAPI,
-  addToyToBox,
   removeToyFromCarousel,
 } from '../slices/toySlice';
+
+import {
+  addProfileToUserBoxAsync
+} from '../slices/userSlice';
+
+
 
 import { addUserInteraction } from '../slices/userSlice';
 
@@ -22,14 +27,25 @@ function Carousel() {
   // const toyState = useSelector((state) => state.toy);
   // const { toys, loading, error } = toyState;
 
-  const { toys, loading, error } = useSelector((state) => state.toy);
-  //const { toys, loading, error } = useSelector((state) => state.toy.toys);
+
+  //const { toys, loading, error } = useSelector((state) => state.toy);
+  //const { toys = [], loading, error } = useSelector((state) => state.toy);
+  //const { toys, loading, error } = useSelector((state) => state.toys.toys);
+  const { toys = [], loading, error } = useSelector((state) => state.toy.toys);
+
 
 
   const { user } = useSelector((state) => state.user);
   //const { user } = useSelector((state) => state.user.users);
 
-  const [currentIndex, setCurrentIndex] = useState(0);
+
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const currentToy = (toys && toys.length > currentIndex) ? toys[currentIndex] : null;
+    const imageUrl = currentToy ? currentToy.image_url : defaultImageUrl;
+    console.log("Extracted Image URL:", imageUrl);
+
+
+  //const [currentIndex, setCurrentIndex] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [imageLoadingError, setImageLoadingError] = useState(false);
   const translateX = new Animated.Value(0);
@@ -38,7 +54,12 @@ function Carousel() {
 
   console.log('Entire Toys Array:', toys);
   console.log('Current Toy at Index:', [currentIndex]);
-  console.log('Current Toy Image URL:', toys.toys[currentIndex]?.image_url);
+  //console.log('Current Toy Image URL:', toys.toys[currentIndex]?.image_url);
+  console.log('Current Toy Image URL:', toys[currentIndex]?.image_url);
+
+
+  const entireState = useSelector((state) => state);
+  console.log('Entire Redux State:', entireState);
 
 
 
@@ -70,22 +91,39 @@ function Carousel() {
   );
 
 
+
   const onSwipeRight = () => {
-    const toyToAdd = toys[currentIndex];
+    const toyToShow = toys[currentIndex];
     console.log('Swiping Right');
-    //console.log('Current Toy to Add to Box:', toyToAdd.name, '| Index:', currentIndex);
-    dispatch(addToyToBox(toyToAdd));
-    dispatch(removeToyFromCarousel(toyToAdd));
+    
+    if (!toyToShow) {
+      console.error('No toy found at current index:', currentIndex);
+      return;
+    }
+  
+    const userIdOfToy = toyToShow.user_id;
+    if (!userIdOfToy) {
+      console.error('No user ID found for toy with ID:', toyToShow.id);
+      return;
+    }
+  
+    // Dispatch with the user ID using the Async action
+    dispatch(addProfileToUserBoxAsync(userIdOfToy));
+    dispatch(removeToyFromCarousel(toyToShow));
+  
     if (user && user.id) {
       console.log('Recording User Interaction for User:', user.id);
-        dispatch(addUserInteraction({ userId: user.id, toyId: toyToAdd.id }));
+      // Add logic here if you want to record interactions between users
     }
+  
     setCurrentIndex((prevIndex) => {
       const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
       console.log('New Current Index after Swipe Right:', newIndex);
       return newIndex;
     });
   };
+  
+  
 
 
   // const onSwipeRight = () => {
@@ -95,7 +133,7 @@ function Carousel() {
   //     console.log('Toy to Add:', toyToAdd);
   //     console.log('Current Index on Swipe Right:', newCurrentIndex);
   //     setCurrentIndex(newCurrentIndex);
-  //     dispatch(addToyToBox(toyToAdd));
+  //     dispatch(addProfileToUserBox(toyToAdd));
   //     dispatch(removeToyFromCarousel(toyToAdd));
   //     if (user && user.id) {
   //       dispatch(addUserInteraction({ userId: user.id, toyId: toyToAdd.id }));
@@ -107,7 +145,7 @@ function Carousel() {
   const onSwipeLeft = () => {
     const toyToRemove = toys[currentIndex];
     console.log('Swiping Left');
-    console.log('Current Toy to Remove:', toyToRemove.name, '| Index:', currentIndex);
+    //console.log('Current Toy to Remove:', toyToRemove.name, '| Index:', currentIndex);
     dispatch(removeToyFromCarousel(toyToRemove));
     setCurrentIndex((prevIndex) => {
         const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
@@ -163,7 +201,7 @@ function Carousel() {
           
       
           <Image
-            source={{ uri: toys.toys[currentIndex]?.image_url || 'https://deplorablesnowflake.com/static/american.jpg' }}
+            source={{ uri: imageUrl }}
             style={styles.toyImage}
             onLoadStart={() => setImageLoadingError(false)}
             onError={(error) => {

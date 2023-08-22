@@ -17,6 +17,7 @@ function ToyBox() {
   };
 
   const renderThumbnail = (item, index) => {
+    if (!item) return null; // Add this check
     let imageSize = toysToShow.length <= 1 ? width * 0.6 : width * 0.3;
 
     return (

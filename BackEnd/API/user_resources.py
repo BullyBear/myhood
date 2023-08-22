@@ -141,6 +141,24 @@ class UserUpdate(Resource):
 
 
 
+class UserProfileBox(Resource):
+    def post(self, user_id):
+        data = request.json
+        
+        user = User.query.get(user_id)
+        if not user:
+            return {'message': 'User not found'}, 404
+
+        # Modify the user's data with the provided profile data from the request
+        user.bio = data['bio']
+        user.profile_picture = data['profile_picture']
+
+        db.session.commit()
+
+        return {'message': 'Profile added to UserBox successfully'}, 200
+
+
+
 
 
 

@@ -94,6 +94,7 @@ const RegistrationScreen = ({ navigation }) => {
         await s3UploadPromise;
         const imageUrl = `https://${BUCKET_NAME_TWO}.s3.amazonaws.com/${destinationFileKey}`;
         dispatch(setImageUrl(imageUrl)); 
+        //dispatch(setImageUrl(null)); 
         console.log('Image successfully uploaded:', imageUrl);
       }
     } catch (error) {

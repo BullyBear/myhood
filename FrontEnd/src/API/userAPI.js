@@ -61,6 +61,13 @@ export const fetchDataFromAPI = async () => {
 
 
 
+export const addProfileToUserBox = async (userId, profileData) => {
+  return await axios.post(`${API_URL}/user/${userId}/addProfile`, profileData, { headers });
+};
+
+
+
+
 
 
 

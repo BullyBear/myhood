@@ -7,16 +7,46 @@ import {
   updateUser as updateUserFromAPI,
   resetPassword as resetPasswordFromAPI,
   inviteUser as inviteUserFromAPI,
+  addProfileToUserBox as addProfileToUserBoxAPI
 } from '../API/userAPI';
+
 
 const initialState = {
   user: null,
+  users: [], 
+  userBox: [], 
   loading: false,
   error: null,
   successMessage: null,  
   image: null,           
   errorMessage: null,    
 };
+
+
+// export const addProfileToUserBoxAsync = createAsyncThunk(
+//   'user/addProfile',
+//   async (userId, thunkAPI) => {
+//     try {
+//       const response = await addProfileToUserBoxAPI(userId);
+//       return response.data; // assuming the API sends back the added profile data
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue(error.response.data);
+//     }
+//   }
+// );
+
+export const addProfileToUserBoxAsync = createAsyncThunk(
+  'user/addProfile',
+  async ({ userId, profileData }, thunkAPI) => {
+    try {
+      const response = await addProfileToUserBoxAPI(userId, profileData);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
+
 
 
 
@@ -75,6 +105,12 @@ const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
+    addProfileToUserBox: (state, action) => {
+      const userProfile = action.payload;
+      if (!state.userBox.find(profile => profile.id === userProfile.id)) {
+        state.userBox.push(userProfile);
+      }
+    },
     setImageUrl: (state, action) => {
       state.image = action.payload;
     },
@@ -122,6 +158,7 @@ const userSlice = createSlice({
     },
     logoutUser: (state) => {
       state.user = null;
+      state.image = null;
     },
     inviteUserRequest: (state) => {
       state.loading = true;
@@ -137,6 +174,19 @@ const userSlice = createSlice({
     },
   },
   extraReducers: {
+    [addProfileToUserBoxAsync.pending]: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    [addProfileToUserBoxAsync.fulfilled]: (state, action) => {
+      state.loading = false;
+      // Using the reducer to add the profile to the user box
+      userSlice.caseReducers.addProfileToUserBox(state, action);
+    },
+    [addProfileToUserBoxAsync.rejected]: (state, action) => {
+      state.loading = false;
+      state.error = action.error.message;
+    },
     [updateUser.pending]: (state) => {
       state.loading = true;
       state.error = null;
