@@ -14,8 +14,10 @@ import {
 } from '../slices/userSlice';
 
 
+// import { addUserInteraction } from '../slices/userSlice';
 
-import { addUserInteraction } from '../slices/userSlice';
+
+
 
 function Carousel() {
 
@@ -24,25 +26,33 @@ function Carousel() {
   const dispatch = useDispatch();
 
 
-  // const toyState = useSelector((state) => state.toy);
-  // const { toys, loading, error } = toyState;
+  const { user } = useSelector((state) => state.user);
+  //const { user } = useSelector((state) => state.user.users);
+  console.log('USER', user)
 
 
   //const { toys, loading, error } = useSelector((state) => state.toy);
   //const { toys = [], loading, error } = useSelector((state) => state.toy);
   //const { toys, loading, error } = useSelector((state) => state.toys.toys);
+
+
   const { toys = [], loading, error } = useSelector((state) => state.toy.toys);
 
+  // const toyState = useSelector((state) => state.toy.toys);
+  // const rawToys = toyState?.toys || [];
+  // const toys = user ? rawToys.filter(toy => toy.user_id !== user.id) : rawToys;
+  //const { loading, error } = toyState;
 
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const currentToy = (toys && toys.length > currentIndex) ? toys[currentIndex] : null;
+  const imageUrl = currentToy ? currentToy.image_url : defaultImageUrl;
+  console.log("Extracted Image URL:", imageUrl);
 
-  const { user } = useSelector((state) => state.user);
-  //const { user } = useSelector((state) => state.user.users);
-
-
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const currentToy = (toys && toys.length > currentIndex) ? toys[currentIndex] : null;
-    const imageUrl = currentToy ? currentToy.image_url : defaultImageUrl;
-    console.log("Extracted Image URL:", imageUrl);
+  //const bio = useSelector(state => state.user.bio);
+  //const profilePicture = useSelector(state => state.user.profile_picture);
+  const bio = useSelector(state => state.user.user.bio);
+  const profilePicture = useSelector(state => state.user.user.profile_picture);
+  
 
 
   //const [currentIndex, setCurrentIndex] = useState(0);
@@ -58,13 +68,16 @@ function Carousel() {
   console.log('Current Toy Image URL:', toys[currentIndex]?.image_url);
 
 
-  const entireState = useSelector((state) => state);
-  console.log('Entire Redux State:', entireState);
+  // const entireState = useSelector((state) => state);
+  // console.log('Entire Redux State:', entireState);
 
 
 
   useEffect(() => {
+
     if (toys.length === 0) {
+      //if (toys.length > 0) {
+      console.log("I DONT SEE THIS")
       dispatch(fetchToysFromAPI());
     }
         
@@ -106,9 +119,25 @@ function Carousel() {
       console.error('No user ID found for toy with ID:', toyToShow.id);
       return;
     }
+
+    console.log("userIdOfToy:", userIdOfToy);
+    console.log("Bio in carousel:", bio);
+    console.log("Profile Picture in carousel:", profilePicture);
+
+
   
     // Dispatch with the user ID using the Async action
-    dispatch(addProfileToUserBoxAsync(userIdOfToy));
+    //dispatch(addProfileToUserBoxAsync(userIdOfToy));  
+    //dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, profileData: profileData }));
+
+    dispatch(addProfileToUserBoxAsync({
+      userId: userIdOfToy, 
+      profileData: {
+          bio: bio, 
+          profile_picture: profilePicture
+      }
+  }));
+
     dispatch(removeToyFromCarousel(toyToShow));
   
     if (user && user.id) {
@@ -116,12 +145,21 @@ function Carousel() {
       // Add logic here if you want to record interactions between users
     }
   
-    setCurrentIndex((prevIndex) => {
-      const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
-      console.log('New Current Index after Swipe Right:', newIndex);
-      return newIndex;
-    });
-  };
+  // setCurrentIndex((prevIndex) => {
+  //     if (toys.length === 0) return 0;  // If toys array is empty, keep index at 0
+  //     const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
+  //     console.log('New Current Index after Swipe Right:', newIndex);
+  //     return newIndex;
+  //   });
+  // };
+
+  setCurrentIndex((prevIndex) => {
+    if (toys.length === 0) return 0;  // If toys array is empty, keep index at 0
+    const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
+    return newIndex;
+  });
+};
+  
   
   
 
@@ -148,9 +186,10 @@ function Carousel() {
     //console.log('Current Toy to Remove:', toyToRemove.name, '| Index:', currentIndex);
     dispatch(removeToyFromCarousel(toyToRemove));
     setCurrentIndex((prevIndex) => {
-        const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
-        console.log('New Current Index after Swipe Left:', newIndex);
-        return newIndex;
+      if (toys.length === 0) return 0;  // If toys array is empty, keep index at 0
+      const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
+      console.log('New Current Index after Swipe Left:', newIndex);
+      return newIndex;
       });
     };
 

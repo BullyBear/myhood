@@ -19,8 +19,12 @@ const initialState = {
   error: null,
   successMessage: null,  
   image: null,           
-  errorMessage: null,    
+  errorMessage: null,
+  bio: '',      
+  profile_picture: '' 
 };
+
+
 
 
 // export const addProfileToUserBoxAsync = createAsyncThunk(
@@ -110,6 +114,12 @@ const userSlice = createSlice({
       if (!state.userBox.find(profile => profile.id === userProfile.id)) {
         state.userBox.push(userProfile);
       }
+    },
+    setBio: (state, action) => {   
+      state.bio = action.payload;
+    },
+    setProfilePicture: (state, action) => {   
+      state.profile_picture = action.payload;
     },
     setImageUrl: (state, action) => {
       state.image = action.payload;
@@ -228,6 +238,8 @@ const userSlice = createSlice({
 
 export const {
   setImageUrl,
+  setBio,        
+  setProfilePicture,
   setSuccessMessage,
   setError,
   registerUserRequest, 

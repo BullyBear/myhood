@@ -75,31 +75,31 @@ const toySlice = createSlice({
       }
     },
     // Dont use this anymore 
-    addProfileToUserBox: (state, action) => {
-      const toy = action.payload;
+  //   addProfileToUserBox: (state, action) => {
+  //     const toy = action.payload;
   
-      if (!toy) {
-          console.error('[addProfileToUserBox] - Toy payload is undefined');
-          return;
-      }
+  //     if (!toy) {
+  //         console.error('[addProfileToUserBox] - Toy payload is undefined');
+  //         return;
+  //     }
   
-      console.log('[addProfileToUserBox] - Adding toy to box:', toy);
+  //     console.log('[addProfileToUserBox] - Adding toy to box:', toy);
       
-      if (state.toyBox) {  // ensure toyBox exists and is an array
-          state.toyBox.push(toy);
-      } else {
-          console.error('[addProfileToUserBox] - state.toyBox is not initialized or is not an array');
-          state.toyBox = [toy]; // Initialize it if not done
-      }
+  //     if (state.toyBox) {  // ensure toyBox exists and is an array
+  //         state.toyBox.push(toy);
+  //     } else {
+  //         console.error('[addProfileToUserBox] - state.toyBox is not initialized or is not an array');
+  //         state.toyBox = [toy]; // Initialize it if not done
+  //     }
   
-      // Ensure state.toys and state.toys.toys both exist and the latter is an array
-      if (state.toys && Array.isArray(state.toys.toys)) {
-          console.log('[Debug] - state.toys.toys value:', state.toys.toys);
-          state.toys.toys = state.toys.toys.filter((item) => item.id !== toy.id);
-      } else {
-          console.error('state.toys.toys is not an array or is undefined');
-      }
-  },
+  //     // Ensure state.toys and state.toys.toys both exist and the latter is an array
+  //     if (Array.isArray(state.toys)) {
+  //       console.log('[Debug] - state.toys value:', state.toys);
+  //       state.toys = state.toys.filter((item) => item.id !== toy.id);
+  //     } else {
+  //         console.error('state.toys.toys is not an array or is undefined');
+  //     }
+  // },
     removeToyFromCarousel: (state, action) => {
       const toyToRemove = action.payload;
       console.log('[removeToyFromCarousel] - Removing toy from carousel:', toyToRemove);

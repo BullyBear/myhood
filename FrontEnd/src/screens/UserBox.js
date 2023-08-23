@@ -22,11 +22,13 @@ function UserBox({ userBox, usersByIds, fetchUsersByIds, userInteractions }) {
 
   const renderThumbnail = (item, index) => {
     let imageSize = usersToShow.length <= 1 ? width * 0.6 : width * 0.3;
+    const imageUrl = item.profile_picture || item.image_url;
 
     return (
       <TouchableOpacity onPress={() => navigation.navigate('UserDetails', { user: item })} style={styles.imageContainer}>
-        <Image source={{ uri: item.image_url }} style={{ width: imageSize, height: imageSize }} />
-      </TouchableOpacity>
+      <Image source={{ uri: imageUrl }} style={{ width: imageSize, height: imageSize }} />
+      <Text style={{marginTop: 10}}>{item.bio}</Text>
+    </TouchableOpacity>
     );
   };
 
@@ -59,7 +61,12 @@ function UserBox({ userBox, usersByIds, fetchUsersByIds, userInteractions }) {
   
   const startIdx = (page - 1) * ITEMS_PER_PAGE;
   const endIdx = startIdx + ITEMS_PER_PAGE;
-  const usersToShow = Array.isArray(userBox) ? userBox.slice(startIdx, endIdx) : [];
+
+  //const usersToShow = Array.isArray(userBox) ? userBox.slice(startIdx, endIdx) : [];
+  const usersToShow = Array.isArray(userBox) 
+  ? userBox.slice(startIdx, endIdx).map(id => usersByIds[id]).filter(user => user) 
+  : [];
+
 
   return (
     <View style={styles.container}>

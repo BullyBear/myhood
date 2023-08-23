@@ -113,6 +113,9 @@ const RegistrationScreen = ({ navigation }) => {
         values.user_longitude = location.coords.longitude;
         values.profile_picture = image;
 
+        console.log("Image URL:", image);
+        console.log("Bio:", values.bio);
+
         // Let this dispatch handle everything
         dispatch(registerUser(values)); 
       

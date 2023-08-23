@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
+
 import { useSelector } from 'react-redux';
 import * as ImagePicker from 'expo-image-picker';
 import 'react-native-get-random-values';
@@ -98,6 +99,7 @@ export default function Toy() {
         user_latitude: latitude,
         user_longitude: longitude,
       };
+
 
       const response = await fetch(`${API_URL}/toys`, {
         method: 'POST',

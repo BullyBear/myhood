@@ -11,9 +11,14 @@ import { logoutUser } from '../slices/userSlice';
 
 const FrontPage = ({ navigation }) => {
   const dispatch = useDispatch();
-  const { toys, loading, error } = useSelector((state) => state.toy);
+
+  //const { toys, loading, error } = useSelector((state) => state.toy);
+  const { toys = [], loading, error } = useSelector((state) => state.toy.toys); 
+
   const { user } = useSelector((state) => state.user);
-  const state = useSelector((state) => state);  
+
+  //const state = useSelector((state) => state);  
+
   const [userName, setUserName] = useState(null);
 
 
@@ -31,9 +36,9 @@ const FrontPage = ({ navigation }) => {
     }
   }, [user]);
 
-  useEffect(() => {
-    console.log(state);
-  }, [state]);
+  // useEffect(() => {
+  //   console.log(state);
+  // }, [state]);
 
   const handleLogout = () => {
     dispatch(logoutUser());

@@ -16,7 +16,7 @@ const validationSchema = yup.object().shape({
 
 
 const Profile = ({ navigation }) => {
-  const [image, setImage] = useState(null); // Set default to user's current image if available
+  const [image, setImage] = useState(null); // Set default to user's current image if available. do i want local here?
   const dispatch = useDispatch();
   
   const user = useSelector(state => state.user.user); // Access user data from the redux store
