@@ -110,10 +110,13 @@ class UserUpdate(Resource):
                 return {'message': 'Required fields missing'}, 400
 
             user = User.query.get(data['user_id'])
-            
-            if not user:
+            current_app.logger.debug("Debug: User ID received in API call: %s", data['user_id'])  # <-- Add this line
+            if user:
+                current_app.logger.debug("Debug: User ID after fetching from DB: %s", user.id)  # <-- Add this line
+            else:
                 current_app.logger.error("User with user_id %s not found.", data['user_id'])
                 return {'message': 'User not found'}, 404
+
 
             # Ensure mandatory fields are not None or empty
             if not user.name or not user.email or not user.password:
@@ -127,7 +130,7 @@ class UserUpdate(Resource):
             try:
                 db.session.commit()
                 current_app.logger.info("User with ID %s updated successfully", data['user_id'])
-                return {'message': 'User updated successfully'}, 200
+                return {'bio': user.bio, 'profile_picture': user.profile_picture}, 200  # Changed this line
             except IntegrityError as ie:
                 current_app.logger.error("Database integrity error: %s", str(ie))
                 return {'message': 'Database error. Update failed.'}, 500
@@ -141,6 +144,31 @@ class UserUpdate(Resource):
 
 
 
+class UserProfile(Resource):
+    # @jwt_required()
+    def get(self):
+        try:
+            user_id = request.args.get('user_id')  # Fetching from query parameter
+
+            if user_id is None:
+                current_app.logger.error("User ID is missing in the request.")
+                return {'message': 'User ID is missing in the request'}, 400
+
+            user = User.query.get(user_id)
+
+            if user:
+                return {'bio': user.bio, 'profile_picture': user.profile_picture}, 200
+            else:
+                current_app.logger.error("User with user_id %s not found.", user_id)
+                return {'message': 'User not found'}, 404
+
+        except Exception as e:
+            current_app.logger.error("Error in GET method: %s", str(e))
+            return {'message': 'Internal server error'}, 500
+
+
+
+
 class UserProfileBox(Resource):
     def post(self, user_id):
         data = request.json
@@ -150,7 +178,7 @@ class UserProfileBox(Resource):
             return {'message': 'User not found'}, 404
 
         # Modify the user's data with the provided profile data from the request
-        user.bio = data['bio']
+        user.bio = data['bio'][:300]
         user.profile_picture = data['profile_picture']
 
         db.session.commit()

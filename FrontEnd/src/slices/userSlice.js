@@ -5,9 +5,10 @@ import {
   registerUser as registerUserFromAPI,
   loginUser as loginUserFromAPI,
   updateUser as updateUserFromAPI,
+  fetchData as fetchDataFromAPI,
   resetPassword as resetPasswordFromAPI,
   inviteUser as inviteUserFromAPI,
-  addProfileToUserBox as addProfileToUserBoxAPI
+  addProfileToUserBox as addProfileToUserBoxAPI,
 } from '../API/userAPI';
 
 
@@ -70,28 +71,34 @@ export const registerUserThunk = createAsyncThunk(
 
 export const fetchUserDataAction = createAsyncThunk(
   'user/fetchUserData',
-  async (_, { rejectWithValue }) => {
+  async (user_id, { rejectWithValue }) => {
     try {
-      const response = await fetchDataFromAPI(); // Implement this function to fetch user data
+      const response = await fetchData(user_id); // Pass user_id to fetchData
       return response.data;
     } catch (err) {
       return rejectWithValue(err.response.data);
     }
   }
 );
+
 
 
 export const updateUser = createAsyncThunk(
   'user/updateUser',
-  async (userUpdateData, { rejectWithValue }) => {
+  async (userUpdateData, { rejectWithValue, dispatch }) => {
     try {
       const response = await updateUserFromAPI(userUpdateData);
+      // No need to fetchUserDataAction here because the response.data should have the updated user data
       return response.data;
     } catch (err) {
       return rejectWithValue(err.response.data);
     }
   }
 );
+
+
+
+
 
 export const resetPassword = createAsyncThunk(
   'user/resetPassword',
@@ -167,8 +174,9 @@ const userSlice = createSlice({
       state.error = action.payload;
     },
     logoutUser: (state) => {
-      state.user = null;
-      state.image = null;
+      //state.user = null;
+      //state.image = null;
+      console.log('YOU LOGGED OUT', state)
     },
     inviteUserRequest: (state) => {
       state.loading = true;
@@ -203,7 +211,8 @@ const userSlice = createSlice({
     },
     [updateUser.fulfilled]: (state, action) => {
       state.loading = false;
-      state.user = action.payload;
+      state.user.bio = action.payload.bio;
+      state.user.profile_picture = action.payload.profile_picture;
     },
     [updateUser.rejected]: (state, action) => {
       state.loading = false;

@@ -55,19 +55,14 @@ export const updateUser = async (userData) => {
   return await axios.put(`${API_URL}/user/update`, userData, { headers });
 };
 
-export const fetchDataFromAPI = async () => {
-  return await axios.get(`${API_URL}/user/data`, { headers }); // Replace with your API endpoint
+
+export const fetchData = async (user_id) => {
+  return await axios.get(`${API_URL}/user/data?user_id=${user_id}`, { headers }); 
 };
+
 
 
 
 export const addProfileToUserBox = async (userId, profileData) => {
   return await axios.post(`${API_URL}/user/${userId}/addProfile`, profileData, { headers });
 };
-
-
-
-
-
-
-

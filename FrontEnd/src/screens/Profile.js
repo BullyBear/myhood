@@ -11,7 +11,7 @@ import { fetchUserDataAction, updateUser } from '../slices/userSlice';
 import { S3Client, BUCKET_NAME_TWO } from '../../config.js'; 
 
 const validationSchema = yup.object().shape({
-  bio: yup.string().required('Bio is a required field.'),
+  bio: yup.string()
 });
 
 
@@ -20,11 +20,52 @@ const Profile = ({ navigation }) => {
   const dispatch = useDispatch();
   
   const user = useSelector(state => state.user.user); // Access user data from the redux store
+  console.log("User data in Profile:", user);
 
-    // Log when the component re-renders
-    useEffect(() => {
-      dispatch(fetchUserDataAction()); // Fetch updated user data when the component mounts
-    }, []);
+
+  // Log when the component re-renders
+//   useEffect(() => {
+//   if (user && user.id) {
+//     dispatch(fetchUserDataAction(user.id));
+//     if (user.profile_picture) {
+//       setImage(user.profile_picture);
+//     }
+//   } else {
+//     // If the user is not available, fetch the initial data.
+//     // This assumes that your `fetchUserDataAction` can work without parameters
+//     // to fetch the default user. If that's not the case, you may need to adjust this.
+//     dispatch(fetchUserDataAction());
+//   }
+// }, [user]);
+
+
+useEffect(() => {
+  // Fetch initial user data if not present
+  if (!user || !user.id) {
+    dispatch(fetchUserDataAction());
+  } else {
+    // Update local state for profile_picture from Redux store
+    if (user.profile_picture) {
+      setImage(user.profile_picture);
+    }
+  }
+}, [user, dispatch]); 
+
+
+
+const handleUpdate = async (values) => {
+  const updatedData = {
+    bio: values.bio,
+    profile_picture: image || user.profile_picture,
+    user_id: user.id
+  };
+  await dispatch(updateUser(updatedData));  // This should now automatically update the Redux store with the new bio and profile picture
+};
+
+
+
+
+    
 
 
   const handleImagePick = async () => {
@@ -69,15 +110,25 @@ const Profile = ({ navigation }) => {
   
 
 
-  const handleUpdate = async (values) => {
-    const updatedData = {
-      bio: values.bio,
-      profile_picture: image || user.profile_picture,
-      user_id: user.id  // Add this line
-    };
-    await dispatch(updateUser(updatedData)); // Wait for the update to complete
-    dispatch(fetchUserDataAction()); // Fetch updated user data after updating
-  };
+  // const handleUpdate = async (values) => {
+  //   const updatedData = {
+  //     bio: values.bio,
+  //     profile_picture: image || user.profile_picture,
+  //     user_id: user.id  // Add this line
+  //   };
+  //   await dispatch(updateUser(updatedData)); // Wait for the update to complete
+  //   dispatch(fetchUserDataAction()); // Fetch updated user data after updating
+  // };
+
+  // const handleUpdate = async (values) => {
+  //   const updatedData = {
+  //     bio: values.bio,
+  //     profile_picture: image || user.profile_picture,
+  //     user_id: user.id
+  //   };
+  //   await dispatch(updateUser(updatedData));
+  // };
+  
   
 
 
@@ -143,12 +194,3 @@ const styles = StyleSheet.create({
 
 
 export default Profile;
-
-
-
-
-
-
-
-
-
