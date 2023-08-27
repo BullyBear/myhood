@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Image, ScrollView, ActivityIndicator  } from 'react-native';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
@@ -67,6 +67,13 @@ const RegistrationScreen = ({ navigation }) => {
   //const [image, setImage] = useState(null);
   //const [errorMessage, setError] = useState(null);
 
+  useEffect(() => {
+    // Clear the image when component unmounts
+    return () => {
+      dispatch(setImageUrl(null));
+    };
+  }, []);
+
 
 
   const handleImagePick = async () => {
@@ -113,7 +120,8 @@ const RegistrationScreen = ({ navigation }) => {
       values.user_longitude = location.coords.longitude;
       values.profile_picture = image;
       
-      await dispatch(registerUser(values));  // Assuming this is an async action
+      await dispatch(registerUser(values)); 
+      dispatch(setImageUrl(null));
       
       // Navigate to LandingPage after successful registration
       navigation.navigate('Landing');
