@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image, ScrollView } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, ScrollView, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Formik } from 'formik';
 import * as yup from 'yup';
@@ -16,11 +16,13 @@ const validationSchema = yup.object().shape({
 
 
 const Profile = ({ navigation }) => {
-  const [image, setImage] = useState(null); // Set default to user's current image if available. do i want local here?
+  const [image, setImage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   
   const user = useSelector(state => state.user.user); // Access user data from the redux store
   console.log("User data in Profile:", user);
+  //const navigation = useNavigation(); // Initialize navigation
 
 
   // Log when the component re-renders
@@ -54,12 +56,21 @@ useEffect(() => {
 
 
 const handleUpdate = async (values) => {
+  setIsLoading(true); // Set loading state
   const updatedData = {
     bio: values.bio,
     profile_picture: image || user.profile_picture,
     user_id: user.id
   };
-  await dispatch(updateUser(updatedData));  // This should now automatically update the Redux store with the new bio and profile picture
+  
+  try {
+    await dispatch(updateUser(updatedData));
+    setIsLoading(false); // Reset loading state
+    navigation.navigate('NavigationPage'); // Navigate to another page upon success
+  } catch (error) {
+    setIsLoading(false); // Reset loading state
+    console.error("Error updating user:", error);
+  }
 };
 
 
@@ -134,6 +145,7 @@ const handleUpdate = async (values) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
       {user ? (
       <Formik
         initialValues={{ bio: user.bio }} // Use user's current bio from redux store
