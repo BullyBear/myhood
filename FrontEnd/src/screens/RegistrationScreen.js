@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image, ScrollView  } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, ScrollView, ActivityIndicator  } from 'react-native';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import { Formik } from 'formik';
@@ -10,6 +10,9 @@ import { S3Client, BUCKET_NAME_TWO } from '../../config.js';
 import { useDispatch, useSelector } from 'react-redux';
 //import { registerUser, registerUserRequest, registerUserSuccess, registerUserFailure } from '../slices/userSlice';
 import { registerUser, setSuccessMessage, setImageUrl, setError } from '../slices/userSlice';
+
+
+
 
 
 const getLocation = async () => {
@@ -104,31 +107,26 @@ const RegistrationScreen = ({ navigation }) => {
   };
 
   const handleRegister = async (values) => {
-    // Remove this manual dispatch, let the thunk handle it
-    // dispatch(registerUserRequest());
-
     try {
-        const location = await getLocation();
-        values.user_latitude = location.coords.latitude;
-        values.user_longitude = location.coords.longitude;
-        values.profile_picture = image;
-
-        console.log("Image URL:", image);
-        console.log("Bio:", values.bio);
-
-        // Let this dispatch handle everything
-        dispatch(registerUser(values)); 
+      const location = await getLocation();
+      values.user_latitude = location.coords.latitude;
+      values.user_longitude = location.coords.longitude;
+      values.profile_picture = image;
       
+      await dispatch(registerUser(values));  // Assuming this is an async action
+      
+      // Navigate to LandingPage after successful registration
+      navigation.navigate('Landing');
     } catch (error) {
-        console.error("Error during registration:", error.message);
-        // dispatch(registerUserFailure(error.message)); // Remove this
+      console.error("Error during registration:", error.message);
     }
-};
+  };
 
 
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
       <Formik
         initialValues={{ name: '', email: '', password: '', bio: '' }}
         onSubmit={handleRegister}
