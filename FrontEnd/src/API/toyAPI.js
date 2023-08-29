@@ -47,33 +47,6 @@ export const getToyById = async (toyId) => {
 };
 
 
-// export async function createToy(toyData) {
-//   console.log("[createToy] - Called with", toyData);
-
-//   try {
-//     const response = await fetch(`${API_URL}/toys`, {
-//       method: 'POST',
-//       body: JSON.stringify(toyData),
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//     });
-    
-//     const responseData = await response.json();
-//     console.log("[createToy] - Response:", responseData);
-    
-//     if (!response.ok) {
-//       throw new Error(`HTTP error! status: ${response.status}`);
-//     }
-    
-//     return responseData;
-//   } catch (error) {
-//     console.error('Error creating toy:', error.message);
-//     throw error;
-//   }
-// }
-
-
 export const createToy = async (toyData) => {
   console.log("[createToy] - Called with", toyData);
 
@@ -89,8 +62,6 @@ export const createToy = async (toyData) => {
     throw error;
   }
 };
-
-
 
 export const updateToy = async (toyId, toyData) => {
   console.log("[updateToy] - Called with", { toyId, toyData });

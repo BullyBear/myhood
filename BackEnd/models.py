@@ -15,13 +15,21 @@ class User(db.Model):
     #toys = db.relationship('Toy', backref='user', lazy=True)
     toys = db.relationship('Toy', backref='user', lazy='dynamic')
 
+
+
 class Toy(db.Model):
     __tablename__ = 'toys'
     id = db.Column(db.Integer, primary_key=True)
-    image_url = db.Column(db.String(200), nullable=False)
+    image_url_one = db.Column(db.String(200), nullable=False)
+    image_url_two = db.Column(db.String(200), nullable=True)
+    image_url_three = db.Column(db.String(200), nullable=True)
+    image_url_four = db.Column(db.String(200), nullable=True)
+    image_url_five = db.Column(db.String(200), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     toy_latitude = db.Column(db.Float, nullable=True)
     toy_longitude = db.Column(db.Float, nullable=True)
+
+
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
     toys = ma.Nested('ToySchema', many=True)
@@ -31,8 +39,10 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         fields = ('id', 'name', 'email', 'password', 'profile_picture', 'bio', 'user_latitude', 'user_longitude', 'toys')
         load_instance = True
 
+
+
 class ToySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Toy
-        fields = ('id', 'image_url', 'user_id', 'toy_latitude', 'toy_longitude')
+        fields = ('id', 'image_url_one', 'image_url_two', 'image_url_three', 'image_url_four', 'image_url_five', 'user_id', 'toy_latitude', 'toy_longitude')
         load_instance = True

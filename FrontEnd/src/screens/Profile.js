@@ -25,22 +25,6 @@ const Profile = ({ navigation }) => {
   //const navigation = useNavigation(); // Initialize navigation
 
 
-  // Log when the component re-renders
-//   useEffect(() => {
-//   if (user && user.id) {
-//     dispatch(fetchUserDataAction(user.id));
-//     if (user.profile_picture) {
-//       setImage(user.profile_picture);
-//     }
-//   } else {
-//     // If the user is not available, fetch the initial data.
-//     // This assumes that your `fetchUserDataAction` can work without parameters
-//     // to fetch the default user. If that's not the case, you may need to adjust this.
-//     dispatch(fetchUserDataAction());
-//   }
-// }, [user]);
-
-
 useEffect(() => {
   // Fetch initial user data if not present
   if (!user || !user.id) {
@@ -72,12 +56,6 @@ const handleUpdate = async (values) => {
     console.error("Error updating user:", error);
   }
 };
-
-
-
-
-    
-
 
   const handleImagePick = async () => {
     try {
@@ -120,29 +98,6 @@ const handleUpdate = async (values) => {
   };
   
 
-
-  // const handleUpdate = async (values) => {
-  //   const updatedData = {
-  //     bio: values.bio,
-  //     profile_picture: image || user.profile_picture,
-  //     user_id: user.id  // Add this line
-  //   };
-  //   await dispatch(updateUser(updatedData)); // Wait for the update to complete
-  //   dispatch(fetchUserDataAction()); // Fetch updated user data after updating
-  // };
-
-  // const handleUpdate = async (values) => {
-  //   const updatedData = {
-  //     bio: values.bio,
-  //     profile_picture: image || user.profile_picture,
-  //     user_id: user.id
-  //   };
-  //   await dispatch(updateUser(updatedData));
-  // };
-  
-  
-
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
@@ -180,8 +135,6 @@ const handleUpdate = async (values) => {
     </ScrollView>
   );
 };
-
-
 
 const styles = StyleSheet.create({
   container: {

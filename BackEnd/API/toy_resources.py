@@ -33,10 +33,13 @@ def get_image_from_url(image_url):
 
 
 class ToyList(Resource):
+
     def get(self):
-        print("[ToyList GET] - Fetching all toys.")
-        toys = Toy.query.all()
-        # Serialize the toys
+        user_id = request.args.get('user_id', None)
+        if user_id:
+            toys = Toy.query.filter_by(user_id=user_id).all()
+        else:
+            toys = Toy.query.all()
         toy_schema = ToySchema(many=True)
         result = toy_schema.dump(toys)
         return {"toys": result}, 200
@@ -47,42 +50,45 @@ class ToyList(Resource):
         user_id = request.json.get('user_id')
         if not user_id:
             return {"message": "User ID must be provided in the request body"}, 400
+        
+        existing_toy = Toy.query.filter_by(user_id=user_id).first()
+        if existing_toy:
+            db.session.delete(existing_toy)
+            db.session.commit()
 
-        image_url = request.json.get('image_url')
-        if not image_url:
-            return {"message": "Image URL must be provided in the request body"}, 400
+
+        image_urls = request.json.get('image_urls', [])
+        if not image_urls or not isinstance(image_urls, list):
+            return {"message": "A list of image URLs must be provided in the request body"}, 400
+        if len(image_urls) > 5:
+            return {"message": "A maximum of 5 image URLs can be provided"}, 400
 
         user_latitude = request.json.get('user_latitude')
         user_longitude = request.json.get('user_longitude')
 
         if user_latitude is None or user_longitude is None:
             return {"message": "User latitude and longitude must be provided in the request body"}, 400
-        
-        print(f"[ToyList POST] - Received data: user_id={user_id}, image_url={image_url}, user_latitude={user_latitude}, user_longitude={user_longitude}")
-        
-        # Check if a toy exists for this user
-        existing_toy = Toy.query.filter_by(user_id=user_id).first()
-        if existing_toy:
-            db.session.delete(existing_toy)
-            db.session.commit()
-            print("[ToyList POST] - Previous toy for this user deleted.")
 
-        new_toy = Toy(image_url=image_url, user_id=user_id, toy_latitude=user_latitude, toy_longitude=user_longitude)
-
+        # Always create a new toy regardless of whether one exists for this user_id
+        new_toy = Toy(
+            image_url_one=image_urls[0] if len(image_urls) > 0 else None,
+            image_url_two=image_urls[1] if len(image_urls) > 1 else None,
+            image_url_three=image_urls[2] if len(image_urls) > 2 else None,
+            image_url_four=image_urls[3] if len(image_urls) > 3 else None,
+            image_url_five=image_urls[4] if len(image_urls) > 4 else None,
+            user_id=user_id,
+            toy_latitude=user_latitude,
+            toy_longitude=user_longitude
+        )
         db.session.add(new_toy)
         db.session.commit()
-        
-        print("[ToyList POST] - Toy added to the database.")
 
         serialized_toy = toy_schema.dump(new_toy)
+        return {**serialized_toy, "caution": "A new toy has been created"}, 201
+
+
+
     
-        return serialized_toy, 201
-
-    
-
-
-
-
 
 class ToyResourceTime(Resource):
     def get(self, toy_id):
@@ -91,13 +97,23 @@ class ToyResourceTime(Resource):
 
     def put(self, toy_id):
         toy = Toy.query.get_or_404(toy_id)
+
         toy.user_id = request.json.get('user_id', toy.user_id)
-        toy.image_url = request.json.get('image_url', toy.image_url)
+
+        image_urls = request.json.get('image_urls', None)
+        if image_urls and isinstance(image_urls, list):
+            toy.image_url_one = image_urls[0] if len(image_urls) > 0 else toy.image_url_one
+            toy.image_url_two = image_urls[1] if len(image_urls) > 1 else toy.image_url_two
+            toy.image_url_three = image_urls[2] if len(image_urls) > 2 else toy.image_url_three
+            toy.image_url_four = image_urls[3] if len(image_urls) > 3 else toy.image_url_four
+            toy.image_url_five = image_urls[4] if len(image_urls) > 4 else toy.image_url_five
+
         toy.toy_latitude = request.json.get('user_latitude', toy.toy_latitude)
         toy.toy_longitude = request.json.get('user_longitude', toy.toy_longitude)
-        db.session.commit()
-        return toy_schema.dump(toy)
 
+        db.session.commit()
+
+        return toy_schema.dump(toy)
 
     def delete(self, toy_id):
         toy = Toy.query.get_or_404(toy_id)

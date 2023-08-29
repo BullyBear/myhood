@@ -5,6 +5,8 @@ from models import User, UserSchema
 from extensions import bcrypt, db
 from sqlalchemy.exc import IntegrityError  
 
+from emails import send_invite_email
+
 
 users_schema = UserSchema(many=True)
 
@@ -190,8 +192,7 @@ class UserProfileBox(Resource):
 
 
 
-
-
+    
 class Invite(Resource):
     def post(self):
         parser = reqparse.RequestParser()
@@ -200,8 +201,14 @@ class Invite(Resource):
 
         email = args['email']
 
-        return {'message': 'Invite sent successfully'}, 201
+        # Send the invite email
+        try:
+            send_invite_email(email)
+            return {'message': 'Invite sent successfully'}, 201
+        except Exception as e:
+            return {'message': f'An error occurred while sending the invite: {str(e)}'}, 500
     
+
 
 
 class Forgot(Resource):

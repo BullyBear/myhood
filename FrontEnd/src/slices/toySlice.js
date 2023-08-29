@@ -135,7 +135,11 @@ const toySlice = createSlice({
       })
       .addCase(fetchToysFromAPI.fulfilled, (state, action) => {
         console.log('[fetchToysFromAPI.fulfilled] - Fetching toys fulfilled');
-        state.toys = action.payload;
+        state.toys = action.payload.map(toy => ({
+          ...toy,
+          images: Array.isArray(toy.images) ? toy.images : []  
+        }));
+        
         state.loading = false;
         state.error = null;
       })
@@ -160,12 +164,19 @@ const toySlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(createToyInAPI.fulfilled, (state, action) => {
-        state.toys.push(action.payload);
+        const newToy = {
+          ...action.payload,
+          images: Array.isArray(action.payload.images) ? action.payload.images : []  // Handle 'images' as an array
+        };
+        state.toys.push(newToy);
       })
       .addCase(updateToyInAPI.fulfilled, (state, action) => {
         const index = state.toys.findIndex(toy => toy.id === action.payload.id);
         if(index !== -1) {
-          state.toys[index] = action.payload;
+          state.toys[index] = {
+            ...action.payload,
+            images: Array.isArray(action.payload.images) ? action.payload.images : []  // Handle 'images' as an array
+          };
         }
       })
       .addCase(fetchToyByIdFromAPI.fulfilled, (state, action) => {
