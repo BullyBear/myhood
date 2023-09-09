@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Animated, Image, Text, StyleSheet } from 'react-native';
+import { View, Animated, Image, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
+import Modal from 'react-native-modal';
 
 import {
   fetchToysFromAPI,
@@ -14,11 +15,6 @@ import {
 } from '../slices/userSlice';
 
 
-// import { addUserInteraction } from '../slices/userSlice';
-
-
-
-
 function Carousel() {
 
   const defaultImageUrl = 'https://deplorablesnowflake.com/static/american.jpg';
@@ -29,6 +25,16 @@ function Carousel() {
   const { user } = useSelector((state) => state.user);
   //const { user } = useSelector((state) => state.user.users);
   console.log('USER', user)
+
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  const openModal = () => {
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
 
 
   //const { toys, loading, error } = useSelector((state) => state.toy);
@@ -48,14 +54,9 @@ function Carousel() {
   const imageUrl = currentToy ? currentToy.image_url : defaultImageUrl;
   console.log("Extracted Image URL:", imageUrl);
 
-  //const bio = useSelector(state => state.user.bio);
-  //const profilePicture = useSelector(state => state.user.profile_picture);
   const bio = useSelector(state => state.user.user.bio);
   const profilePicture = useSelector(state => state.user.user.profile_picture);
   
-
-
-  //const [currentIndex, setCurrentIndex] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [imageLoadingError, setImageLoadingError] = useState(false);
   const translateX = new Animated.Value(0);
@@ -68,33 +69,21 @@ function Carousel() {
   console.log('Current Toy Image URL:', toys[currentIndex]?.image_url);
 
 
-  // const entireState = useSelector((state) => state);
-  // console.log('Entire Redux State:', entireState);
-
-
-
   useEffect(() => {
-
-    if (toys.length === 0) {
-      //if (toys.length > 0) {
-      console.log("I DONT SEE THIS")
-      dispatch(fetchToysFromAPI());
-    }
-        
     if (user && user.latitude && user.longitude) {
-      console.log('fetchToysWithinRadiusFromAPI', fetchToysWithinRadiusFromAPI);
       dispatch(fetchToysWithinRadiusFromAPI({ latitude: user.latitude, longitude: user.longitude }));
+    } else {
+      dispatch(fetchToysFromAPI()); // <-- Add this line
     }
   }, [user]);
-  
-  
+
   useEffect(() => {
-      if (toys.length > 0) {
-          setLoaded(true);
-          if (currentIndex === -1 || typeof currentIndex === 'undefined') {
-              setCurrentIndex(0); // explicitly set to 0
-          }
+    if (toys.length > 0) {
+      setLoaded(true);
+      if (currentIndex === -1 || typeof currentIndex === 'undefined') {
+        setCurrentIndex(0); // explicitly set to 0
       }
+    }
   }, [toys]);
   
 
@@ -102,8 +91,6 @@ function Carousel() {
     [{ nativeEvent: { translationX: translateX } }],
     { useNativeDriver: true }
   );
-
-
 
   const onSwipeRight = () => {
     const toyToShow = toys[currentIndex];
@@ -125,11 +112,6 @@ function Carousel() {
     console.log("Profile Picture in carousel:", profilePicture);
 
 
-  
-    // Dispatch with the user ID using the Async action
-    //dispatch(addProfileToUserBoxAsync(userIdOfToy));  
-    //dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, profileData: profileData }));
-
     dispatch(addProfileToUserBoxAsync({
       userId: userIdOfToy, 
       profileData: {
@@ -145,14 +127,6 @@ function Carousel() {
       // Add logic here if you want to record interactions between users
     }
   
-  // setCurrentIndex((prevIndex) => {
-  //     if (toys.length === 0) return 0;  // If toys array is empty, keep index at 0
-  //     const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
-  //     console.log('New Current Index after Swipe Right:', newIndex);
-  //     return newIndex;
-  //   });
-  // };
-
   setCurrentIndex((prevIndex) => {
     if (toys.length === 0) return 0;  // If toys array is empty, keep index at 0
     const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
@@ -160,26 +134,6 @@ function Carousel() {
   });
 };
   
-  
-  
-
-
-  // const onSwipeRight = () => {
-  //   if (currentIndex < toys.length - 1) {
-  //     const newCurrentIndex = currentIndex + 1;
-  //     const toyToAdd = toys[newCurrentIndex];
-  //     console.log('Toy to Add:', toyToAdd);
-  //     console.log('Current Index on Swipe Right:', newCurrentIndex);
-  //     setCurrentIndex(newCurrentIndex);
-  //     dispatch(addProfileToUserBox(toyToAdd));
-  //     dispatch(removeToyFromCarousel(toyToAdd));
-  //     if (user && user.id) {
-  //       dispatch(addUserInteraction({ userId: user.id, toyId: toyToAdd.id }));
-  //     }
-  //   }
-  // };
-  
-
   const onSwipeLeft = () => {
     const toyToRemove = toys[currentIndex];
     console.log('Swiping Left');
@@ -192,18 +146,6 @@ function Carousel() {
       return newIndex;
       });
     };
-
-
-//   const onSwipeLeft = () => {
-//     if (currentIndex < toys.length - 1) {
-//         const newCurrentIndex = currentIndex + 1;
-//         const toyToRemove = toys[newCurrentIndex];
-//         console.log('Toy to Remove:', toyToRemove);
-//         console.log('Current Index on Swipe Left:', newCurrentIndex);
-//         setCurrentIndex(newCurrentIndex);
-//         dispatch(removeToyFromCarousel(toyToRemove));
-//     }
-// };
 
   
   return (
@@ -237,17 +179,32 @@ function Carousel() {
           {loading && <Text>Loading...</Text>}
           {error && <Text>Error: {error}</Text>}
 
-          
-      
+          {currentToy ? (
+          <TouchableOpacity onPress={openModal}>
           <Image
-            source={{ uri: imageUrl }}
+            source={{ uri: imageUrl ?? defaultImageUrl }}
+
             style={styles.toyImage}
             onLoadStart={() => setImageLoadingError(false)}
             onError={(error) => {
             console.log("Image Loading Error:", error.nativeEvent.error);
             }}
           />
-         
+          </TouchableOpacity>
+          ) : (
+            <Text>No toy available.</Text>
+          )}
+
+          <Modal isVisible={isModalVisible} onBackdropPress={closeModal} onBackButtonPress={closeModal}>
+          <View style={{ flex: 1, pointerEvents: 'box-none' }}>
+              {currentToy && currentToy.images ? currentToy.images.map((image, index) => (
+                <Image key={index} source={{ uri: image }} style={styles.otherImagesStyle} />
+              )) : null }
+              <TouchableOpacity onPress={closeModal}>
+                <Text>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </Modal>
 
         </Animated.View>
       </PanGestureHandler>
@@ -265,6 +222,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   toyImage: {
+    width: 300,
+    height: 300,
+    resizeMode: 'contain',
+  },
+  otherImagesStyle: {
     width: 300,
     height: 300,
     resizeMode: 'contain',

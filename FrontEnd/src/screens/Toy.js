@@ -9,7 +9,7 @@ import {
   FlatList,
 } from 'react-native';
 
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import * as ImagePicker from 'expo-image-picker';
 import { v4 as uuidv4 } from 'uuid';
 import * as Location from 'expo-location';
@@ -17,8 +17,11 @@ import { useNavigation } from '@react-navigation/native';
 
 import { S3Client, BUCKET_NAME, region, API_URL } from '../../config.js';
 import { getToysWithinRadius, getAllToys, createToy, updateToy, deleteToy } from '../API/toyAPI';
+import { fetchToysFromAPI } from '../slices/toySlice';
+
 
 export default function Toy() {
+  const dispatch = useDispatch();
   const [images, setImages] = useState([]);
   const [toys, setToys] = useState([]);
   const { user } = useSelector((state) => state.user);
@@ -48,9 +51,13 @@ export default function Toy() {
     };
   
     fetchToys();
-    // Refresh when the user object changes.
-    // This is just an example; adjust the dependencies based on your app's needs.
+
   }, [user]);
+
+//   useEffect(() => {
+//     dispatch(fetchToysFromAPI()); // Assuming this action fetches all toys for a user
+// }, [user, dispatch]);
+
   
   
 
@@ -118,6 +125,7 @@ export default function Toy() {
       setImages([]);
       setIsCreatingToy(false);
       navigation.navigate('NavigationPage');
+      dispatch(fetchToysFromAPI());
     } else {
       setIsCreatingToy(false);
     }

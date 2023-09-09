@@ -1,5 +1,16 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { useDispatch } from 'react-redux';
 import { getToysWithinRadius, getAllToys, createToy as createToyAPI, updateToy as updateToyAPI, deleteToy as deleteToyAPI, getToyById } from '../API/toyAPI';
+
+
+// Async action to handle uploading images and creating a toy
+export const createAndUploadToy = createAsyncThunk('toy/createAndUpload', async (payload) => {
+  const { images, user, latitude, longitude, S3Client, BUCKET_NAME } = payload;
+  // ... Existing logic for uploading images and creating a toy
+  const response = await createToyAPI(toyData);
+  return response;
+});
+
 
 // Fetch toys from the API
 export const fetchToysFromAPI = createAsyncThunk('toy/fetchToys', async () => {
@@ -65,6 +76,7 @@ const toySlice = createSlice({
   initialState: initialState,
   reducers: {
     loadToy: (state, action) => {
+      console.log("Current state before updating toy:", state.toys);
       const toy = action.payload;
       console.log('[loadToy] - Loading toy data:', toy);
       const index = state.toys.findIndex(t => t.id === toy.id);
@@ -117,12 +129,14 @@ const toySlice = createSlice({
       state.toys.push(action.payload);
     },
     toyUpdated: (state, action) => {
+      console.log('toy updated action.payload:', action.payload);  
       const index = state.toys.findIndex(toy => toy.id === action.payload.id);
       if (index !== -1) {
         state.toys[index] = action.payload;
       }
     },
     toyDeleted: (state, action) => {
+      console.log('toy deleted:', action.payload); 
       const id = action.payload;
       state.toys = state.toys.filter(toy => toy.id !== id);
     }
@@ -143,6 +157,12 @@ const toySlice = createSlice({
         state.loading = false;
         state.error = null;
       })
+      // .addCase(fetchToysFromAPI.fulfilled, (state, action) => {
+      //   console.log('[fetchToysFromAPI.fulfilled] - Fetching toys fulfilled');
+      //   state.toys = action.payload;
+      //   state.loading = false;
+      // })
+    
       .addCase(fetchToysFromAPI.rejected, (state, action) => {
         console.error('[fetchToysFromAPI.rejected] - Fetching toys rejected:', action.error.message);
         state.loading = false;
@@ -163,12 +183,18 @@ const toySlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
+      // .addCase(createToyInAPI.fulfilled, (state, action) => {
+      //   const newToy = {
+      //     ...action.payload,
+      //     images: Array.isArray(action.payload.images) ? action.payload.images : []  // Handle 'images' as an array
+      //   };
+      //   state.toys.push(newToy);
+      // })
       .addCase(createToyInAPI.fulfilled, (state, action) => {
-        const newToy = {
-          ...action.payload,
-          images: Array.isArray(action.payload.images) ? action.payload.images : []  // Handle 'images' as an array
-        };
-        state.toys.push(newToy);
+        console.log('[createToyInAPI.fulfilled] - Toy created successfully');
+        state.toys.push(action.payload);
+        state.loading = false;
+        state.error = null;
       })
       .addCase(updateToyInAPI.fulfilled, (state, action) => {
         const index = state.toys.findIndex(toy => toy.id === action.payload.id);
@@ -192,13 +218,26 @@ const toySlice = createSlice({
         state.loading = false;
         state.error = null;
       }) 
+      // .addCase(deleteToyInAPI.fulfilled, (state, action) => {
+      //   const index = state.toys.findIndex(toy => toy.id === action.payload);
+      //   if(index !== -1) {
+      //     state.toys.splice(index, 1);
+      //   }
+      // })
       .addCase(deleteToyInAPI.fulfilled, (state, action) => {
-        const index = state.toys.findIndex(toy => toy.id === action.payload);
-        if(index !== -1) {
-          state.toys.splice(index, 1);
-        }
-      });
-  },
+        console.log('[deleteToyInAPI.fulfilled] - Toy deleted successfully');
+        state.toys = state.toys.filter(toy => toy.id !== action.payload.id);
+        state.loading = false;
+        state.error = null;
+      })
+      .addMatcher((action) => {
+        return action.type.endsWith('/fulfilled') || action.type.endsWith('/rejected') || action.type.endsWith('/pending');
+      }, (state, action) => {
+        console.log('Action:', action.type);
+        console.log('New State:', state);
+      })
+    }
+
 });
 
 export const { loadToy, addProfileToUserBox, removeToyFromCarousel, toyAdded, toyUpdated, toyDeleted } = toySlice.actions;
