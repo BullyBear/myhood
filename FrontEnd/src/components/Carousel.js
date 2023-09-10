@@ -42,7 +42,7 @@ function Carousel() {
   //const { toys, loading, error } = useSelector((state) => state.toys.toys);
 
 
- const { toys = [], loading, error } = useSelector((state) => state.toy.toys);
+   const { toys = [], loading, error } = useSelector((state) => state.toy.toys);
   //const { toys = [], loading, error } = useSelector((state) => state.toy);
 
 

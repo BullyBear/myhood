@@ -24,8 +24,8 @@ export default function Toy() {
   const dispatch = useDispatch();
   const [images, setImages] = useState([]);
   //const [toys, setToys] = useState([]);
-  const { toys = [], loading, error } = useSelector((state) => state.toy);
-  //const { toys = [], loading, error } = useSelector((state) => state.toy.toys);
+  //const { toys = [], loading, error } = useSelector((state) => state.toy);
+  const { toys = [], loading, error } = useSelector((state) => state.toy.toys);
   const { user } = useSelector((state) => state.user);
   const navigation = useNavigation();
   const [isCreatingToy, setIsCreatingToy] = useState(false);
@@ -186,6 +186,7 @@ export default function Toy() {
       await dispatch(deleteToyInAPI(toyId));
       // Fetch toys again after deleting, if you want to.
       dispatch(fetchToysFromAPI());
+      navigation.navigate('NavigationPage');
     } catch (error) {
       console.error('Error deleting toy:', error);
     }
@@ -211,7 +212,7 @@ export default function Toy() {
 
       <TouchableOpacity
       style={[styles.button, images.length === 0 && styles.buttonDisabled]}
-      onPress={() => onDelete()} 
+      onPress={() => onDelete(toyId)} 
       disabled={images.length === 0 || isCreatingToy}
     >
       <Text style={styles.buttonText}>Delete Toy</Text>
