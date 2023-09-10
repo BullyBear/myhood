@@ -17,16 +17,20 @@ import { useNavigation } from '@react-navigation/native';
 
 import { S3Client, BUCKET_NAME, region, API_URL } from '../../config.js';
 import { getToysWithinRadius, getAllToys, createToy, updateToy, deleteToy } from '../API/toyAPI';
-import { fetchToysFromAPI } from '../slices/toySlice';
+import { fetchToysFromAPI, deleteToyInAPI, updateToyInAPI } from '../slices/toySlice';
 
 
 export default function Toy() {
   const dispatch = useDispatch();
   const [images, setImages] = useState([]);
-  const [toys, setToys] = useState([]);
+  //const [toys, setToys] = useState([]);
+  const { toys = [], loading, error } = useSelector((state) => state.toy);
+  //const { toys = [], loading, error } = useSelector((state) => state.toy.toys);
   const { user } = useSelector((state) => state.user);
   const navigation = useNavigation();
   const [isCreatingToy, setIsCreatingToy] = useState(false);
+  const [toyId, setToyId] = useState(null);
+
 
 
   useEffect(() => {
@@ -44,6 +48,7 @@ export default function Toy() {
             data.toys[0].image_url_five
           ].filter(Boolean); // remove null or undefined values
           setImages(toyImages);
+          setToyId(data.toys[0].id);
         }
       } catch (error) {
         console.error("Error fetching toys:", error);
@@ -58,7 +63,6 @@ export default function Toy() {
 //     dispatch(fetchToysFromAPI()); // Assuming this action fetches all toys for a user
 // }, [user, dispatch]);
 
-  
   
 
   const onSubmit = async () => {
@@ -131,9 +135,27 @@ export default function Toy() {
     }
   };
 
-  const removeImage = (uri) => {
-    setImages(images.filter((image) => image !== uri));
+
+  const removeImage = async (uri) => {
+    const updatedImages = images.filter((image) => image !== uri);
+    setImages(updatedImages);
+  
+    if (toyId === null) {
+      console.error('Toy ID is not set.');
+      return;
+    }
+  
+    // Call your API update method
+    const toyData = { image_urls: updatedImages, user_id: user.id };
+    try {
+      await dispatch(updateToyInAPI({ toyId, toyData })); // Using Redux dispatch to update
+    } catch (error) {
+      console.error('Failed to update toy:', error);
+    }
   };
+  
+  
+
 
   const pickImage = async () => {
     if (images.length >= 5) {
@@ -158,6 +180,17 @@ export default function Toy() {
     }
   };
 
+    const onDelete = async (toyId) => {
+    try {
+      // Dispatching the action to delete the toy
+      await dispatch(deleteToyInAPI(toyId));
+      // Fetch toys again after deleting, if you want to.
+      dispatch(fetchToysFromAPI());
+    } catch (error) {
+      console.error('Error deleting toy:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text>{`Selected ${images.length} out of 5 images`}</Text>
@@ -174,6 +207,16 @@ export default function Toy() {
         )}
       />
       {isCreatingToy && <ActivityIndicator size="large" color="#0000ff" />}
+
+
+      <TouchableOpacity
+      style={[styles.button, images.length === 0 && styles.buttonDisabled]}
+      onPress={() => onDelete()} 
+      disabled={images.length === 0 || isCreatingToy}
+    >
+      <Text style={styles.buttonText}>Delete Toy</Text>
+    </TouchableOpacity>
+
       <TouchableOpacity
         style={styles.button}
         onPress={pickImage}

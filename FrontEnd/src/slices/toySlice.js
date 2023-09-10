@@ -58,15 +58,25 @@ export const createToyInAPI = createAsyncThunk('toy/create', async (toyData) => 
   return response;
 });
 
-export const updateToyInAPI = createAsyncThunk('toy/update', async ({toyId, toyData}) => {
+
+export const updateToyInAPI = createAsyncThunk('toy/update', async ({ toyId, toyData }) => {
   const response = await updateToyAPI(toyId, toyData);
   return response;
 });
+
+// export const updateToyInAPI = createAsyncThunk('toy/update', async ({ toyId, toyData }) => {
+//   const response = await updateToyAPI(toyId, { image_urls: toyData.image_urls });
+//   return response;
+// });
+
+
 
 export const deleteToyInAPI = createAsyncThunk('toy/delete', async (toyId) => {
   const response = await deleteToyAPI(toyId);
   return response;
 });
+
+
 
 const initialState = { toys: [], toyBox: [], loading: false, error: null };
 console.log("Initial state:", initialState);
@@ -135,12 +145,18 @@ const toySlice = createSlice({
         state.toys[index] = action.payload;
       }
     },
-    toyDeleted: (state, action) => {
-      console.log('toy deleted:', action.payload); 
-      const id = action.payload;
-      state.toys = state.toys.filter(toy => toy.id !== id);
-    }
+  //   toyDeleted: (state, action) => {
+  //     console.log('toy deleted:', action.payload); 
+  //     const id = action.payload;
+  //     state.toys = state.toys.filter(toy => toy.id !== id);
+  //   }
+  // },
+  toyDeleted: (state, action) => {
+    console.log('toy deleted:', action.payload); 
+    const toyId = action.payload; // Update this line
+    state.toys = state.toys.filter(toy => toy.id !== toyId);
   },
+  
   extraReducers: (builder) => {
     builder
       .addCase(fetchToysFromAPI.pending, (state) => {
@@ -196,15 +212,22 @@ const toySlice = createSlice({
         state.loading = false;
         state.error = null;
       })
+      // .addCase(updateToyInAPI.fulfilled, (state, action) => {
+      //   const index = state.toys.findIndex(toy => toy.id === action.payload.id);
+      //   if(index !== -1) {
+      //     state.toys[index] = {
+      //       ...action.payload,
+      //       images: Array.isArray(action.payload.images) ? action.payload.images : []  // Handle 'images' as an array
+      //     };
+      //   }
+      // })
       .addCase(updateToyInAPI.fulfilled, (state, action) => {
-        const index = state.toys.findIndex(toy => toy.id === action.payload.id);
-        if(index !== -1) {
-          state.toys[index] = {
-            ...action.payload,
-            images: Array.isArray(action.payload.images) ? action.payload.images : []  // Handle 'images' as an array
-          };
+        const index = state.toys.findIndex((toy) => toy.id === action.payload.id);
+        if (index !== -1) {
+          state.toys[index] = action.payload;
         }
       })
+      
       .addCase(fetchToyByIdFromAPI.fulfilled, (state, action) => {
         console.log("Fetched toy by ID:", action.payload);
         const existingToyIndex = state.toys.findIndex(t => t.id === action.payload.id);
@@ -218,18 +241,24 @@ const toySlice = createSlice({
         state.loading = false;
         state.error = null;
       }) 
-      // .addCase(deleteToyInAPI.fulfilled, (state, action) => {
-      //   const index = state.toys.findIndex(toy => toy.id === action.payload);
-      //   if(index !== -1) {
-      //     state.toys.splice(index, 1);
-      //   }
-      // })
       .addCase(deleteToyInAPI.fulfilled, (state, action) => {
         console.log('[deleteToyInAPI.fulfilled] - Toy deleted successfully');
-        state.toys = state.toys.filter(toy => toy.id !== action.payload.id);
+        const toyId = action.payload.id; // Assuming your action.payload has the id property
+        state.toys = state.toys.filter(toy => toy.id !== toyId);
         state.loading = false;
         state.error = null;
-      })
+      })      
+      // .addCase(deleteToyInAPI.fulfilled, (state, action) => {
+      //   console.log('[deleteToyInAPI.fulfilled] - Toy deleted successfully');
+      //   state.toys = state.toys.filter(toy => toy.id !== action.payload.id);
+      //   state.loading = false;
+      //   state.error = null;
+      // })
+      // .addCase(deleteToyInAPI.fulfilled, (state, action) => {
+      //   console.log('Toy successfully deleted:', action.payload);
+      //   const id = action.payload;
+      //   state.toys = state.toys.filter(toy => toy.id !== id);
+      // })
       .addMatcher((action) => {
         return action.type.endsWith('/fulfilled') || action.type.endsWith('/rejected') || action.type.endsWith('/pending');
       }, (state, action) => {
@@ -237,7 +266,7 @@ const toySlice = createSlice({
         console.log('New State:', state);
       })
     }
-
+  }
 });
 
 export const { loadToy, addProfileToUserBox, removeToyFromCarousel, toyAdded, toyUpdated, toyDeleted } = toySlice.actions;

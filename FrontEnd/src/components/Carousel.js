@@ -42,7 +42,9 @@ function Carousel() {
   //const { toys, loading, error } = useSelector((state) => state.toys.toys);
 
 
-  const { toys = [], loading, error } = useSelector((state) => state.toy.toys);
+ const { toys = [], loading, error } = useSelector((state) => state.toy.toys);
+  //const { toys = [], loading, error } = useSelector((state) => state.toy);
+
 
   // const toyState = useSelector((state) => state.toy.toys);
   // const rawToys = toyState?.toys || [];
@@ -51,8 +53,12 @@ function Carousel() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const currentToy = (toys && toys.length > currentIndex) ? toys[currentIndex] : null;
-  const imageUrl = currentToy ? currentToy.image_url : defaultImageUrl;
+  //const imageUrl = currentToy ? currentToy.image_url : defaultImageUrl;
+  const imageUrl = currentToy
+  ? currentToy.image_url_one || currentToy.image_url_two || defaultImageUrl
+  : defaultImageUrl;
   console.log("Extracted Image URL:", imageUrl);
+  console.log("CURRENT TOY", currentToy)
 
   const bio = useSelector(state => state.user.user.bio);
   const profilePicture = useSelector(state => state.user.user.profile_picture);
@@ -69,6 +75,8 @@ function Carousel() {
   console.log('Current Toy Image URL:', toys[currentIndex]?.image_url);
 
 
+
+
   useEffect(() => {
     if (user && user.latitude && user.longitude) {
       dispatch(fetchToysWithinRadiusFromAPI({ latitude: user.latitude, longitude: user.longitude }));
@@ -76,6 +84,9 @@ function Carousel() {
       dispatch(fetchToysFromAPI()); // <-- Add this line
     }
   }, [user]);
+
+
+
 
   useEffect(() => {
     if (toys.length > 0) {
@@ -148,68 +159,57 @@ function Carousel() {
     };
 
   
-  return (
-    <View style={styles.carouselContainer}>
-      <PanGestureHandler
-        onGestureEvent={onGestureEvent}
-        onHandlerStateChange={({ nativeEvent }) => {
-          if (nativeEvent.oldState === State.ACTIVE) {
-            if (nativeEvent.translationX >= 100) {
-              onSwipeRight();
-              translateX.setValue(0);
-            } else if (nativeEvent.translationX <= -100) {
-              onSwipeLeft();
-              translateX.setValue(0);
-            } else {
-              Animated.spring(translateX, {
-                toValue: 0,
-                useNativeDriver: true,
-              }).start();
-            }
+return (
+  <View style={styles.carouselContainer}>
+    <PanGestureHandler
+      onGestureEvent={onGestureEvent}
+      onHandlerStateChange={({ nativeEvent }) => {
+        if (nativeEvent.oldState === State.ACTIVE) {
+          if (nativeEvent.translationX >= 100) {
+            onSwipeRight();
+            translateX.setValue(0);
+          } else if (nativeEvent.translationX <= -100) {
+            onSwipeLeft();
+            translateX.setValue(0);
+          } else {
+            Animated.spring(translateX, {
+              toValue: 0,
+              useNativeDriver: true,
+            }).start();
           }
-        }}
+        }
+      }}
+    >
+      <Animated.View
+        style={[
+          styles.carouselItem,
+          { transform: [{ translateX }] },
+        ]}
       >
-        <Animated.View
-          style={[
-            styles.carouselItem,
-            { transform: [{ translateX }] },
-          ]}
-        >
-          <Text>Current Index: {currentIndex}</Text>
-          {loading && <Text>Loading...</Text>}
-          {error && <Text>Error: {error}</Text>}
+        <Text>Current Index: {currentIndex}</Text>
+        {loading && <Text>Loading...</Text>}
+        {error && <Text>Error: {error}</Text>}
 
-          {currentToy ? (
+        {currentToy ? (
           <TouchableOpacity onPress={openModal}>
-          <Image
-            source={{ uri: imageUrl ?? defaultImageUrl }}
-
-            style={styles.toyImage}
-            onLoadStart={() => setImageLoadingError(false)}
-            onError={(error) => {
-            console.log("Image Loading Error:", error.nativeEvent.error);
-            }}
-          />
+            <Image
+              source={{ uri: imageUrl }}
+              style={styles.toyImage}
+              onLoadStart={() => setImageLoadingError(false)}
+              onError={(error) => {
+                console.log("Image Loading Error:", error.nativeEvent.error);
+              }}
+            />
           </TouchableOpacity>
-          ) : (
-            <Text>No toy available.</Text>
-          )}
+        ) : (
+          <Text>No toy available.</Text>
+        )}
 
-          <Modal isVisible={isModalVisible} onBackdropPress={closeModal} onBackButtonPress={closeModal}>
-          <View style={{ flex: 1, pointerEvents: 'box-none' }}>
-              {currentToy && currentToy.images ? currentToy.images.map((image, index) => (
-                <Image key={index} source={{ uri: image }} style={styles.otherImagesStyle} />
-              )) : null }
-              <TouchableOpacity onPress={closeModal}>
-                <Text>Close</Text>
-              </TouchableOpacity>
-            </View>
-          </Modal>
-
-        </Animated.View>
-      </PanGestureHandler>
-    </View>
-  );
+        {/* ... */}
+      </Animated.View>
+    </PanGestureHandler>
+  </View>
+);
 }
 
 const styles = StyleSheet.create({

@@ -30,7 +30,6 @@ def get_image_from_url(image_url):
 
 
 class ToyList(Resource):
-
     def get(self):
         user_id = request.args.get('user_id', None)
         if user_id:
@@ -87,23 +86,18 @@ class ToyResourceTime(Resource):
 
     def put(self, toy_id):
         toy = Toy.query.get_or_404(toy_id)
+        image_urls = request.json.get('image_urls', [])
 
-        toy.user_id = request.json.get('user_id', toy.user_id)
-
-        image_urls = request.json.get('image_urls', None)
-        if image_urls and isinstance(image_urls, list):
-            toy.image_url_one = image_urls[0] if len(image_urls) > 0 else toy.image_url_one
-            toy.image_url_two = image_urls[1] if len(image_urls) > 1 else toy.image_url_two
-            toy.image_url_three = image_urls[2] if len(image_urls) > 2 else toy.image_url_three
-            toy.image_url_four = image_urls[3] if len(image_urls) > 3 else toy.image_url_four
-            toy.image_url_five = image_urls[4] if len(image_urls) > 4 else toy.image_url_five
-
-        toy.toy_latitude = request.json.get('user_latitude', toy.toy_latitude)
-        toy.toy_longitude = request.json.get('user_longitude', toy.toy_longitude)
+        # Explicitly handle image removal by setting to None
+        toy.image_url_one = image_urls[0] if len(image_urls) > 0 else None
+        toy.image_url_two = image_urls[1] if len(image_urls) > 1 else None
+        toy.image_url_three = image_urls[2] if len(image_urls) > 2 else None
+        toy.image_url_four = image_urls[3] if len(image_urls) > 3 else None
+        toy.image_url_five = image_urls[4] if len(image_urls) > 4 else None
 
         db.session.commit()
-
         return toy_schema.dump(toy), 200
+
 
     def delete(self, toy_id):
         toy = Toy.query.get_or_404(toy_id)
