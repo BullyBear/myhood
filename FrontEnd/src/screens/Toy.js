@@ -24,8 +24,21 @@ export default function Toy() {
   const dispatch = useDispatch();
   const [images, setImages] = useState([]);
   //const [toys, setToys] = useState([]);
-  //const { toys = [], loading, error } = useSelector((state) => state.toy);
-  const { toys = [], loading, error } = useSelector((state) => state.toy.toys);
+ 
+  //const { toys, loading, error } = useSelector((state) => state.toy);
+ // const { toys = [], loading, error } = useSelector((state) => state.toy);
+  //const { toys = [], loading, error } = useSelector((state) => state.toy.toys); 
+
+  
+  const toys = useSelector((state) => state.toy.toys || []);
+  const loading = useSelector((state) => state.toy.loading);
+  const error = useSelector((state) => state.toy.error);
+
+
+  
+
+
+  //const { toys = [], loading, error } = useSelector((state) => state.toy.toys);
   const { user } = useSelector((state) => state.user);
   const navigation = useNavigation();
   const [isCreatingToy, setIsCreatingToy] = useState(false);
@@ -62,6 +75,7 @@ export default function Toy() {
 //   useEffect(() => {
 //     dispatch(fetchToysFromAPI()); // Assuming this action fetches all toys for a user
 // }, [user, dispatch]);
+
 
   
 
@@ -184,6 +198,7 @@ export default function Toy() {
     try {
       // Dispatching the action to delete the toy
       await dispatch(deleteToyInAPI(toyId));
+      console.log("deletetoyinapi dispatched");
       // Fetch toys again after deleting, if you want to.
       dispatch(fetchToysFromAPI());
       navigation.navigate('NavigationPage');

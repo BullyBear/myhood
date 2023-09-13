@@ -2,6 +2,9 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { useDispatch } from 'react-redux';
 import { getToysWithinRadius, getAllToys, createToy as createToyAPI, updateToy as updateToyAPI, deleteToy as deleteToyAPI, getToyById } from '../API/toyAPI';
 
+const initialState = { toys: [], loading: false, error: null };
+
+console.log("Initial state:", initialState);
 
 // Async action to handle uploading images and creating a toy
 export const createAndUploadToy = createAsyncThunk('toy/createAndUpload', async (payload) => {
@@ -30,9 +33,9 @@ export const fetchToysWithinRadiusFromAPI = createAsyncThunk(
   'toy/fetchToysWithinRadius',
   async ({ latitude, longitude }) => {
     try {
-      console.log('[fetchToysWithinRadiusFromAPI] - Fetching toys within radius from API');
+      console.log('[fetchToysWithinRadiusFromAPI] - BEFORE');
       const toys = await getToysWithinRadius(latitude, longitude);
-      console.log('[fetchToysWithinRadiusFromAPI] - Fetched toys within radius:', toys);
+      console.log('[fetchToysWithinRadiusFromAPI] - AFTER', toys);
       return toys;
     } catch (error) {
       console.error('[fetchToysWithinRadiusFromAPI] - Error fetching toys within radius:', error.message);
@@ -72,19 +75,31 @@ export const updateToyInAPI = createAsyncThunk('toy/update', async ({ toyId, toy
 
 
 export const deleteToyInAPI = createAsyncThunk('toy/delete', async (toyId) => {
+  console.log('deleteToyInAPI - Invoked');
   const response = await deleteToyAPI(toyId);
-  return response;
+  console.log('deleteToyInAPI!', response)
+  //return response;
+  return { ...response, id: toyId };  
 });
 
+// export const deleteToyInAPI = createAsyncThunk('toy/delete', async (toyId) => {
+//   const response = await deleteToyAPI(toyId);
+//   // Fetch all toys again after a toy is deleted
+//   dispatch(fetchToysFromAPI());
+//   return response;
+// });
 
 
-const initialState = { toys: [], toyBox: [], loading: false, error: null };
-console.log("Initial state:", initialState);
+
 
 const toySlice = createSlice({
   name: 'toy',
   initialState: initialState,
+  //initialState: { toys: [] },
   reducers: {
+    clearToys: (state) => {
+      state.toys = [];
+    },
     loadToy: (state, action) => {
       console.log("Current state before updating toy:", state.toys);
       const toy = action.payload;
@@ -96,44 +111,19 @@ const toySlice = createSlice({
         state.toys[index] = toy; // update existing toy data
       }
     },
-    // Dont use this anymore 
-  //   addProfileToUserBox: (state, action) => {
-  //     const toy = action.payload;
-  
-  //     if (!toy) {
-  //         console.error('[addProfileToUserBox] - Toy payload is undefined');
-  //         return;
-  //     }
-  
-  //     console.log('[addProfileToUserBox] - Adding toy to box:', toy);
-      
-  //     if (state.toyBox) {  // ensure toyBox exists and is an array
-  //         state.toyBox.push(toy);
-  //     } else {
-  //         console.error('[addProfileToUserBox] - state.toyBox is not initialized or is not an array');
-  //         state.toyBox = [toy]; // Initialize it if not done
-  //     }
-  
-  //     // Ensure state.toys and state.toys.toys both exist and the latter is an array
-  //     if (Array.isArray(state.toys)) {
-  //       console.log('[Debug] - state.toys value:', state.toys);
-  //       state.toys = state.toys.filter((item) => item.id !== toy.id);
-  //     } else {
-  //         console.error('state.toys.toys is not an array or is undefined');
-  //     }
-  // },
+    loadToys: (state, action) => {
+      state.toys = action.payload;
+    },
+
     removeToyFromCarousel: (state, action) => {
-      const toyToRemove = action.payload;
-      console.log('[removeToyFromCarousel] - Removing toy from carousel:', toyToRemove);
-    
-      // Check if state.toys is an array before performing array operations on it
+      const toyToRemove = action.payload;  // Assuming the payload is just the toy object
       if (!Array.isArray(state.toys)) {
         console.error('state.toys is not an array or is undefined');
         return;
       }
-    
       state.toys = state.toys.filter((item) => item.id !== toyToRemove.id);
     },
+    
     
     toyAdded: (state, action) => {
       state.toys.push(action.payload);
@@ -159,46 +149,33 @@ const toySlice = createSlice({
   
   extraReducers: (builder) => {
     builder
-      .addCase(fetchToysFromAPI.pending, (state) => {
-        console.log('[fetchToysFromAPI.pending] - Fetching toys pending');
-        state.loading = true;
-      })
-      .addCase(fetchToysFromAPI.fulfilled, (state, action) => {
-        console.log('[fetchToysFromAPI.fulfilled] - Fetching toys fulfilled');
-        state.toys = action.payload.map(toy => ({
-          ...toy,
-          images: Array.isArray(toy.images) ? toy.images : []  
-        }));
-        
-        state.loading = false;
-        state.error = null;
-      })
-      // .addCase(fetchToysFromAPI.fulfilled, (state, action) => {
-      //   console.log('[fetchToysFromAPI.fulfilled] - Fetching toys fulfilled');
-      //   state.toys = action.payload;
-      //   state.loading = false;
-      // })
-    
-      .addCase(fetchToysFromAPI.rejected, (state, action) => {
-        console.error('[fetchToysFromAPI.rejected] - Fetching toys rejected:', action.error.message);
-        state.loading = false;
-        state.error = action.error.message;
-      })
-      .addCase(fetchToysWithinRadiusFromAPI.pending, (state) => {
-        console.log('[fetchToysWithinRadiusFromAPI.pending] - Fetching toys within radius pending');
-        state.loading = true;
-      })
-      .addCase(fetchToysWithinRadiusFromAPI.fulfilled, (state, action) => {
-        console.log('[fetchToysWithinRadiusFromAPI.fulfilled] - Fetching toys within radius fulfilled');
-        state.toys = action.payload;
-        state.loading = false;
-        state.error = null;
-      })
-      .addCase(fetchToysWithinRadiusFromAPI.rejected, (state, action) => {
-        console.error('[fetchToysWithinRadiusFromAPI.rejected] - Fetching toys within radius rejected:', action.error.message);
-        state.loading = false;
-        state.error = action.error.message;
-      })
+    .addCase(fetchToysFromAPI.fulfilled, (state, action) => {
+      state.toys = action.payload;
+      console.log('toyslice action.payload - fetchToysFromAPI.fulfilled', action.payload)
+      console.log('toyslice action.payload.toys - fetchToysFromAPI.fulfilled', action.payload.toys)
+      state.loading = false;
+    })
+    .addCase(fetchToysWithinRadiusFromAPI.fulfilled, (state, action) => {
+      state.toys = action.payload;
+      console.log('toyslice action.payload - fetchToysWithinRadiusFromAPI.fulfilled', action.payload)
+      console.log('toyslice action.payload.toys - fetchToysWithinRadiusFromAPI.fulfilled', action.payload.toys)
+      state.loading = false;
+    })
+    .addCase(fetchToysFromAPI.pending, (state, action) => {
+      state.loading = true;
+    })
+    .addCase(fetchToysWithinRadiusFromAPI.pending, (state, action) => {
+      state.loading = true;
+    })
+    .addCase(fetchToysFromAPI.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error;
+    })
+    .addCase(fetchToysWithinRadiusFromAPI.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error;
+    })
+      
       // .addCase(createToyInAPI.fulfilled, (state, action) => {
       //   const newToy = {
       //     ...action.payload,
@@ -247,7 +224,11 @@ const toySlice = createSlice({
         state.toys = state.toys.filter(toy => toy.id !== toyId);
         state.loading = false;
         state.error = null;
-      })      
+      }) 
+      .addCase(deleteToyInAPI.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error;
+      })  
       // .addCase(deleteToyInAPI.fulfilled, (state, action) => {
       //   console.log('[deleteToyInAPI.fulfilled] - Toy deleted successfully');
       //   state.toys = state.toys.filter(toy => toy.id !== action.payload.id);
@@ -269,6 +250,6 @@ const toySlice = createSlice({
   }
 });
 
-export const { loadToy, addProfileToUserBox, removeToyFromCarousel, toyAdded, toyUpdated, toyDeleted } = toySlice.actions;
+export const { clearToys, loadToy, loadToys, addProfileToUserBox, removeToyFromCarousel, toyAdded, toyUpdated, toyDeleted } = toySlice.actions;
 
 export default toySlice.reducer;

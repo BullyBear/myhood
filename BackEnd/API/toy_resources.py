@@ -108,8 +108,18 @@ class ToyResourceTime(Resource):
 
 class ToysInRadius(Resource):
     def get(self):
-        user_latitude = float(request.args.get('user_latitude'))
-        user_longitude = float(request.args.get('user_longitude'))
+        user_latitude = request.args.get('user_latitude')
+        user_longitude = request.args.get('user_longitude')
+
+        if user_latitude is None or user_longitude is None:
+            return {'error': 'user_latitude and user_longitude must be provided'}, 400
+
+        try:
+            user_latitude = float(user_latitude)
+            user_longitude = float(user_longitude)
+        except ValueError:
+            return {'error': 'Invalid latitude or longitude'}, 400
+
         user_location = (user_latitude, user_longitude)
 
         max_distance = 10
@@ -124,3 +134,4 @@ class ToysInRadius(Resource):
                 toys_within_radius.append(toy)
 
         return toys_schema.dump(toys_within_radius), 200
+

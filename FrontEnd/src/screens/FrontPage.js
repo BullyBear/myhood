@@ -13,9 +13,14 @@ const FrontPage = ({ navigation }) => {
   const dispatch = useDispatch();
 
   //const { toys, loading, error } = useSelector((state) => state.toy);
-  const { toys = [], loading, error } = useSelector((state) => state.toy.toys); 
+ //const { toys = [], loading, error } = useSelector((state) => state.toy);
+  //const { toys = [], loading, error } = useSelector((state) => state.toy.toys); 
+
+
+  
 
   const { user } = useSelector((state) => state.user);
+
 
   //const state = useSelector((state) => state);  
 
@@ -45,19 +50,21 @@ const FrontPage = ({ navigation }) => {
     navigation.navigate('Login');
   };
 
-  if (loading) {
-    return <Text>Loading...</Text>;
-  }
+  // if (loading) {
+  //   return <Text>Loading...</Text>;
+  // }
 
-  if (error) {
-    return <Text>Error: {error}</Text>;
-  }
+  // if (error) {
+  //   return <Text>Error: {error}</Text>;
+  // }
 
   return (
     <View style={styles.container}>
       <View style={styles.carouselContainer}>
 
-        <Carousel />
+        
+      <Carousel />
+
 
       </View>
       <Text style={styles.userNameText}>Hello, {userName ? userName : 'No User'}</Text> 

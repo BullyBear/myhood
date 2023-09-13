@@ -4,11 +4,23 @@ import { useSelector, useDispatch } from 'react-redux';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import Modal from 'react-native-modal';
 
+
 import {
   fetchToysFromAPI,
   fetchToysWithinRadiusFromAPI,
+  fetchToyByIdFromAPI,
+  createToyInAPI,
+  updateToyInAPI,
+  deleteToyInAPI,
+  clearToys,
+  loadToy,
+  loadToys,
   removeToyFromCarousel,
+  toyAdded,
+  toyUpdated,
+  toyDeleted
 } from '../slices/toySlice';
+
 
 import {
   addProfileToUserBoxAsync
@@ -23,6 +35,7 @@ function Carousel() {
 
 
   const { user } = useSelector((state) => state.user);
+
   //const { user } = useSelector((state) => state.user.users);
   console.log('USER', user)
 
@@ -37,13 +50,32 @@ function Carousel() {
   };
 
 
-  //const { toys, loading, error } = useSelector((state) => state.toy);
-  //const { toys = [], loading, error } = useSelector((state) => state.toy);
-  //const { toys, loading, error } = useSelector((state) => state.toys.toys);
+  const entireState = useSelector((state) => state);
+  console.log("Entire Redux State:", JSON.stringify(entireState));
 
 
-   const { toys = [], loading, error } = useSelector((state) => state.toy.toys);
-  //const { toys = [], loading, error } = useSelector((state) => state.toy);
+
+ 
+  // const toys = useSelector((state) => {
+  //   const userToys = state.toy.toys || [];
+  //   const filteredToys = userToys.filter((toy) => toy.user_id !== user.id);
+  //   return filteredToys;
+  // });
+
+
+   const toys = useSelector((state) => state.toy.toys || []);
+
+  const loading = useSelector((state) => state.toy.loading);
+  const error = useSelector((state) => state.toy.error);
+
+  
+
+
+
+
+   console.log('TOYS', toys)
+
+
 
 
   // const toyState = useSelector((state) => state.toy.toys);
@@ -52,11 +84,39 @@ function Carousel() {
   //const { loading, error } = toyState;
 
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  //const currentToy = (toys && toys.length > currentIndex) ? toys[currentIndex] : null;
+  //const currentToy = (toys && toys.length > 0) ? toys[0] : null;
+  // const currentToy = (toys && toys.toys && toys.toys.length > currentIndex) ? toys.toys[currentIndex] : null;
+
+
+  useEffect(() => {
+    console.log("Current Redux state for toys:", toys);
+  }, [toys]);
+  
+
+
+  useEffect(() => {
+    if (user && user.user_latitude && user.user_longitude) {
+      console.log('[fetchToysWithinRadiusFromAPI] - Dispatching action...');
+      dispatch(fetchToysWithinRadiusFromAPI({ latitude: user.user_latitude, longitude: user.user_longitude }));
+    } else {
+      console.log('[fetchToysFromAPI] - Dispatching action...');
+      dispatch(fetchToysFromAPI());
+    }
+  }, [user]);
+  
+
+
+
+  //const currentToy = (toys.toys && toys.toys.length > currentIndex) ? toys.toys[currentIndex] : null;
   const currentToy = (toys && toys.length > currentIndex) ? toys[currentIndex] : null;
+
+
+
   //const imageUrl = currentToy ? currentToy.image_url : defaultImageUrl;
-  const imageUrl = currentToy
-  ? currentToy.image_url_one || currentToy.image_url_two || defaultImageUrl
-  : defaultImageUrl;
+  const imageUrl = currentToy ? currentToy.image_url_one : null;
+
   console.log("Extracted Image URL:", imageUrl);
   console.log("CURRENT TOY", currentToy)
 
@@ -69,21 +129,70 @@ function Carousel() {
 
   console.log('useEffect triggered');
 
-  console.log('Entire Toys Array:', toys);
-  console.log('Current Toy at Index:', [currentIndex]);
+
+
   //console.log('Current Toy Image URL:', toys.toys[currentIndex]?.image_url);
-  console.log('Current Toy Image URL:', toys[currentIndex]?.image_url);
+
+
+  console.log('Entire Toys Array:', toys);
+  console.log('Current Index:', currentIndex);
+  // console.log('Current Toy Image URL:', toys[currentIndex]?.image_url_one);
+
+  if (currentToy) {
+    console.log("CURRENT TOY", currentToy);
+    console.log("Current Toy Image URL:", currentToy.image_url_one);
+  } else {
+    console.log("CURRENT TOY is not available");
+    console.log("Current Toy Image URL: not available");
+  }
+  
+
+//   useEffect(() => {
+//     // Clear old toys before fetching new ones
+//     dispatch(clearToys());
+//     // ... Existing code for fetching toys
+// }, [user]);
 
 
 
+// useEffect(() => {
+//   if (user && (user.user_latitude && user.user_longitude)) {
+//     console.log('BEFORE FETCHTOYSWITHINRADIUSFROMAPI DISPATCH')
+//     dispatch(fetchToysWithinRadiusFromAPI({ latitude: user.user_latitude, longitude: user.user_longitude }));
+//     console.log('AFTER FETCHTOYSWITHINRADIUSFROMAPI DISPATCH')
+//   } else {
+//     console.log('BEFORE FETCHTOYSFROMAPI DISPATCH')
+//     dispatch(fetchToysFromAPI());
+//     console.log('AFTER FETCHTOYSFROMAPI DISPATCH')
+//   }
+// }, [user]); 
 
-  useEffect(() => {
-    if (user && user.latitude && user.longitude) {
-      dispatch(fetchToysWithinRadiusFromAPI({ latitude: user.latitude, longitude: user.longitude }));
-    } else {
-      dispatch(fetchToysFromAPI()); // <-- Add this line
-    }
-  }, [user]);
+
+
+// useEffect(() => {
+//   if (user && (user.user_latitude && user.user_longitude)) {
+//     console.log('BEFORE FETCHTOYSWITHINRADIUSFROMAPI DISPATCH');
+//     dispatch(fetchToysWithinRadiusFromAPI({ latitude: user.user_latitude, longitude: user.user_longitude }))
+//       .then((response) => {
+//         if (response.payload) {
+//           console.log('Toys within radius fetched', response.payload);
+//         }
+//       })
+//       .catch((error) => console.error(error));
+//     console.log('AFTER FETCHTOYSWITHINRADIUSFROMAPI DISPATCH');
+//   } else {
+//     console.log('BEFORE FETCHTOYSFROMAPI DISPATCH');
+//     dispatch(fetchToysFromAPI())
+//       .then((response) => {
+//         if (response.payload) {
+//           console.log('All toys fetched', response.payload);
+//         }
+//       })
+//       .catch((error) => console.error(error));
+//     console.log('AFTER FETCHTOYSFROMAPI DISPATCH');
+//   }
+// }, [user]);
+
 
 
 
@@ -91,9 +200,7 @@ function Carousel() {
   useEffect(() => {
     if (toys.length > 0) {
       setLoaded(true);
-      if (currentIndex === -1 || typeof currentIndex === 'undefined') {
-        setCurrentIndex(0); // explicitly set to 0
-      }
+      setCurrentIndex(0); // Resetting index whenever toys are updated
     }
   }, [toys]);
   
@@ -188,7 +295,8 @@ return (
       >
         <Text>Current Index: {currentIndex}</Text>
         {loading && <Text>Loading...</Text>}
-        {error && <Text>Error: {error}</Text>}
+        {error ? <Text>Error: {error.message}</Text> : null}
+
 
         {currentToy ? (
           <TouchableOpacity onPress={openModal}>
