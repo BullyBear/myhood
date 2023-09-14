@@ -40,6 +40,7 @@ function Carousel() {
   console.log('USER', user)
 
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(false);
 
   const openModal = () => {
     setModalVisible(true);
@@ -103,8 +104,8 @@ function Carousel() {
       console.log('[fetchToysWithinRadiusFromAPI] - Dispatching action...');
       dispatch(fetchToysWithinRadiusFromAPI({ latitude: user.user_latitude, longitude: user.user_longitude }));
     } else {
-      console.log('[fetchToysFromAPI] - Dispatching action...');
-      dispatch(fetchToysFromAPI());
+      console.log('shit outta luck');
+      //dispatch(fetchToysFromAPI());
     }
   }, [user]);
   
@@ -237,13 +238,13 @@ function Carousel() {
     console.log("Profile Picture in carousel:", profilePicture);
 
 
-    dispatch(addProfileToUserBoxAsync({
-      userId: userIdOfToy, 
-      profileData: {
-          bio: bio, 
-          profile_picture: profilePicture
-      }
-  }));
+  //   dispatch(addProfileToUserBoxAsync({
+  //     userId: userIdOfToy, 
+  //     profileData: {
+  //         bio: bio, 
+  //         profile_picture: profilePicture
+  //     }
+  // }));
 
     dispatch(removeToyFromCarousel(toyToShow));
   
@@ -308,7 +309,7 @@ return (
         {error ? <Text>Error: {error.message}</Text> : null}
 
         {currentToy ? (
-          <TouchableOpacity onPress={openModal}>
+          <TouchableOpacity onPress={() => setModalOpen(true)}>
             <Image
               source={{ uri: imageUrl }}
               style={styles.toyImage}
@@ -327,6 +328,16 @@ return (
         )}
       </Animated.View>
     </PanGestureHandler>
+
+    <Modal isVisible={isModalOpen} onBackdropPress={() => setModalOpen(false)}>
+        <View style={styles.modalContent}>
+          <Image
+            source={{ uri: imageUrl }}
+            style={styles.modalImage}
+          />
+        </View>
+      </Modal>
+
   </View>
 );
 

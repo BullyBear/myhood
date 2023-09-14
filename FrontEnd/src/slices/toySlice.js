@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { useDispatch } from 'react-redux';
-import { getToysWithinRadius, getAllToys, createToy as createToyAPI, updateToy as updateToyAPI, deleteToy as deleteToyAPI, getToyById } from '../API/toyAPI';
+import { getToysWithinRadius, getAllToys, getToyById, createToy as createToyAPI, updateToy as updateToyAPI, deleteToy as deleteToyAPI } from '../API/toyAPI';
 
 const initialState = { toys: [], loading: false, error: null };
 
