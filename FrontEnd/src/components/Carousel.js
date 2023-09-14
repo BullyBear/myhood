@@ -60,15 +60,19 @@ function Carousel() {
 
   const currentToy = (toys && toys.length > currentIndex && currentIndex < toys.length) ? toys[currentIndex] : null;
 
-  // if(currentToy) {
-  //   currentToy.images = [
-  //     currentToy.image_url_one,
-  //     currentToy.image_url_two,
-  //     currentToy.image_url_three,
-  //     currentToy.image_url_four,
-  //     currentToy.image_url_five
-  //   ].filter(Boolean); 
-  // }
+  let selectedToyImages = [];
+
+  if(currentToy) {
+    selectedToyImages = [
+      currentToy.image_url_one,
+      currentToy.image_url_two,
+      currentToy.image_url_three,
+      currentToy.image_url_four,
+      currentToy.image_url_five
+    ].filter(Boolean);
+  }
+
+  console.log('selectedToyImages:', selectedToyImages);
   
   
   
@@ -123,48 +127,36 @@ function Carousel() {
 
   function ToyImageModal({ isVisible, onClose, images }) {
     return (
-      <Modal isVisible={isVisible} backdropOpacity={0.5} onBackdropPress={onClose} backdropPressToClose={true}>
-        <FlatList
-          horizontal
-          data={images || []}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.modalImageContainer}>
-              <Image source={{ uri: item }} style={styles.modalImage} />
-            </View>
-          )}
-          pagingEnabled
-          onMomentumScrollEnd={(event) => {
-            const newIndex = Math.floor(event.nativeEvent.contentOffset.x / screenWidth);
-            setModalImageIndex(newIndex);
-          }}
-        />
+      <Modal isVisible={isVisible} backdropOpacity={0.5} onBackdropPress={onClose}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <FlatList
+            horizontal
+            data={images || []}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.modalImageContainer}>
+                <Image source={{ uri: item }} style={styles.modalImage} />
+              </View>
+            )}
+            pagingEnabled
+            onMomentumScrollEnd={(event) => {
+              const newIndex = Math.floor(event.nativeEvent.contentOffset.x / screenWidth);
+              setModalImageIndex(newIndex);
+            }}
+          />
+        </View>
       </Modal>
     );
   }
   
+
   
-  
-  
-  
-  
+
 
   // const entireState = useSelector((state) => state);
   // console.log("Entire Redux State:", JSON.stringify(entireState));
 
 
-
-
-  // const toyState = useSelector((state) => state.toy.toys);
-  // const rawToys = toyState?.toys || [];
-  // const toys = user ? rawToys.filter(toy => toy.user_id !== user.id) : rawToys;
-  //const { loading, error } = toyState;
-
-
-
-  //const currentToy = (toys && toys.length > currentIndex) ? toys[currentIndex] : null;
-  //const currentToy = (toys && toys.length > 0) ? toys[0] : null;
-  // const currentToy = (toys && toys.toys && toys.toys.length > currentIndex) ? toys.toys[currentIndex] : null;
 
 
   useEffect(() => {
@@ -246,6 +238,8 @@ function Carousel() {
     { useNativeDriver: true }
   );
 
+  
+
   const onSwipeRight = () => {
     const toyToShow = toys[currentIndex];
     console.log('Swiping Right');
@@ -304,10 +298,38 @@ function Carousel() {
   
     return (
       <View style={styles.carouselContainer}>
-        {/* ... existing code ... */}
-      
+    <PanGestureHandler
+      onGestureEvent={onGestureEvent}
+      onHandlerStateChange={({ nativeEvent }) => {
+        if (nativeEvent.oldState === State.ACTIVE) {
+          if (currentToy) { // Only swipe if there's a current toy
+            if (nativeEvent.translationX >= 100) {
+              onSwipeRight();
+              translateX.setValue(0);
+            } else if (nativeEvent.translationX <= -100) {
+              onSwipeLeft();
+              translateX.setValue(0);
+            } else {
+              Animated.spring(translateX, {
+                toValue: 0,
+                useNativeDriver: true,
+              }).start();
+            }
+          }
+        }
+      }}
+      enabled={currentToy !== null} // Enable the gesture handler only if there's a current toy
+    >
+
+      <Animated.View
+        style={[
+          styles.carouselItem,
+          { transform: [{ translateX }] },
+        ]}
+      >
+        
+
         {currentToy ? (
-        <TouchableOpacity onPress={() => openModal(currentToy, currentIndex)}>
           <Image
             source={{ uri: imageUrl }}
             style={styles.toyImage}
@@ -317,49 +339,23 @@ function Carousel() {
               setImageLoadingError(true);
             }}
           />
-        </TouchableOpacity>
-      ) : (
-        <Image
-          source={{ uri: defaultImageUrl }}
-          style={styles.toyImage}
-        />
-      )}
-      
-      <Modal 
-        transparent={true}
-        isVisible={isModalVisible}
-        backdropOpacity={0.5}
-        onBackdropPress={closeModal}
-        backdropPressToClose={true}
-        animationIn="slideInRight"
-        animationOut="slideOutRight"
-        animationInTiming={500}
-        animationOutTiming={500}
-        backdropTransitionInTiming={500}
-        backdropTransitionOutTiming={500}
-      >
-        <TouchableWithoutFeedback onPress={closeModal}>
-          <View style={styles.modalBackdrop}>
-            <ScrollView
-              horizontal
-              pagingEnabled
-              contentOffset={{ x: modalImageIndex * screenWidth, y: 0 }}
-              onMomentumScrollEnd={(event) => {
-                const newIndex = Math.floor(event.nativeEvent.contentOffset.x / screenWidth);
-                setModalImageIndex(newIndex);
-              }}
-            >
-              {currentToy && currentToy.images?.map((imageUrl, index) => (
-                <View key={index} style={styles.modalImageContainer}>
-                <Image source={{ uri: imageUrl }} style={styles.modalImage} />
-              </View>
-              ))}
+        ) : (
+          <Image
+            source={{ uri: defaultImageUrl }}
+            style={styles.toyImage}
+          />
+        )}
+      </Animated.View>
+    </PanGestureHandler>
+    <TouchableOpacity
+    style={{ position: 'absolute', bottom: 50 }}
+    onPress={() => openModal(currentToy, currentIndex)}>
 
-            </ScrollView>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
-    </View>
+      <Text style={{fontSize: 18, color: 'blue'}}>See More</Text>
+    </TouchableOpacity>
+
+    <ToyImageModal isVisible={isModalVisible} onClose={closeModal} images={selectedToyImages} />
+  </View>
   );
     
 
