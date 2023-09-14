@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Animated, Image, Text, StyleSheet, TouchableOpacity, ScrollView, TouchableWithoutFeedback, Dimensions, FlatList } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
@@ -126,10 +126,14 @@ function Carousel() {
 
 
   function ToyImageModal({ isVisible, onClose, images }) {
+    const flatListRef = useRef(); // Import useRef from React
+    const [currentModalIndex, setCurrentModalIndex] = useState(0); // Add this line
+    
     return (
       <Modal isVisible={isVisible} backdropOpacity={0.5} onBackdropPress={onClose}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <FlatList
+            ref={flatListRef} // Attach the ref to FlatList
             horizontal
             data={images || []}
             keyExtractor={(item, index) => index.toString()}
@@ -141,13 +145,18 @@ function Carousel() {
             pagingEnabled
             onMomentumScrollEnd={(event) => {
               const newIndex = Math.floor(event.nativeEvent.contentOffset.x / screenWidth);
-              setModalImageIndex(newIndex);
+              if (newIndex >= 0 && newIndex < images.length) {
+                setCurrentModalIndex(newIndex); // Update this line
+              }
             }}
+            initialScrollIndex={currentModalIndex} // Add this line to start the FlatList at the current index
           />
         </View>
       </Modal>
     );
   }
+  
+  
   
 
   
@@ -278,6 +287,7 @@ function Carousel() {
   setCurrentIndex((prevIndex) => {
     if (toys.length === 0) return 0;  // If toys array is empty, keep index at 0
     const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
+    //const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : prevIndex);
     return newIndex;
   });
 };
