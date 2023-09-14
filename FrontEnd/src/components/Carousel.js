@@ -202,8 +202,6 @@ function Carousel() {
 
 
 
-
-
   // useEffect(() => {
   //   if (toys.length > 0) {
   //     setLoaded(true);
@@ -211,6 +209,8 @@ function Carousel() {
   //   }
   // }, [toys]);
   
+
+
 
   const onGestureEvent = Animated.event(
     [{ nativeEvent: { translationX: translateX } }],
@@ -279,20 +279,23 @@ return (
       onGestureEvent={onGestureEvent}
       onHandlerStateChange={({ nativeEvent }) => {
         if (nativeEvent.oldState === State.ACTIVE) {
-          if (nativeEvent.translationX >= 100) {
-            onSwipeRight();
-            translateX.setValue(0);
-          } else if (nativeEvent.translationX <= -100) {
-            onSwipeLeft();
-            translateX.setValue(0);
-          } else {
-            Animated.spring(translateX, {
-              toValue: 0,
-              useNativeDriver: true,
-            }).start();
+          if (currentToy) { // Only swipe if there's a current toy
+            if (nativeEvent.translationX >= 100) {
+              onSwipeRight();
+              translateX.setValue(0);
+            } else if (nativeEvent.translationX <= -100) {
+              onSwipeLeft();
+              translateX.setValue(0);
+            } else {
+              Animated.spring(translateX, {
+                toValue: 0,
+                useNativeDriver: true,
+              }).start();
+            }
           }
         }
       }}
+      enabled={currentToy !== null} // Enable the gesture handler only if there's a current toy
     >
       <Animated.View
         style={[
@@ -304,7 +307,6 @@ return (
         {loading && <Text>Loading...</Text>}
         {error ? <Text>Error: {error.message}</Text> : null}
 
-
         {currentToy ? (
           <TouchableOpacity onPress={openModal}>
             <Image
@@ -313,18 +315,21 @@ return (
               onLoadStart={() => setImageLoadingError(false)}
               onError={(error) => {
                 console.log("Image Loading Error:", error.nativeEvent.error);
+                setImageLoadingError(true);
               }}
             />
           </TouchableOpacity>
         ) : (
-          <Text>No toy available.</Text>
+          <Image
+            source={{ uri: defaultImageUrl }}
+            style={styles.toyImage}
+          />
         )}
-
-        {/* ... */}
       </Animated.View>
     </PanGestureHandler>
   </View>
 );
+
 }
 
 const styles = StyleSheet.create({
