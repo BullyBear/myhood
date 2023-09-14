@@ -82,13 +82,16 @@ export const deleteToyInAPI = createAsyncThunk('toy/delete', async (toyId) => {
   return { ...response, id: toyId };  
 });
 
-// export const deleteToyInAPI = createAsyncThunk('toy/delete', async (toyId) => {
-//   const response = await deleteToyAPI(toyId);
-//   // Fetch all toys again after a toy is deleted
-//   dispatch(fetchToysFromAPI());
-//   return response;
-// });
 
+// export const deleteToyInAPI = createAsyncThunk('toy/delete', async (toyId) => {
+//   try {
+//     await deleteToyAPI(toyId);
+//     return toyId; // Return the deleted toyId on success
+//   } catch (error) {
+//     console.error('[deleteToyInAPI] - Error deleting toy:', error.message);
+//     throw error;
+//   }
+// });
 
 
 

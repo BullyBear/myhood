@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Animated, Image, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Animated, Image, Text, StyleSheet, TouchableOpacity, ScrollView, TouchableWithoutFeedback, Dimensions, FlatList } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import Modal from 'react-native-modal';
@@ -39,27 +39,6 @@ function Carousel() {
   //const { user } = useSelector((state) => state.user.users);
   console.log('USER', user)
 
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [isModalOpen, setModalOpen] = useState(false);
-
-  const openModal = () => {
-    setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
-  };
-
-
-
-  // const entireState = useSelector((state) => state);
-  // console.log("Entire Redux State:", JSON.stringify(entireState));
-
-
-
-
-
-
 
   const toys = useSelector((state) => {
     return state.toy.toys.filter((toy) => toy.user_id !== user.id);
@@ -71,12 +50,107 @@ function Carousel() {
   const loading = useSelector((state) => state.toy.loading);
   const error = useSelector((state) => state.toy.error);
 
+  console.log('TOYS', toys)
 
 
+  const [currentIndex, setCurrentIndex] = useState(0);
 
 
+  //const currentToy = (toys && toys.length > currentIndex) ? toys[currentIndex] : null;
 
-   console.log('TOYS', toys)
+  const currentToy = (toys && toys.length > currentIndex && currentIndex < toys.length) ? toys[currentIndex] : null;
+
+  // if(currentToy) {
+  //   currentToy.images = [
+  //     currentToy.image_url_one,
+  //     currentToy.image_url_two,
+  //     currentToy.image_url_three,
+  //     currentToy.image_url_four,
+  //     currentToy.image_url_five
+  //   ].filter(Boolean); 
+  // }
+  
+  
+  
+    //const imageUrl = currentToy ? currentToy.image_url : defaultImageUrl;
+    const imageUrl = currentToy ? currentToy.image_url_one : null;
+  
+    console.log("Extracted Image URL:", imageUrl);
+    console.log("CURRENT TOY", currentToy)
+  
+    const bio = useSelector(state => state.user.user.bio);
+    const profilePicture = useSelector(state => state.user.user.profile_picture);
+    
+    //const [loaded, setLoaded] = useState(false);
+    const [imageLoadingError, setImageLoadingError] = useState(false);
+    const translateX = new Animated.Value(0);
+  
+    console.log('useEffect triggered');
+  
+  
+  
+    //console.log('Current Toy Image URL:', toys.toys[currentIndex]?.image_url);
+  
+  
+    console.log('Entire Toys Array:', toys);
+    console.log('Current Index:', currentIndex);
+    // console.log('Current Toy Image URL:', toys[currentIndex]?.image_url_one);
+  
+    if (currentToy) {
+      console.log("CURRENT TOY", currentToy);
+      console.log("Current Toy Image URL:", currentToy.image_url_one);
+    } else {
+      console.log("CURRENT TOY is not available");
+      console.log("Current Toy Image URL: not available");
+    }
+
+    const screenWidth = Dimensions.get('window').width;
+
+    const [isModalVisible, setModalVisible] = useState(false);
+    const [modalImageIndex, setModalImageIndex] = useState(0);
+  
+    const openModal = (toy, index) => {
+      setModalImageIndex(index);
+      setModalVisible(true);
+    };
+  
+  
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
+
+  function ToyImageModal({ isVisible, onClose, images }) {
+    return (
+      <Modal isVisible={isVisible} backdropOpacity={0.5} onBackdropPress={onClose} backdropPressToClose={true}>
+        <FlatList
+          horizontal
+          data={images || []}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.modalImageContainer}>
+              <Image source={{ uri: item }} style={styles.modalImage} />
+            </View>
+          )}
+          pagingEnabled
+          onMomentumScrollEnd={(event) => {
+            const newIndex = Math.floor(event.nativeEvent.contentOffset.x / screenWidth);
+            setModalImageIndex(newIndex);
+          }}
+        />
+      </Modal>
+    );
+  }
+  
+  
+  
+  
+  
+  
+
+  // const entireState = useSelector((state) => state);
+  // console.log("Entire Redux State:", JSON.stringify(entireState));
 
 
 
@@ -86,7 +160,7 @@ function Carousel() {
   // const toys = user ? rawToys.filter(toy => toy.user_id !== user.id) : rawToys;
   //const { loading, error } = toyState;
 
-  const [currentIndex, setCurrentIndex] = useState(0);
+
 
   //const currentToy = (toys && toys.length > currentIndex) ? toys[currentIndex] : null;
   //const currentToy = (toys && toys.length > 0) ? toys[0] : null;
@@ -98,7 +172,6 @@ function Carousel() {
   }, [toys]);
   
 
-
   useEffect(() => {
     if (user && user.user_latitude && user.user_longitude) {
       console.log('[fetchToysWithinRadiusFromAPI] - Dispatching action...');
@@ -109,51 +182,6 @@ function Carousel() {
     }
   }, [user]);
   
-
-
-
-  //const currentToy = (toys && toys.length > currentIndex) ? toys[currentIndex] : null;
-
-  const currentToy = (toys && toys.length > currentIndex && currentIndex < toys.length) ? 
-  toys[currentIndex] : 
-  null;
-
-
-
-
-  //const imageUrl = currentToy ? currentToy.image_url : defaultImageUrl;
-  const imageUrl = currentToy ? currentToy.image_url_one : null;
-
-  console.log("Extracted Image URL:", imageUrl);
-  console.log("CURRENT TOY", currentToy)
-
-  const bio = useSelector(state => state.user.user.bio);
-  const profilePicture = useSelector(state => state.user.user.profile_picture);
-  
-  const [loaded, setLoaded] = useState(false);
-  const [imageLoadingError, setImageLoadingError] = useState(false);
-  const translateX = new Animated.Value(0);
-
-  console.log('useEffect triggered');
-
-
-
-  //console.log('Current Toy Image URL:', toys.toys[currentIndex]?.image_url);
-
-
-  console.log('Entire Toys Array:', toys);
-  console.log('Current Index:', currentIndex);
-  // console.log('Current Toy Image URL:', toys[currentIndex]?.image_url_one);
-
-  if (currentToy) {
-    console.log("CURRENT TOY", currentToy);
-    console.log("Current Toy Image URL:", currentToy.image_url_one);
-  } else {
-    console.log("CURRENT TOY is not available");
-    console.log("Current Toy Image URL: not available");
-  }
-  
-
 
 //   useEffect(() => {
 //     // Clear old toys before fetching new ones
@@ -274,72 +302,66 @@ function Carousel() {
     };
 
   
-return (
-  <View style={styles.carouselContainer}>
-    <PanGestureHandler
-      onGestureEvent={onGestureEvent}
-      onHandlerStateChange={({ nativeEvent }) => {
-        if (nativeEvent.oldState === State.ACTIVE) {
-          if (currentToy) { // Only swipe if there's a current toy
-            if (nativeEvent.translationX >= 100) {
-              onSwipeRight();
-              translateX.setValue(0);
-            } else if (nativeEvent.translationX <= -100) {
-              onSwipeLeft();
-              translateX.setValue(0);
-            } else {
-              Animated.spring(translateX, {
-                toValue: 0,
-                useNativeDriver: true,
-              }).start();
-            }
-          }
-        }
-      }}
-      enabled={currentToy !== null} // Enable the gesture handler only if there's a current toy
-    >
-      <Animated.View
-        style={[
-          styles.carouselItem,
-          { transform: [{ translateX }] },
-        ]}
-      >
-        <Text>Current Index: {currentIndex}</Text>
-        {loading && <Text>Loading...</Text>}
-        {error ? <Text>Error: {error.message}</Text> : null}
-
+    return (
+      <View style={styles.carouselContainer}>
+        {/* ... existing code ... */}
+      
         {currentToy ? (
-          <TouchableOpacity onPress={() => setModalOpen(true)}>
-            <Image
-              source={{ uri: imageUrl }}
-              style={styles.toyImage}
-              onLoadStart={() => setImageLoadingError(false)}
-              onError={(error) => {
-                console.log("Image Loading Error:", error.nativeEvent.error);
-                setImageLoadingError(true);
-              }}
-            />
-          </TouchableOpacity>
-        ) : (
-          <Image
-            source={{ uri: defaultImageUrl }}
-            style={styles.toyImage}
-          />
-        )}
-      </Animated.View>
-    </PanGestureHandler>
-
-    <Modal isVisible={isModalOpen} onBackdropPress={() => setModalOpen(false)}>
-        <View style={styles.modalContent}>
+        <TouchableOpacity onPress={() => openModal(currentToy, currentIndex)}>
           <Image
             source={{ uri: imageUrl }}
-            style={styles.modalImage}
+            style={styles.toyImage}
+            onLoadStart={() => setImageLoadingError(false)}
+            onError={(error) => {
+              console.log("Image Loading Error:", error.nativeEvent.error);
+              setImageLoadingError(true);
+            }}
           />
-        </View>
-      </Modal>
+        </TouchableOpacity>
+      ) : (
+        <Image
+          source={{ uri: defaultImageUrl }}
+          style={styles.toyImage}
+        />
+      )}
+      
+      <Modal 
+        transparent={true}
+        isVisible={isModalVisible}
+        backdropOpacity={0.5}
+        onBackdropPress={closeModal}
+        backdropPressToClose={true}
+        animationIn="slideInRight"
+        animationOut="slideOutRight"
+        animationInTiming={500}
+        animationOutTiming={500}
+        backdropTransitionInTiming={500}
+        backdropTransitionOutTiming={500}
+      >
+        <TouchableWithoutFeedback onPress={closeModal}>
+          <View style={styles.modalBackdrop}>
+            <ScrollView
+              horizontal
+              pagingEnabled
+              contentOffset={{ x: modalImageIndex * screenWidth, y: 0 }}
+              onMomentumScrollEnd={(event) => {
+                const newIndex = Math.floor(event.nativeEvent.contentOffset.x / screenWidth);
+                setModalImageIndex(newIndex);
+              }}
+            >
+              {currentToy && currentToy.images?.map((imageUrl, index) => (
+                <View key={index} style={styles.modalImageContainer}>
+                <Image source={{ uri: imageUrl }} style={styles.modalImage} />
+              </View>
+              ))}
 
-  </View>
-);
+            </ScrollView>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    </View>
+  );
+    
 
 }
 
@@ -362,6 +384,18 @@ const styles = StyleSheet.create({
     height: 300,
     resizeMode: 'contain',
   },
+  modalImageContainer: {
+    width: Dimensions.get('window').width, 
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain'
+  },
+  
+
 });
 
 export default Carousel;
