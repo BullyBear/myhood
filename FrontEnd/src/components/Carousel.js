@@ -50,25 +50,27 @@ function Carousel() {
   };
 
 
-  const entireState = useSelector((state) => state);
-  console.log("Entire Redux State:", JSON.stringify(entireState));
+
+  // const entireState = useSelector((state) => state);
+  // console.log("Entire Redux State:", JSON.stringify(entireState));
 
 
 
- 
-  // const toys = useSelector((state) => {
-  //   const userToys = state.toy.toys || [];
-  //   const filteredToys = userToys.filter((toy) => toy.user_id !== user.id);
-  //   return filteredToys;
-  // });
 
 
-   const toys = useSelector((state) => state.toy.toys || []);
+
+
+  const toys = useSelector((state) => {
+    return state.toy.toys.filter((toy) => toy.user_id !== user.id);
+  });
+
+
+  // const toys = useSelector((state) => state.toy.toys || []);
 
   const loading = useSelector((state) => state.toy.loading);
   const error = useSelector((state) => state.toy.error);
 
-  
+
 
 
 
@@ -109,8 +111,12 @@ function Carousel() {
 
 
 
-  //const currentToy = (toys.toys && toys.toys.length > currentIndex) ? toys.toys[currentIndex] : null;
-  const currentToy = (toys && toys.length > currentIndex) ? toys[currentIndex] : null;
+  //const currentToy = (toys && toys.length > currentIndex) ? toys[currentIndex] : null;
+
+  const currentToy = (toys && toys.length > currentIndex && currentIndex < toys.length) ? 
+  toys[currentIndex] : 
+  null;
+
 
 
 
@@ -146,6 +152,7 @@ function Carousel() {
     console.log("Current Toy Image URL: not available");
   }
   
+
 
 //   useEffect(() => {
 //     // Clear old toys before fetching new ones
@@ -197,12 +204,12 @@ function Carousel() {
 
 
 
-  useEffect(() => {
-    if (toys.length > 0) {
-      setLoaded(true);
-      setCurrentIndex(0); // Resetting index whenever toys are updated
-    }
-  }, [toys]);
+  // useEffect(() => {
+  //   if (toys.length > 0) {
+  //     setLoaded(true);
+  //     setCurrentIndex(0); // Resetting index whenever toys are updated
+  //   }
+  // }, [toys]);
   
 
   const onGestureEvent = Animated.event(

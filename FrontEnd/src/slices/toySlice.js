@@ -152,13 +152,13 @@ const toySlice = createSlice({
     .addCase(fetchToysFromAPI.fulfilled, (state, action) => {
       state.toys = action.payload;
       console.log('toyslice action.payload - fetchToysFromAPI.fulfilled', action.payload)
-      console.log('toyslice action.payload.toys - fetchToysFromAPI.fulfilled', action.payload.toys)
+      //console.log('toyslice action.payload.toys - fetchToysFromAPI.fulfilled', action.payload.toys)
       state.loading = false;
     })
     .addCase(fetchToysWithinRadiusFromAPI.fulfilled, (state, action) => {
       state.toys = action.payload;
       console.log('toyslice action.payload - fetchToysWithinRadiusFromAPI.fulfilled', action.payload)
-      console.log('toyslice action.payload.toys - fetchToysWithinRadiusFromAPI.fulfilled', action.payload.toys)
+      //console.log('toyslice action.payload.toys - fetchToysWithinRadiusFromAPI.fulfilled', action.payload.toys)
       state.loading = false;
     })
     .addCase(fetchToysFromAPI.pending, (state, action) => {
