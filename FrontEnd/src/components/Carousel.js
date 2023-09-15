@@ -4,7 +4,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import Modal from 'react-native-modal';
 
-
 import {
   fetchToysFromAPI,
   fetchToysWithinRadiusFromAPI,
@@ -16,16 +15,15 @@ import {
   loadToy,
   loadToys,
   removeToyFromCarousel,
+  addswipedtoy,
   toyAdded,
   toyUpdated,
   toyDeleted
 } from '../slices/toySlice';
 
-
 import {
   addProfileToUserBoxAsync
 } from '../slices/userSlice';
-
 
 function Carousel() {
 
@@ -33,16 +31,18 @@ function Carousel() {
 
   const dispatch = useDispatch();
 
-
   const { user } = useSelector((state) => state.user);
 
   //const { user } = useSelector((state) => state.user.users);
   console.log('USER', user)
 
 
+  const swipedToyIds = useSelector((state) => state.toy.swipedToyIds);
+
   const toys = useSelector((state) => {
     return state.toy.toys.filter((toy) => toy.user_id !== user.id);
   });
+
 
 
   // const toys = useSelector((state) => state.toy.toys || []);
@@ -52,9 +52,7 @@ function Carousel() {
 
   console.log('TOYS', toys)
 
-
   const [currentIndex, setCurrentIndex] = useState(0);
-
 
   //const currentToy = (toys && toys.length > currentIndex) ? toys[currentIndex] : null;
 
@@ -124,47 +122,51 @@ function Carousel() {
     setModalVisible(false);
   };
 
-
   function ToyImageModal({ isVisible, onClose, images }) {
-    const flatListRef = useRef(); // Import useRef from React
-    const [currentModalIndex, setCurrentModalIndex] = useState(0); // Add this line
-    
+    const flatListRef = useRef();
+    const [currentModalIndex, setCurrentModalIndex] = useState(0);
+  
     return (
       <Modal isVisible={isVisible} backdropOpacity={0.5} onBackdropPress={onClose}>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <FlatList
-            ref={flatListRef} // Attach the ref to FlatList
-            horizontal
-            data={images || []}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.modalImageContainer}>
-                <Image source={{ uri: item }} style={styles.modalImage} />
-              </View>
-            )}
-            pagingEnabled
-            onMomentumScrollEnd={(event) => {
-              const newIndex = Math.floor(event.nativeEvent.contentOffset.x / screenWidth);
-              if (newIndex >= 0 && newIndex < images.length) {
-                setCurrentModalIndex(newIndex); // Update this line
-              }
-            }}
-            initialScrollIndex={currentModalIndex} // Add this line to start the FlatList at the current index
-          />
-        </View>
+        <TouchableWithoutFeedback onPress={onClose}>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <TouchableWithoutFeedback onPress={() => { /* Do nothing to avoid propagating to parent */ }}>
+              <FlatList
+                ref={flatListRef}
+                horizontal
+                data={images || []}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item }) => (
+                  <TouchableWithoutFeedback onPress={() => { /* Do nothing to avoid propagating to parent */ }}>
+                    <View style={styles.modalImageContainer}>
+                      <Image source={{ uri: item }} style={styles.modalImage} />
+                    </View>
+                  </TouchableWithoutFeedback>
+                )}
+                pagingEnabled
+                onMomentumScrollEnd={(event) => {
+                  const newIndex = Math.floor(event.nativeEvent.contentOffset.x / screenWidth);
+                  if (newIndex >= 0 && newIndex < images.length) {
+                    setCurrentModalIndex(newIndex);
+                  }
+                }}
+                initialScrollIndex={currentModalIndex}
+              />
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
       </Modal>
     );
   }
   
   
   
+  
 
   
 
-
   // const entireState = useSelector((state) => state);
   // console.log("Entire Redux State:", JSON.stringify(entireState));
-
 
 
 
@@ -173,15 +175,28 @@ function Carousel() {
   }, [toys]);
   
 
+  // useEffect(() => {
+  //   if (user && user.user_latitude && user.user_longitude) {
+  //     console.log('[fetchToysWithinRadiusFromAPI] - Dispatching action...');
+  //     dispatch(fetchToysWithinRadiusFromAPI({ latitude: user.user_latitude, longitude: user.user_longitude }));
+  //   } else {
+  //     console.log('shit outta luck');
+  //     //dispatch(fetchToysFromAPI());
+  //   }
+  // }, [user]);
+
+
   useEffect(() => {
     if (user && user.user_latitude && user.user_longitude) {
       console.log('[fetchToysWithinRadiusFromAPI] - Dispatching action...');
-      dispatch(fetchToysWithinRadiusFromAPI({ latitude: user.user_latitude, longitude: user.user_longitude }));
-    } else {
-      console.log('shit outta luck');
-      //dispatch(fetchToysFromAPI());
+      dispatch(fetchToysWithinRadiusFromAPI({
+        latitude: user.user_latitude,
+        longitude: user.user_longitude,
+        user_id: user.id // Include the user ID here
+      }));
     }
   }, [user]);
+  
   
 
 //   useEffect(() => {
@@ -189,7 +204,6 @@ function Carousel() {
 //     dispatch(clearToys());
 //     // ... Existing code for fetching toys
 // }, [user]);
-
 
 
 // useEffect(() => {
@@ -205,33 +219,6 @@ function Carousel() {
 // }, [user]); 
 
 
-
-// useEffect(() => {
-//   if (user && (user.user_latitude && user.user_longitude)) {
-//     console.log('BEFORE FETCHTOYSWITHINRADIUSFROMAPI DISPATCH');
-//     dispatch(fetchToysWithinRadiusFromAPI({ latitude: user.user_latitude, longitude: user.user_longitude }))
-//       .then((response) => {
-//         if (response.payload) {
-//           console.log('Toys within radius fetched', response.payload);
-//         }
-//       })
-//       .catch((error) => console.error(error));
-//     console.log('AFTER FETCHTOYSWITHINRADIUSFROMAPI DISPATCH');
-//   } else {
-//     console.log('BEFORE FETCHTOYSFROMAPI DISPATCH');
-//     dispatch(fetchToysFromAPI())
-//       .then((response) => {
-//         if (response.payload) {
-//           console.log('All toys fetched', response.payload);
-//         }
-//       })
-//       .catch((error) => console.error(error));
-//     console.log('AFTER FETCHTOYSFROMAPI DISPATCH');
-//   }
-// }, [user]);
-
-
-
   // useEffect(() => {
   //   if (toys.length > 0) {
   //     setLoaded(true);
@@ -241,12 +228,32 @@ function Carousel() {
   
 
 
-
   const onGestureEvent = Animated.event(
     [{ nativeEvent: { translationX: translateX } }],
     { useNativeDriver: true }
   );
 
+  const recordSwipeAction = async (userId, toyId, action) => {
+    try {
+      const response = await fetch('/api/toyswipe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ user_id: userId, toy_id: toyId, action })
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Swipe action recorded:', data);
+        dispatch(toySlice.actions.addSwipedToy(toyId));
+      } else {
+        console.error('Failed to record swipe action:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('Error recording swipe action:', error);
+    }
+  };
   
 
   const onSwipeRight = () => {
@@ -268,6 +275,9 @@ function Carousel() {
     console.log("Bio in carousel:", bio);
     console.log("Profile Picture in carousel:", profilePicture);
 
+    if (user && user.id && currentToy && currentToy.id) {
+      recordSwipeAction(user.id, currentToy.id, 'right');
+    }
 
   //   dispatch(addProfileToUserBoxAsync({
   //     userId: userIdOfToy, 
@@ -296,6 +306,11 @@ function Carousel() {
     const toyToRemove = toys[currentIndex];
     console.log('Swiping Left');
     //console.log('Current Toy to Remove:', toyToRemove.name, '| Index:', currentIndex);
+
+    if (user && user.id && currentToy && currentToy.id) {
+      recordSwipeAction(user.id, currentToy.id, 'left');
+    }
+
     dispatch(removeToyFromCarousel(toyToRemove));
     setCurrentIndex((prevIndex) => {
       if (toys.length === 0) return 0;  // If toys array is empty, keep index at 0

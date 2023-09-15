@@ -2,7 +2,13 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { useDispatch } from 'react-redux';
 import { getToysWithinRadius, getAllToys, getToyById, createToy as createToyAPI, updateToy as updateToyAPI, deleteToy as deleteToyAPI } from '../API/toyAPI';
 
-const initialState = { toys: [], loading: false, error: null };
+
+
+//const initialState = { toys: [], loading: false, error: null };
+const initialState = { toys: [], swipedToyIds: [], loading: false, error: null };
+
+
+
 
 console.log("Initial state:", initialState);
 
@@ -100,6 +106,14 @@ const toySlice = createSlice({
   initialState: initialState,
   //initialState: { toys: [] },
   reducers: {
+    removeToyFromCarousel: (state, action) => {
+      const toyIdToRemove = action.payload;
+      state.toys = state.toys.filter(toy => toy.id !== toyIdToRemove);
+    },
+    addSwipedToy: (state, action) => {
+      const toyId = action.payload;
+      state.swipedToyIds.push(toyId);
+    },
     clearToys: (state) => {
       state.toys = [];
     },
@@ -118,14 +132,14 @@ const toySlice = createSlice({
       state.toys = action.payload;
     },
 
-    removeToyFromCarousel: (state, action) => {
-      const toyToRemove = action.payload;  // Assuming the payload is just the toy object
-      if (!Array.isArray(state.toys)) {
-        console.error('state.toys is not an array or is undefined');
-        return;
-      }
-      state.toys = state.toys.filter((item) => item.id !== toyToRemove.id);
-    },
+    // removeToyFromCarousel: (state, action) => {
+    //   const toyToRemove = action.payload;  // Assuming the payload is just the toy object
+    //   if (!Array.isArray(state.toys)) {
+    //     console.error('state.toys is not an array or is undefined');
+    //     return;
+    //   }
+    //   state.toys = state.toys.filter((item) => item.id !== toyToRemove.id);
+    // },
     
     
     toyAdded: (state, action) => {

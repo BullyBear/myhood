@@ -1,7 +1,7 @@
 from flask import request, jsonify, Flask
 from flask_restful import Resource, reqparse
 from extensions import db
-from models import Toy, User, ToySchema, UserSchema
+from models import Toy, User, ToySchema, UserSchema, UserToyAction, UserToyActionSchema
 import boto3
 from botocore.exceptions import BotoCoreError, NoCredentialsError
 import uuid
@@ -14,6 +14,9 @@ from io import BytesIO
 
 toy_schema = ToySchema()
 toys_schema = ToySchema(many=True)
+
+user_toy_action_schema = UserToyActionSchema()
+user_toy_actions_schema = UserToyActionSchema(many=True)
 
 
 def get_image_from_url(image_url):
@@ -32,15 +35,21 @@ def get_image_from_url(image_url):
 class ToyList(Resource):
     def get(self):
         user_id = request.args.get('user_id', None)
+        mode = request.args.get('mode', 'all')  # New parameter to distinguish
         if user_id:
-            toys = Toy.query.filter_by(user_id=user_id).all()
+            if mode == 'uninteracted':
+                interacted_toys = [x.toy_id for x in UserToyAction.query.filter_by(user_id=user_id).all()]
+                if interacted_toys:
+                    toys = Toy.query.filter(Toy.id.notin_(interacted_toys), Toy.user_id != user_id).all()
+                else:
+                    toys = Toy.query.filter(Toy.user_id != user_id).all()
+            else:
+                toys = Toy.query.filter_by(user_id=user_id).all()
+            
+            result = toys_schema.dump(toys)
+            return {"toys": result}, 200
         else:
-            toys = Toy.query.all()
-
-        #result = toy_schema.dump(toys)
-        result = toys_schema.dump(toys)
-
-        return {"toys": result}, 200
+            return {"error": "user_id is required"}, 400
 
     def post(self):
         print("[ToyList POST] - Request received.")
@@ -135,3 +144,22 @@ class ToysInRadius(Resource):
 
         return toys_schema.dump(toys_within_radius), 200
 
+
+class ToySwipe(Resource):
+    def post(self):
+        user_id = request.json.get('user_id')
+        toy_id = request.json.get('toy_id')
+        action = request.json.get('action')  # Should be 'left', 'right', or 'none'
+
+        # Validate action here if needed
+
+        new_action = UserToyAction(
+            user_id=user_id,
+            toy_id=toy_id,
+            action=action
+        )
+        db.session.add(new_action)
+        db.session.commit()
+
+        serialized_action = user_toy_action_schema.dump(new_action)
+        return {**serialized_action, "message": "Swipe action recorded"}, 201
