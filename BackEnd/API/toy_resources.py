@@ -151,7 +151,8 @@ class ToySwipe(Resource):
         toy_id = request.json.get('toy_id')
         action = request.json.get('action')  # Should be 'left', 'right', or 'none'
 
-        # Validate action here if needed
+        if action not in ['left', 'right', 'none']:
+            return {"error": "Invalid action type"}, 400
 
         new_action = UserToyAction(
             user_id=user_id,

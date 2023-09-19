@@ -5,7 +5,10 @@ import { getToysWithinRadius, getAllToys, getToyById, createToy as createToyAPI,
 
 
 //const initialState = { toys: [], loading: false, error: null };
-const initialState = { toys: [], swipedToyIds: [], loading: false, error: null };
+//const initialState = { toys: [], swipedToyIds: [], loading: false, error: null };
+
+const initialState = { toys: [], swipedToys: [], loading: false, error: null };
+
 
 
 
@@ -111,9 +114,14 @@ const toySlice = createSlice({
       state.toys = state.toys.filter(toy => toy.id !== toyIdToRemove);
     },
     addSwipedToy: (state, action) => {
-      const toyId = action.payload;
-      state.swipedToyIds.push(toyId);
+      console.log("addswipedtoyreducer", state);
+      if (!state.swipedToys) {
+        state.swipedToys = [];
+      }
+      console.log("swipedToys before push: ", state.swipedToys);
+      state.swipedToys.push(action.payload);
     },
+    
     clearToys: (state) => {
       state.toys = [];
     },
@@ -267,6 +275,6 @@ const toySlice = createSlice({
   }
 });
 
-export const { clearToys, loadToy, loadToys, addProfileToUserBox, removeToyFromCarousel, toyAdded, toyUpdated, toyDeleted } = toySlice.actions;
+export const { clearToys, loadToy, loadToys, addProfileToUserBox, removeToyFromCarousel, addSwipedToy, toyAdded, toyUpdated, toyDeleted } = toySlice.actions;
 
 export default toySlice.reducer;

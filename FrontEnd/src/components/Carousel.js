@@ -4,6 +4,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import Modal from 'react-native-modal';
 
+import axios from 'axios';
+import { API_URL } from '../../config';
+
 import {
   fetchToysFromAPI,
   fetchToysWithinRadiusFromAPI,
@@ -15,7 +18,7 @@ import {
   loadToy,
   loadToys,
   removeToyFromCarousel,
-  addswipedtoy,
+  addSwipedToy,
   toyAdded,
   toyUpdated,
   toyDeleted
@@ -58,6 +61,11 @@ function Carousel() {
 
   const currentToy = (toys && toys.length > currentIndex && currentIndex < toys.length) ? toys[currentIndex] : null;
 
+  //const currentToy = (toys && toys.length > 0 && currentIndex !== -1) ? toys[currentIndex] : null;
+
+  
+
+
   let selectedToyImages = [];
 
   if(currentToy) {
@@ -88,6 +96,9 @@ function Carousel() {
     const translateX = new Animated.Value(0);
   
     console.log('useEffect triggered');
+
+    const [showDefaultImage, setShowDefaultImage] = useState(false);
+
   
   
   
@@ -175,15 +186,6 @@ function Carousel() {
   }, [toys]);
   
 
-  // useEffect(() => {
-  //   if (user && user.user_latitude && user.user_longitude) {
-  //     console.log('[fetchToysWithinRadiusFromAPI] - Dispatching action...');
-  //     dispatch(fetchToysWithinRadiusFromAPI({ latitude: user.user_latitude, longitude: user.user_longitude }));
-  //   } else {
-  //     console.log('shit outta luck');
-  //     //dispatch(fetchToysFromAPI());
-  //   }
-  // }, [user]);
 
 
   useEffect(() => {
@@ -233,27 +235,43 @@ function Carousel() {
     { useNativeDriver: true }
   );
 
+
+
+
   const recordSwipeAction = async (userId, toyId, action) => {
     try {
-      const response = await fetch('/api/toyswipe', {
-        method: 'POST',
+      console.log(`Sending POST request to /api/toyswipe with userId: ${userId}, toyId: ${toyId}, action: ${action}`);
+      
+      const response = await axios.post(`${API_URL}/api/toyswipe`, {
+        user_id: userId,
+        toy_id: toyId,
+        action
+      }, {
         headers: {
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ user_id: userId, toy_id: toyId, action })
+        }
       });
   
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Swipe action recorded:', data);
-        dispatch(toySlice.actions.addSwipedToy(toyId));
+      console.log("Response received:", response);
+      console.log("Response status:", response.status);
+      console.log("Response status text:", response.statusText);
+  
+      if (response.status === 200 || response.status === 201) {  
+        const data = response.data;
+        console.log("JSON Data received from server:", data);
+        //dispatch(toySlice.actions.addSwipedToy(toyId));
+        dispatch(addSwipedToy(toyId));
       } else {
-        console.error('Failed to record swipe action:', response.status, response.statusText);
+        console.error(`Failed to record swipe action. Status: ${response.status}, StatusText: ${response.statusText}`);
       }
     } catch (error) {
-      console.error('Error recording swipe action:', error);
+      console.error(`Error recording swipe action: ${error.message}`);
+      console.error("Additional error details:", error);
     }
   };
+  
+  
+  
   
 
   const onSwipeRight = () => {
@@ -294,14 +312,34 @@ function Carousel() {
       // Add logic here if you want to record interactions between users
     }
   
+  // setCurrentIndex((prevIndex) => {
+  //   if (toys.length === 0) return 0;  // If toys array is empty, keep index at 0
+  //   const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
+  //   //const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : prevIndex);
+  //   return newIndex;
+  // });
+
   setCurrentIndex((prevIndex) => {
-    if (toys.length === 0) return 0;  // If toys array is empty, keep index at 0
-    const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
-    //const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : prevIndex);
+    if (toys.length === 0) return -1;  // -1 can indicate no toys available
+    const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : -1);
     return newIndex;
   });
+
+  // setCurrentIndex((prevIndex) => {
+  //   if (toys.length === 0) {
+  //     setShowDefaultImage(true);
+  //     return -1;  // -1 can indicate no toys available
+  //   }
+  //   setShowDefaultImage(false);
+  //   return (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
+  // });
+  
+  
+
 };
   
+
+
   const onSwipeLeft = () => {
     const toyToRemove = toys[currentIndex];
     console.log('Swiping Left');
@@ -312,12 +350,25 @@ function Carousel() {
     }
 
     dispatch(removeToyFromCarousel(toyToRemove));
+
     setCurrentIndex((prevIndex) => {
       if (toys.length === 0) return 0;  // If toys array is empty, keep index at 0
       const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
       console.log('New Current Index after Swipe Left:', newIndex);
       return newIndex;
       });
+
+      // setCurrentIndex((prevIndex) => {
+      //   if (toys.length === 0) {
+      //     setShowDefaultImage(true);
+      //     return -1;  // -1 can indicate no toys available
+      //   }
+      //   setShowDefaultImage(false);
+      //   return (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
+      // });
+      
+
+
     };
 
   
