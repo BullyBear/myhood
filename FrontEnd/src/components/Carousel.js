@@ -312,29 +312,22 @@ function Carousel() {
       // Add logic here if you want to record interactions between users
     }
   
+
   // setCurrentIndex((prevIndex) => {
-  //   if (toys.length === 0) return 0;  // If toys array is empty, keep index at 0
-  //   const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
-  //   //const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : prevIndex);
+  //   if (toys.length === 0) return -1;  // -1 can indicate no toys available
+  //   const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : -1);
   //   return newIndex;
   // });
 
   setCurrentIndex((prevIndex) => {
-    if (toys.length === 0) return -1;  // -1 can indicate no toys available
-    const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : -1);
+    const newIndex = prevIndex + 1;
+    if (newIndex >= toys.length) {
+      setShowDefaultImage(true);  // <-- Set to show default image
+    }
+    //return (newIndex < toys.length ? newIndex : prevIndex);
     return newIndex;
   });
 
-  // setCurrentIndex((prevIndex) => {
-  //   if (toys.length === 0) {
-  //     setShowDefaultImage(true);
-  //     return -1;  // -1 can indicate no toys available
-  //   }
-  //   setShowDefaultImage(false);
-  //   return (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
-  // });
-  
-  
 
 };
   
@@ -351,22 +344,21 @@ function Carousel() {
 
     dispatch(removeToyFromCarousel(toyToRemove));
 
-    setCurrentIndex((prevIndex) => {
-      if (toys.length === 0) return 0;  // If toys array is empty, keep index at 0
-      const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
-      console.log('New Current Index after Swipe Left:', newIndex);
-      return newIndex;
-      });
+    // setCurrentIndex((prevIndex) => {
+    //   if (toys.length === 0) return 0;  // If toys array is empty, keep index at 0
+    //   const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
+    //   console.log('New Current Index after Swipe Left:', newIndex);
+    //   return newIndex;
+    //   });
 
-      // setCurrentIndex((prevIndex) => {
-      //   if (toys.length === 0) {
-      //     setShowDefaultImage(true);
-      //     return -1;  // -1 can indicate no toys available
-      //   }
-      //   setShowDefaultImage(false);
-      //   return (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
-      // });
-      
+    setCurrentIndex((prevIndex) => {
+      const newIndex = prevIndex + 1;
+      if (newIndex >= toys.length) {
+        setShowDefaultImage(true);  // <-- Set to show default image
+      }
+      //return (newIndex < toys.length ? newIndex : prevIndex);
+      return newIndex;
+    });
 
 
     };
