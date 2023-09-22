@@ -212,6 +212,9 @@ const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
+    removeUserFromBox: (state, action) => {
+      state.userBox = state.userBox.filter(userId => userId !== action.payload);
+    },
     setLastInteractedToyId: (state, action) => {
       state.last_interacted_toy_id = action.payload;
     },
@@ -393,7 +396,8 @@ export const {
   updateUserRequest,
   updateUserSuccess,
   updateUserFailure,
-  addProfileToUserBox
+  addProfileToUserBox,
+  removeUserFromBox
 } = userSlice.actions;
 
 

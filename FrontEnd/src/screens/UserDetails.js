@@ -1,23 +1,34 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+
+import { removeUserFromBox } from '../slices/userSlice';
 
 const { width, height } = Dimensions.get('window');
 
 export default function UserDetails({ route }) {
-
-  // const { profile_picture } = route.params.user;
-  // const name = useSelector((state) => state.user.user.name);
-  // const bio = useSelector(state => state.user.user.bio);
-
   const { user } = route.params;
-
-
   const navigation = useNavigation();
-
+  
+  const [showAcceptButton, setShowAcceptButton] = useState(true);
+  const dispatch = useDispatch();
+  
   const onChatPressed = () => {
     navigation.navigate('ChatScreen');
+  };
+
+  const onAcceptPressed = () => {
+    // Perform the logic for accepting the user here
+    // You can also update the state to show the "Chat" button
+    setShowAcceptButton(false);
+  };
+
+  const onDeclinePressed = () => {
+    // Perform the logic for declining the user here
+    // You can navigate back to the UserBox page
+    dispatch(removeUserFromBox(user.id));
+    navigation.goBack();
   };
 
   return (
@@ -25,12 +36,27 @@ export default function UserDetails({ route }) {
       <Image source={{ uri: user.profile_picture }} style={styles.image} />
       <Text style={styles.text}>{user.name}</Text>
       <Text style={styles.text}>{user.bio}</Text>
-      <TouchableOpacity style={styles.chatButton} onPress={onChatPressed}>
-        <Text style={styles.chatButtonText}>Chat</Text>
-      </TouchableOpacity>
+      
+      {showAcceptButton && (
+        <>
+          <TouchableOpacity style={styles.acceptButton} onPress={onAcceptPressed}>
+            <Text style={styles.acceptButtonText}>Accept</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.declineButton} onPress={onDeclinePressed}>
+            <Text style={styles.declineButtonText}>Decline</Text>
+          </TouchableOpacity>
+        </>
+      )}
+      
+      {!showAcceptButton && (
+        <TouchableOpacity style={styles.chatButton} onPress={onChatPressed}>
+          <Text style={styles.chatButtonText}>Chat</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -47,6 +73,28 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 18,
     marginBottom: 10,
+  },
+  acceptButton: {
+    backgroundColor: 'green',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  acceptButtonText: {
+    color: '#fff',
+    fontSize: 18,
+  },
+  declineButton: {
+    backgroundColor: 'red',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  declineButtonText: {
+    color: '#fff',
+    fontSize: 18,
   },
   chatButton: {
     backgroundColor: '#007BFF',
