@@ -11,22 +11,29 @@ function ToyBox() {
 
   const navigation = useNavigation();
   const toyBox = useSelector((state) => state.toy.toyBox);
+  const toyImages = useSelector((state) => state.toy.toyImages);
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
   };
 
   const renderThumbnail = (item, index) => {
-    if (!item) return null; // Add this check
-    let imageSize = toysToShow.length <= 1 ? width * 0.6 : width * 0.3;
+    if (!item || !toyImages[index]) return null;
 
+    // Assuming each toy object has an 'image_url' property
     return (
-      <TouchableOpacity key={item.id} onPress={() => navigation.navigate('ToyDetails', { toyId: item.id })} style={styles.imageContainer}>
-        <Image source={{ uri: item.image_url }} style={{ width: imageSize, height: imageSize }} />
+      <TouchableOpacity
+        key={item.id}
+        onPress={() => navigation.navigate('ToyDetails', { toyId: item.id })}
+        style={styles.imageContainer}
+      >
+      <Image
+        source={{ uri: toyImages[index] }}
+        style={{ width: width * 0.6, height: width * 0.6 }}
+      />
       </TouchableOpacity>
     );
-};
-
+  };
 
   const renderFooter = () => {
     if (!toyBox || toyBox.length <= ITEMS_PER_PAGE) {
@@ -48,22 +55,16 @@ function ToyBox() {
       );
     }
 
-    return (
-      <View style={styles.paginationContainer}>
-        {pageButtons}
-      </View>
-    );
+    return <View style={styles.paginationContainer}>{pageButtons}</View>;
   };
-  
+
   const startIdx = (page - 1) * ITEMS_PER_PAGE;
   const endIdx = startIdx + ITEMS_PER_PAGE;
   const toysToShow = Array.isArray(toyBox) ? toyBox.slice(startIdx, endIdx) : [];
 
   return (
     <View style={styles.container}>
-      <View style={styles.contentContainer}>
-        {toysToShow.map(renderThumbnail)}
-      </View>
+      <View style={styles.contentContainer}>{toysToShow.map(renderThumbnail)}</View>
       {renderFooter()}
     </View>
   );
@@ -83,7 +84,7 @@ const styles = StyleSheet.create({
   imageContainer: {
     margin: 10,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   // ... other styles here
 });

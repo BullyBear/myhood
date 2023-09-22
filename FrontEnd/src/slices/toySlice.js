@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { useDispatch } from 'react-redux';
-import { getToysWithinRadius, getAllToys, getToyById, createToy as createToyAPI, updateToy as updateToyAPI, deleteToy as deleteToyAPI } from '../API/toyAPI';
+import { getToysWithinRadius, getAllToys, getToyById, createToy as createToyAPI, updateToy as updateToyAPI, deleteToy as deleteToyAPI, addToyToToyboxAPI } from '../API/toyAPI';
 
 
 
@@ -8,7 +8,7 @@ import { getToysWithinRadius, getAllToys, getToyById, createToy as createToyAPI,
 //const initialState = { toys: [], swipedToyIds: [], loading: false, error: null };
 
 
-const initialState = { toys: [], swipedToys: [], loading: false, error: null };
+const initialState = { toys: [], swipedToys: [], toyImages: [], loading: false, error: null };
 //const initialState = { toys: [], userSwipedToys: {}, loading: false, error: null };
 
 
@@ -26,17 +26,18 @@ export const createAndUploadToy = createAsyncThunk('toy/createAndUpload', async 
 
 
 
-// export const fetchToysFromAPI = createAsyncThunk('toy/fetchToys', async (mode) => {
-//   try {
-//     console.log('[fetchToysFromAPI] - Fetching toys from API');
-//     const toys = await getAllToys(mode);
-//     console.log('[fetchToysFromAPI] - Fetched toys:', toys);
-//     return toys;
-//   } catch (error) {
-//     console.error('[fetchToysFromAPI] - Error fetching toys:', error.message);
-//     throw error;
-//   }
-// });
+export const addToyToToybox = createAsyncThunk(
+  'toy/addToyToToybox',
+  async ({ userId, toyId }, { rejectWithValue }) => {
+    try {
+      const response = await addToyToToyboxAPI(userId, toyId);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 
 
 export const fetchToysFromAPI = createAsyncThunk('toy/fetchToys', async () => {
@@ -44,12 +45,22 @@ export const fetchToysFromAPI = createAsyncThunk('toy/fetchToys', async () => {
     console.log('[fetchToysFromAPI] - Fetching toys from API');
     const toys = await getAllToys();
     console.log('[fetchToysFromAPI] - Fetched toys:', toys);
-    return toys;
+    // Assuming each toy has fields image_url_one, image_url_two, etc.
+    // Add toy images to the toys fetched from the API
+    const toyImages = toys.map((toy) => [
+      toy.image_url_one,
+      toy.image_url_two,
+      toy.image_url_three,
+      toy.image_url_four,
+      toy.image_url_five,
+    ].filter(Boolean)); // remove null or undefined values
+    return { toys, toyImages };
   } catch (error) {
     console.error('[fetchToysFromAPI] - Error fetching toys:', error.message);
     throw error;
   }
 });
+
 
 
 
@@ -144,6 +155,19 @@ const toySlice = createSlice({
     resetState: (state) => {
       return initialState;
     },
+    updateToyImages: (state, action) => {
+      const { userId, toyImages } = action.payload;
+      const toy = state.toys.find((toy) => toy.userId === userId);
+      if (toy) {
+          toy.images = toyImages;
+      } else {
+          state.toys.push({
+              userId: userId,
+              images: toyImages
+          });
+          state.toyImages.push(...toyImages); // add the images to toyImages array
+      }
+  },  
     removeToyFromCarousel: (state, action) => {
       const toyIdToRemove = action.payload;
       state.toys = state.toys.filter(toy => toy.id !== toyIdToRemove);
@@ -181,7 +205,8 @@ const toySlice = createSlice({
       }
     },
     loadToys: (state, action) => {
-      state.toys = action.payload;
+      state.toys = action.payload.toys;
+      state.toyImages = action.payload.toyImages; // Set toyImages from the action payload
     },
 
     // removeToyFromCarousel: (state, action) => {
@@ -319,6 +344,6 @@ const toySlice = createSlice({
   }
 });
 
-export const { clearToys, loadToy, loadToys, addProfileToUserBox, removeToyFromCarousel, addSwipedToy, toyAdded, toyUpdated, toyDeleted, resetState} = toySlice.actions;
+export const { clearToys, loadToy, loadToys, addProfileToUserBox, removeToyFromCarousel, addSwipedToy, toyAdded, toyUpdated, toyDeleted, resetState, updateToyImages} = toySlice.actions;
 
 export default toySlice.reducer;

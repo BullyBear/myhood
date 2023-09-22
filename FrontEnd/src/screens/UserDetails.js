@@ -4,6 +4,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'rea
 import { useNavigation } from '@react-navigation/native';
 
 import { removeUserFromBox } from '../slices/userSlice';
+import { addToyToToybox, updateToyImages } from '../slices/toySlice'; 
 
 const { width, height } = Dimensions.get('window');
 
@@ -12,21 +13,36 @@ export default function UserDetails({ route }) {
   const navigation = useNavigation();
   
   const [showAcceptButton, setShowAcceptButton] = useState(true);
+  const currentToy = useSelector((state) => state.currentToy);
+
+
   const dispatch = useDispatch();
   
+
+
   const onChatPressed = () => {
     navigation.navigate('ChatScreen');
   };
 
+
   const onAcceptPressed = () => {
-    // Perform the logic for accepting the user here
-    // You can also update the state to show the "Chat" button
+
+    if (user && user.id && currentToy && currentToy.id) {
+      recordSwipeAction(user.id, currentToy.id, 'right');
+      
+      // Dispatch an action to add the toy to the Toybox
+      dispatch(addToyToToybox({ userId: user.id, toyId: currentToy.id }));
+      dispatch(updateToyImages({ userId: user.id, toyImages: currentToy.images }));
+
+    }
+
     setShowAcceptButton(false);
   };
 
+
+
   const onDeclinePressed = () => {
-    // Perform the logic for declining the user here
-    // You can navigate back to the UserBox page
+
     dispatch(removeUserFromBox(user.id));
     navigation.goBack();
   };

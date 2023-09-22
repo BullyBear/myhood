@@ -159,7 +159,7 @@ class ToySwipe(Resource):
             toy_id=toy_id,
             action=action
         )
-        
+
         db.session.add(new_action)
 
         # Updating the user's last_interacted_toy_id
@@ -171,3 +171,33 @@ class ToySwipe(Resource):
 
         serialized_action = user_toy_action_schema.dump(new_action)
         return {**serialized_action, "message": "Swipe action recorded"}, 201
+
+
+class AddToyToToybox(Resource):
+    def post(self):
+        try:
+            data = request.json
+
+            user_id = data.get('user_id')
+            toy_id = data.get('toy_id')
+
+            if not user_id or not toy_id:
+                return {"message": "Both user_id and toy_id are required"}, 400
+
+            # Check if the user and toy exist
+            user = User.query.get(user_id)
+            toy = Toy.query.get(toy_id)
+
+            if not user or not toy:
+                return {"message": "User or toy not found"}, 404
+
+            # Associate the toy with the user
+            if toy not in user.toys:
+                user.toys.append(toy)
+                db.session.commit()
+                return {"message": "Toy added to User's toys successfully"}, 201
+            else:
+                return {"message": "Toy is already associated with the User"}, 400
+
+        except Exception as e:
+            return {"message": f"An error occurred while adding the toy to the user's toys: {str(e)}"}, 500
