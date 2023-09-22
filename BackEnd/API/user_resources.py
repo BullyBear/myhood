@@ -190,35 +190,36 @@ class UsersByIds(Resource):
 
 
 class UserProfileBox(Resource):
-    def post(self, user_id):        
+    def post(self, user_id):
+        data = request.json
+        
         user = User.query.get(user_id)
         if not user:
             return {'message': 'User not found'}, 404
-        
-        serialized_user = user_schema.dump(user)  
 
-        # Return only the user's profile_picture and a success message
-        return {'profile_picture': serialized_user['profile_picture'], 'message': 'Profile fetched from UserBox successfully'}, 200
+        # Modify the user's data with the provided profile data from the request
+        #user.bio = data['bio'][:300]
+        user.profile_picture = data['profile_picture']
+
+        db.session.commit()
+
+        serialized_user = user_schema.dump(user)  
+        return {**serialized_user, 'message': 'Profile added to UserBox successfully'}, 200
 
 
 
 
 # class UserProfileBox(Resource):
-#     def post(self, user_id):
-#         data = request.json
-        
+#     def post(self, user_id):        
 #         user = User.query.get(user_id)
 #         if not user:
 #             return {'message': 'User not found'}, 404
-
-#         # Modify the user's data with the provided profile data from the request
-#         #user.bio = data['bio'][:300]
-#         user.profile_picture = data['profile_picture']
-
-#         db.session.commit()
-
+        
 #         serialized_user = user_schema.dump(user)  
-#         return {**serialized_user, 'message': 'Profile added to UserBox successfully'}, 200
+
+#         # Return only the user's profile_picture and a success message
+#         return {'profile_picture': serialized_user['profile_picture'], 'message': 'Profile fetched from UserBox successfully'}, 200
+
 
 
 
