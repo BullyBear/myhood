@@ -1,19 +1,19 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 
-export default function UserDetails({ route, navigation }) {
-  // const { name, bio, profile_picture } = route.params.user; 
-
+export default function UserDetails({ route }) {
   const { profile_picture } = route.params.user;
   const name = useSelector((state) => state.user.user.name);
   const bio = useSelector(state => state.user.user.bio);
- 
+
+  const navigation = useNavigation();
 
   const onChatPressed = () => {
-
+    navigation.navigate('ChatScreen');
   };
 
   return (
@@ -27,7 +27,6 @@ export default function UserDetails({ route, navigation }) {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
