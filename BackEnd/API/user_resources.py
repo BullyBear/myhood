@@ -8,7 +8,9 @@ from sqlalchemy.exc import IntegrityError
 from emails import send_invite_email
 
 
+user_schema = UserSchema()  
 users_schema = UserSchema(many=True)
+
 
 class Users(Resource):
     def get(self):
@@ -171,23 +173,52 @@ class UserProfile(Resource):
 
 
 
+
+
+class UsersByIds(Resource):
+    def post(self):
+        ids = request.json.get('ids', [])
+        if not ids:
+            return {'message': 'List of ids is required'}, 400
+
+        users = User.query.filter(User.id.in_(ids)).all()
+        if not users:
+            return {'message': 'Users not found'}, 404
+        return users_schema.dump(users), 200
+
+
+
+
 class UserProfileBox(Resource):
-    def post(self, user_id):
-        data = request.json
-        
+    def post(self, user_id):        
         user = User.query.get(user_id)
         if not user:
             return {'message': 'User not found'}, 404
+        
+        serialized_user = user_schema.dump(user)  
 
-        # Modify the user's data with the provided profile data from the request
-        user.bio = data['bio'][:300]
-        user.profile_picture = data['profile_picture']
-
-        db.session.commit()
-
-        return {'message': 'Profile added to UserBox successfully'}, 200
+        # Return only the user's profile_picture and a success message
+        return {'profile_picture': serialized_user['profile_picture'], 'message': 'Profile fetched from UserBox successfully'}, 200
 
 
+
+
+# class UserProfileBox(Resource):
+#     def post(self, user_id):
+#         data = request.json
+        
+#         user = User.query.get(user_id)
+#         if not user:
+#             return {'message': 'User not found'}, 404
+
+#         # Modify the user's data with the provided profile data from the request
+#         #user.bio = data['bio'][:300]
+#         user.profile_picture = data['profile_picture']
+
+#         db.session.commit()
+
+#         serialized_user = user_schema.dump(user)  
+#         return {**serialized_user, 'message': 'Profile added to UserBox successfully'}, 200
 
 
 

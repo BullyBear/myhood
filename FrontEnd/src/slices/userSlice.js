@@ -8,13 +8,15 @@ import {
   fetchData as fetchDataFromAPI,
   resetPassword as resetPasswordFromAPI,
   inviteUser as inviteUserFromAPI,
+  fetchUsersByIdsAPI,
   addProfileToUserBox as addProfileToUserBoxAPI,
 } from '../API/userAPI';
 
 
 const initialState = {
   user: null,
-  users: [], 
+  users: [],
+  usersByIds: {}, 
   userBox: [], 
   loading: false,
   error: null,
@@ -22,35 +24,14 @@ const initialState = {
   image: null,           
   errorMessage: null,
   bio: '',      
-  profile_picture: '' 
+  profile_picture: '',
+  last_interacted_toy_id: null
+
 };
 
 
+console.log("Initial state USER:", initialState);
 
-
-// export const addProfileToUserBoxAsync = createAsyncThunk(
-//   'user/addProfile',
-//   async (userId, thunkAPI) => {
-//     try {
-//       const response = await addProfileToUserBoxAPI(userId);
-//       return response.data; // assuming the API sends back the added profile data
-//     } catch (error) {
-//       return thunkAPI.rejectWithValue(error.response.data);
-//     }
-//   }
-// );
-
-export const addProfileToUserBoxAsync = createAsyncThunk(
-  'user/addProfile',
-  async ({ userId, profileData }, thunkAPI) => {
-    try {
-      const response = await addProfileToUserBoxAPI(userId, profileData);
-      return response.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data);
-    }
-  }
-);
 
 
 
@@ -72,6 +53,7 @@ export const registerUserThunk = createAsyncThunk(
 export const fetchUserDataAction = createAsyncThunk(
   'user/fetchUserData',
   async (user_id, { rejectWithValue }) => {
+    console.log("Attempting to fetch user data by ID:", user_id);
     try {
       const response = await fetchData(user_id); // Pass user_id to fetchData
       return response.data;
@@ -81,6 +63,34 @@ export const fetchUserDataAction = createAsyncThunk(
   }
 );
 
+
+export const registerUser = (userData) => async (dispatch) => {
+  // Instead of manually dispatching request/success/failure, use the thunk
+  try {
+    const action = await dispatch(registerUserThunk(userData));
+    console.log('Registration action:', action);
+    if (action.error) {
+      console.error('Error from registerUserThunk:', action.error);
+    }
+  } catch (error) {
+    console.error("Error registering user:", error.message);
+  }
+};
+
+
+
+export const loginUser = (credentials) => async (dispatch) => {
+  dispatch(loginUserRequest());
+  try {
+    const response = await loginUserFromAPI(credentials);
+    if (response.status !== 200) {
+      throw new Error('Login failed.');
+    }
+    return dispatch(loginUserSuccess(response.data)); // Return the dispatched action.
+  } catch (error) {
+    return dispatch(loginUserFailure(error.message)); // Return the dispatched action.
+  }
+};
 
 
 export const updateUser = createAsyncThunk(
@@ -98,6 +108,48 @@ export const updateUser = createAsyncThunk(
 
 
 
+export const fetchUsersByIds = createAsyncThunk(
+  'user/fetchUsersByIds',
+  async (userIds, { rejectWithValue }) => {
+    console.log('fetchUsersByIds called with userIds:', userIds); // Log the input userIds
+
+    try {
+      const response = await fetchUsersByIdsAPI(userIds);
+      
+      console.log('API response:', response.data); // Log the received data from the API
+      return response.data;
+    } catch (err) {
+      console.error('Error in fetchUsersByIds:', err); // Log any error
+      return rejectWithValue(err.response ? err.response.data : "Unknown error");
+    }
+  }
+);
+
+
+
+export const addProfileToUserBoxAsync = createAsyncThunk(
+  'user/addProfile',
+  async ({ userId, profileData }, thunkAPI) => {
+    try {
+      const response = await addProfileToUserBoxAPI(userId, profileData);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
+
+
+export const inviteUser = (email) => async (dispatch) => {
+  dispatch(inviteUserRequest());
+  try {
+    const response = await inviteUserFromAPI(email);
+    dispatch(inviteUserSuccess(response.data));
+  } catch (error) {
+    dispatch(inviteUserFailure(error.message));
+  }
+};
+
 
 
 export const resetPassword = createAsyncThunk(
@@ -112,16 +164,30 @@ export const resetPassword = createAsyncThunk(
   }
 );
 
+
+export const logout = () => (dispatch) => {
+  dispatch(logoutUser());
+};
+
+
+
 const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    addProfileToUserBox: (state, action) => {
-      const userProfile = action.payload;
-      if (!state.userBox.find(profile => profile.id === userProfile.id)) {
-        state.userBox.push(userProfile);
-      }
+    setLastInteractedToyId: (state, action) => {
+      state.last_interacted_toy_id = action.payload;
     },
+    // addProfileToUserBox: (state, action) => {
+    //   const userId = action.payload.id;
+    //   if (state.userBox && !state.userBox.includes(userId)) {
+    //     //state.userBox.push(userId);
+    //     state.userBox = [...state.userBox, userId];
+
+    //   }
+    //   if (!state.usersByIds) state.usersByIds = {}; 
+    //   state.usersByIds[userId] = action.payload;
+    // },
     setBio: (state, action) => {   
       state.bio = action.payload;
     },
@@ -192,14 +258,39 @@ const userSlice = createSlice({
     },
   },
   extraReducers: {
-    [addProfileToUserBoxAsync.pending]: (state) => {
-      state.loading = true;
-      state.error = null;
+    // [fetchUsersByIds.fulfilled]: (state, action) => {
+    //   console.log("fetchusersbyid payload:", action.payload);
+    //   action.payload.forEach(user => {
+    //     state.usersByIds[user.id] = user;
+    //   });
+    // }, 
+    [fetchUsersByIds.fulfilled]: (state, action) => {
+      console.log("Payload from fetchUsersByIds:", action.payload);
+      action.payload.forEach(user => {
+        state.usersByIds[user.id] = user;
+        if (!state.userBox.includes(user.id)) {
+          //state.userBox.push(user.id);
+          state.userBox = [...state.userBox, user.id];
+
+        }
+      });
     },
     [addProfileToUserBoxAsync.fulfilled]: (state, action) => {
       state.loading = false;
-      // Using the reducer to add the profile to the user box
-      userSlice.caseReducers.addProfileToUserBox(state, action);
+      
+      if (!state.userBox) state.userBox = [];
+  
+      const userId = action.payload.id;
+      if (!state.userBox.includes(userId)) {
+          //state.userBox.push(user.id);
+          state.userBox = [...state.userBox, userId];
+      }
+      if (!state.usersByIds) state.usersByIds = {}; 
+      state.usersByIds[userId] = action.payload;
+  },
+    [addProfileToUserBoxAsync.pending]: (state) => {
+      state.loading = true;
+      state.error = null;
     },
     [addProfileToUserBoxAsync.rejected]: (state, action) => {
       state.loading = false;
@@ -246,6 +337,7 @@ const userSlice = createSlice({
 });
 
 export const {
+  setLastInteractedToyId,
   setImageUrl,
   setBio,        
   setProfilePicture,
@@ -260,51 +352,14 @@ export const {
   logoutUser,
   inviteUserRequest,
   inviteUserSuccess,
-  inviteUserFailure
+  inviteUserFailure,
+  updateUserRequest,
+  updateUserSuccess,
+  updateUserFailure,
+  addProfileToUserBox
 } = userSlice.actions;
 
 
-export const registerUser = (userData) => async (dispatch) => {
-  // Instead of manually dispatching request/success/failure, use the thunk
-  try {
-    const action = await dispatch(registerUserThunk(userData));
-    console.log('Registration action:', action);
-    if (action.error) {
-      console.error('Error from registerUserThunk:', action.error);
-    }
-  } catch (error) {
-    console.error("Error registering user:", error.message);
-  }
-};
 
-
-
-export const loginUser = (credentials) => async (dispatch) => {
-  dispatch(loginUserRequest());
-  try {
-    const response = await loginUserFromAPI(credentials);
-    if (response.status !== 200) {
-      throw new Error('Login failed.');
-    }
-    return dispatch(loginUserSuccess(response.data)); // Return the dispatched action.
-  } catch (error) {
-    return dispatch(loginUserFailure(error.message)); // Return the dispatched action.
-  }
-};
-
-
-export const logout = () => (dispatch) => {
-  dispatch(logoutUser());
-};
-
-export const inviteUser = (email) => async (dispatch) => {
-  dispatch(inviteUserRequest());
-  try {
-    const response = await inviteUserFromAPI(email);
-    dispatch(inviteUserSuccess(response.data));
-  } catch (error) {
-    dispatch(inviteUserFailure(error.message));
-  }
-};
 
 export default userSlice.reducer;

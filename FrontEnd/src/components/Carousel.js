@@ -4,6 +4,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import Modal from 'react-native-modal';
 
+
+
 import axios from 'axios';
 import { API_URL } from '../../config';
 
@@ -25,7 +27,7 @@ import {
 } from '../slices/toySlice';
 
 import {
-  addProfileToUserBoxAsync
+  addProfileToUserBoxAsync, setLastInteractedToyId
 } from '../slices/userSlice';
 
 function Carousel() {
@@ -40,15 +42,66 @@ function Carousel() {
   console.log('USER', user)
 
 
-  const swipedToyIds = useSelector((state) => state.toy.swipedToyIds);
+  // const toys = useSelector((state) => state.toy.toys || []);
+
 
   const toys = useSelector((state) => {
+    console.log("Debugging state.toy:", state.toy);
+    console.log("Debugging state.toyswipe:", state.toy.swipedToys);
     return state.toy.toys.filter((toy) => toy.user_id !== user.id);
   });
 
 
+  // const toys = useSelector((state) => {
+  //   const filteredToys = state.toy.toys.filter((toy) => 
+  //     toy.user_id !== user.id && 
+  //     !state.toy.swipedToys.includes(toy.id)
+  //   );
+  //   console.log("Filtered toys:", filteredToys);
+  //   return filteredToys;
+  // });
+  
 
-  // const toys = useSelector((state) => state.toy.toys || []);
+
+  // const swipedToys = useSelector((state) => state.toy.swipedToys);
+
+  // console.log('SWIPED TOYS bro', swipedToys)
+
+  // const toys = useSelector((state) => {
+  //   return state.toy.toys.filter((toy) => 
+  //     toy.user_id !== user.id && 
+  //     !state.toy.swipedToys.includes(toy.id)
+  //   );
+  // });
+  
+
+
+  // const toys = useSelector((state) => {
+  //   return state.toy.toys.filter((toy) => 
+  //     toy.user_id !== user.id && 
+  //     !state.toy.swipedToys.includes(toy.id)
+  //   );
+  // });
+
+  // console.log('TOYS2 WHAT AM I', toys)
+  
+
+  
+  // const toys = useSelector((state) => {
+  //   const userId = user && user.id;
+  //   if(state.toy.toys) {
+  //     return state.toy.toys.filter((toy) => {
+  //       const swipedToysForUser = state.toy.userSwipedToys[userId] || [];
+  //       return toy.user_id !== userId && !swipedToysForUser.includes(toy.id);
+  //     });
+  //   }
+  //   return [];
+  // });
+  
+  
+
+
+
 
   const loading = useSelector((state) => state.toy.loading);
   const error = useSelector((state) => state.toy.error);
@@ -78,9 +131,6 @@ function Carousel() {
     ].filter(Boolean);
   }
 
-  console.log('selectedToyImages:', selectedToyImages);
-  
-  
   
     //const imageUrl = currentToy ? currentToy.image_url : defaultImageUrl;
     const imageUrl = currentToy ? currentToy.image_url_one : null;
@@ -98,8 +148,8 @@ function Carousel() {
     console.log('useEffect triggered');
 
     const [showDefaultImage, setShowDefaultImage] = useState(false);
+    
 
-  
   
   
     //console.log('Current Toy Image URL:', toys.toys[currentIndex]?.image_url);
@@ -136,7 +186,10 @@ function Carousel() {
   function ToyImageModal({ isVisible, onClose, images }) {
     const flatListRef = useRef();
     const [currentModalIndex, setCurrentModalIndex] = useState(0);
-  
+
+
+
+
     return (
       <Modal isVisible={isVisible} backdropOpacity={0.5} onBackdropPress={onClose}>
         <TouchableWithoutFeedback onPress={onClose}>
@@ -194,10 +247,14 @@ function Carousel() {
       dispatch(fetchToysWithinRadiusFromAPI({
         latitude: user.user_latitude,
         longitude: user.user_longitude,
-        user_id: user.id // Include the user ID here
+        user_id: user.id,
+        mode: 'uninteracted'
       }));
     }
   }, [user]);
+
+
+
   
   
 
@@ -206,6 +263,9 @@ function Carousel() {
 //     dispatch(clearToys());
 //     // ... Existing code for fetching toys
 // }, [user]);
+
+
+
 
 
 // useEffect(() => {
@@ -261,6 +321,8 @@ function Carousel() {
         console.log("JSON Data received from server:", data);
         //dispatch(toySlice.actions.addSwipedToy(toyId));
         dispatch(addSwipedToy(toyId));
+        //dispatch(addSwipedToy({ userId: user.id, toyId: toy.id }));
+
       } else {
         console.error(`Failed to record swipe action. Status: ${response.status}, StatusText: ${response.statusText}`);
       }
@@ -269,6 +331,7 @@ function Carousel() {
       console.error("Additional error details:", error);
     }
   };
+  
   
   
   
@@ -290,12 +353,14 @@ function Carousel() {
     }
 
     console.log("userIdOfToy:", userIdOfToy);
+    console.log("user", user)
     console.log("Bio in carousel:", bio);
     console.log("Profile Picture in carousel:", profilePicture);
 
     if (user && user.id && currentToy && currentToy.id) {
       recordSwipeAction(user.id, currentToy.id, 'right');
-    }
+      dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, profileData: user }));
+    
 
   //   dispatch(addProfileToUserBoxAsync({
   //     userId: userIdOfToy, 
@@ -307,17 +372,13 @@ function Carousel() {
 
     dispatch(removeToyFromCarousel(toyToShow));
   
-    if (user && user.id) {
-      console.log('Recording User Interaction for User:', user.id);
-      // Add logic here if you want to record interactions between users
-    }
-  
 
   // setCurrentIndex((prevIndex) => {
   //   if (toys.length === 0) return -1;  // -1 can indicate no toys available
   //   const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : -1);
   //   return newIndex;
   // });
+
 
   setCurrentIndex((prevIndex) => {
     const newIndex = prevIndex + 1;
@@ -328,6 +389,7 @@ function Carousel() {
     return newIndex;
   });
 
+  }
 
 };
   
@@ -340,6 +402,7 @@ function Carousel() {
 
     if (user && user.id && currentToy && currentToy.id) {
       recordSwipeAction(user.id, currentToy.id, 'left');
+      dispatch(setLastInteractedToyId(currentToy.id));
     }
 
     dispatch(removeToyFromCarousel(toyToRemove));
@@ -360,8 +423,18 @@ function Carousel() {
       return newIndex;
     });
 
-
     };
+
+
+    useEffect(() => {
+      if (user && user.last_interacted_toy_id) {
+        const index = toys.findIndex(toy => toy.id === user.last_interacted_toy_id);
+        if (index !== -1) {
+          setCurrentIndex(index);
+        }
+      }
+    }, [user, toys]);
+  
 
   
     return (

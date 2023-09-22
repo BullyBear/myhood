@@ -7,6 +7,7 @@ import jwt_decode from 'jwt-decode';
 import Carousel from '../components/Carousel';
 //import { fetchToysFromAPI } from '../slices/toySlice';
 import { logoutUser } from '../slices/userSlice';
+import { resetState } from '../slices/toySlice'
 
 
 const FrontPage = ({ navigation }) => {
@@ -46,7 +47,8 @@ const FrontPage = ({ navigation }) => {
   // }, [state]);
 
   const handleLogout = () => {
-    dispatch(logoutUser());
+    //dispatch(logoutUser());
+    //dispatch(resetState());
     navigation.navigate('Login');
   };
 

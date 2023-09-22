@@ -159,7 +159,14 @@ class ToySwipe(Resource):
             toy_id=toy_id,
             action=action
         )
+        
         db.session.add(new_action)
+
+        # Updating the user's last_interacted_toy_id
+        user = User.query.filter_by(id=user_id).first()
+        if user:
+            user.last_interacted_toy_id = toy_id
+
         db.session.commit()
 
         serialized_action = user_toy_action_schema.dump(new_action)

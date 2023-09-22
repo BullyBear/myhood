@@ -7,8 +7,9 @@ import { getToysWithinRadius, getAllToys, getToyById, createToy as createToyAPI,
 //const initialState = { toys: [], loading: false, error: null };
 //const initialState = { toys: [], swipedToyIds: [], loading: false, error: null };
 
-const initialState = { toys: [], swipedToys: [], loading: false, error: null };
 
+const initialState = { toys: [], swipedToys: [], loading: false, error: null };
+//const initialState = { toys: [], userSwipedToys: {}, loading: false, error: null };
 
 
 
@@ -24,7 +25,20 @@ export const createAndUploadToy = createAsyncThunk('toy/createAndUpload', async 
 });
 
 
-// Fetch toys from the API
+
+// export const fetchToysFromAPI = createAsyncThunk('toy/fetchToys', async (mode) => {
+//   try {
+//     console.log('[fetchToysFromAPI] - Fetching toys from API');
+//     const toys = await getAllToys(mode);
+//     console.log('[fetchToysFromAPI] - Fetched toys:', toys);
+//     return toys;
+//   } catch (error) {
+//     console.error('[fetchToysFromAPI] - Error fetching toys:', error.message);
+//     throw error;
+//   }
+// });
+
+
 export const fetchToysFromAPI = createAsyncThunk('toy/fetchToys', async () => {
   try {
     console.log('[fetchToysFromAPI] - Fetching toys from API');
@@ -37,7 +51,23 @@ export const fetchToysFromAPI = createAsyncThunk('toy/fetchToys', async () => {
   }
 });
 
-// Fetch toys within a certain radius from the API
+
+
+// export const fetchToysWithinRadiusFromAPI = createAsyncThunk(
+//   'toy/fetchToysWithinRadius',
+//   async ({ latitude, longitude, user_id, mode = 'uninteracted' }) => {
+//     try {
+//       const toys = await getToysWithinRadius(latitude, longitude, user_id, mode);
+//       return toys;
+//     } catch (error) {
+//       console.error('[fetchToysWithinRadiusFromAPI] - Error fetching toys within radius:', error.message);
+//       throw error;
+//     }
+//   }
+// );
+
+
+
 export const fetchToysWithinRadiusFromAPI = createAsyncThunk(
   'toy/fetchToysWithinRadius',
   async ({ latitude, longitude }) => {
@@ -52,6 +82,8 @@ export const fetchToysWithinRadiusFromAPI = createAsyncThunk(
     }
   }
 );
+
+
 
 export const fetchToyByIdFromAPI = createAsyncThunk('toy/fetchToyById', async (toyId) => {
   try {
@@ -109,22 +141,34 @@ const toySlice = createSlice({
   initialState: initialState,
   //initialState: { toys: [] },
   reducers: {
+    resetState: (state) => {
+      return initialState;
+    },
     removeToyFromCarousel: (state, action) => {
       const toyIdToRemove = action.payload;
       state.toys = state.toys.filter(toy => toy.id !== toyIdToRemove);
     },
     addSwipedToy: (state, action) => {
-      console.log("addswipedtoyreducer", state);
-      if (!state.swipedToys) {
-        state.swipedToys = [];
-      }
-      console.log("swipedToys before push: ", state.swipedToys);
       state.swipedToys.push(action.payload);
     },
-    
+    // addSwipedToy: (state, action) => {
+    //   const { userId, toyId } = action.payload;
+    //   if (!userId || !toyId) return;
+    //   if (!state.userSwipedToys[userId]) {
+    //     state.userSwipedToys[userId] = [];
+    //   }
+    //   if (!state.userSwipedToys[userId].includes(toyId)) {
+    //     state.userSwipedToys[userId].push(toyId);
+    //   }
+    // },
+
     clearToys: (state) => {
       state.toys = [];
     },
+    // clearToys: (state) => {
+    //   state.swipedToys = [];
+    // },
+    
     loadToy: (state, action) => {
       console.log("Current state before updating toy:", state.toys);
       const toy = action.payload;
@@ -275,6 +319,6 @@ const toySlice = createSlice({
   }
 });
 
-export const { clearToys, loadToy, loadToys, addProfileToUserBox, removeToyFromCarousel, addSwipedToy, toyAdded, toyUpdated, toyDeleted } = toySlice.actions;
+export const { clearToys, loadToy, loadToys, addProfileToUserBox, removeToyFromCarousel, addSwipedToy, toyAdded, toyUpdated, toyDeleted, resetState} = toySlice.actions;
 
 export default toySlice.reducer;
