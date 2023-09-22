@@ -10,6 +10,7 @@ import {
   inviteUser as inviteUserFromAPI,
   fetchUsersByIdsAPI,
   addProfileToUserBox as addProfileToUserBoxAPI,
+  fetchUserProfileById
 } from '../API/userAPI';
 
 
@@ -108,6 +109,22 @@ export const updateUser = createAsyncThunk(
 
 
 
+// export const fetchUserProfileData = createAsyncThunk(
+//   'user/fetchUserProfileData',
+//   async (userId, { rejectWithValue }) => {
+//     try {
+//       // Make an API request to fetch user profile data by their ID
+//       const response = await fetchUserProfileDataAPI(userId);
+//       return response.data;
+//     } catch (err) {
+//       console.error('Error in fetchUserProfileData:', err);
+//       return rejectWithValue(err.response ? err.response.data : 'Unknown error');
+//     }
+//   }
+// );
+
+
+
 export const fetchUsersByIds = createAsyncThunk(
   'user/fetchUsersByIds',
   async (userIds, { rejectWithValue }) => {
@@ -127,17 +144,37 @@ export const fetchUsersByIds = createAsyncThunk(
 
 
 
+// export const addProfileToUserBoxAsync = createAsyncThunk(
+//   'user/addProfile',
+//   async ({ userId, profileData }, thunkAPI) => {
+//     try {
+//       const response = await addProfileToUserBoxAPI(userId, profileData);
+//       return response.data;
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue(error.response.data);
+//     }
+//   }
+// );
+
+
 export const addProfileToUserBoxAsync = createAsyncThunk(
   'user/addProfile',
-  async ({ userId, profileData }, thunkAPI) => {
+  async ({ userId, userIdOfToy }, thunkAPI) => {
     try {
-      const response = await addProfileToUserBoxAPI(userId, profileData);
-      return response.data;
+      // Fetch the user who swiped right on the toy using userIdOfToy
+      const response = await fetchUserProfileById(userIdOfToy);
+
+      // Assuming the response contains the user's profile data
+      const userProfileData = response.data;
+
+      // Dispatch the user profile data to add it to the user's userbox
+      thunkAPI.dispatch(addProfileToUserBox({ userId, profileData: userProfileData }));
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
     }
   }
 );
+
 
 
 export const inviteUser = (email) => async (dispatch) => {
@@ -178,16 +215,16 @@ const userSlice = createSlice({
     setLastInteractedToyId: (state, action) => {
       state.last_interacted_toy_id = action.payload;
     },
-    // addProfileToUserBox: (state, action) => {
-    //   const userId = action.payload.id;
-    //   if (state.userBox && !state.userBox.includes(userId)) {
-    //     //state.userBox.push(userId);
-    //     state.userBox = [...state.userBox, userId];
-
-    //   }
-    //   if (!state.usersByIds) state.usersByIds = {}; 
-    //   state.usersByIds[userId] = action.payload;
-    // },
+    addProfileToUserBox: (state, action) => {
+      const userId = action.payload.id;
+      if (!state.userBox) state.userBox = [];
+    
+      if (!state.userBox.includes(userId)) {
+        state.userBox = [...state.userBox, userId];
+      }
+      if (!state.usersByIds) state.usersByIds = {};
+      state.usersByIds[userId] = action.payload;
+    },
     setBio: (state, action) => {   
       state.bio = action.payload;
     },

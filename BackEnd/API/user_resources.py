@@ -188,6 +188,15 @@ class UsersByIds(Resource):
 
 
 
+class UserProfileByID(Resource):
+    def get(self, user_id):
+        user = User.query.get(user_id)
+        if not user:
+            return {'message': 'User not found'}, 404
+
+        serialized_user = user_schema.dump(user)
+        return serialized_user, 200
+
 
 class UserProfileBox(Resource):
     def post(self, user_id):

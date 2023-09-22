@@ -27,7 +27,7 @@ import {
 } from '../slices/toySlice';
 
 import {
-  addProfileToUserBoxAsync, setLastInteractedToyId
+  addProfileToUserBoxAsync, setLastInteractedToyId, fetchUserProfileData
 } from '../slices/userSlice';
 
 function Carousel() {
@@ -359,16 +359,30 @@ function Carousel() {
 
     if (user && user.id && currentToy && currentToy.id) {
       recordSwipeAction(user.id, currentToy.id, 'right');
-      dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, profileData: user }));
+
+
+      const ownerProfileData = {
+        profile_picture: currentToy.profile_picture,
+        bio: currentToy.owner_bio,
+        name: currentToy.owner_name,
+      };
+
+    
+      dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, userIdOfToy: user.id  }));
+
+    }
+
+      //dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, profileData: user }));
     
 
-  //   dispatch(addProfileToUserBoxAsync({
-  //     userId: userIdOfToy, 
-  //     profileData: {
-  //         bio: bio, 
-  //         profile_picture: profilePicture
-  //     }
-  // }));
+
+
+
+    //   dispatch(fetchUserProfileData(userIdOfToy)).then((userData) => {
+    //     dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, profileData: userData }));
+    //   });
+    // }
+
 
     dispatch(removeToyFromCarousel(toyToShow));
   
@@ -391,7 +405,7 @@ function Carousel() {
 
   }
 
-};
+  
   
 
 

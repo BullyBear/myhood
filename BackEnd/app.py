@@ -8,7 +8,7 @@ from geopy.distance import geodesic
 
 from models import User, Toy, UserSchema, ToySchema
 from API.toy_resources import ToyList, ToyResourceTime, ToysInRadius, ToySwipe
-from API.user_resources import Users, Register, Login, Invite, Forgot, UserUpdate, UserProfile, UserProfileBox, UsersByIds
+from API.user_resources import Users, Register, Login, Invite, Forgot, UserUpdate, UserProfile, UserProfileBox, UsersByIds, UserProfileByID
 
 app = Flask(__name__)
 
@@ -49,6 +49,7 @@ api.add_resource(Forgot, '/forgot')
 api.add_resource(UserUpdate, '/user/update')
 api.add_resource(UserProfile, '/user/data')
 api.add_resource(UsersByIds, '/fetchUsersByIds')
+api.add_resource(UserProfileByID, '/user/<int:user_id>')  
 api.add_resource(UserProfileBox, '/user/<int:user_id>/addProfile')
 api.add_resource(ToySwipe, '/api/toyswipe')
 

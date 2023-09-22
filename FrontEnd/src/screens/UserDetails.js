@@ -6,9 +6,13 @@ import { useNavigation } from '@react-navigation/native';
 const { width, height } = Dimensions.get('window');
 
 export default function UserDetails({ route }) {
-  const { profile_picture } = route.params.user;
-  const name = useSelector((state) => state.user.user.name);
-  const bio = useSelector(state => state.user.user.bio);
+
+  // const { profile_picture } = route.params.user;
+  // const name = useSelector((state) => state.user.user.name);
+  // const bio = useSelector(state => state.user.user.bio);
+
+  const { user } = route.params;
+
 
   const navigation = useNavigation();
 
@@ -18,9 +22,9 @@ export default function UserDetails({ route }) {
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: profile_picture }} style={styles.image} />
-      <Text style={styles.text}>{name}</Text>
-      <Text style={styles.text}>{bio}</Text>
+      <Image source={{ uri: user.profile_picture }} style={styles.image} />
+      <Text style={styles.text}>{user.name}</Text>
+      <Text style={styles.text}>{user.bio}</Text>
       <TouchableOpacity style={styles.chatButton} onPress={onChatPressed}>
         <Text style={styles.chatButtonText}>Chat</Text>
       </TouchableOpacity>

@@ -53,15 +53,14 @@ function UserBox() {
     }
   }, [userBox, user]);
 
-
-
-
   
   useEffect(() => {
     console.log("Updated usersByIds:", usersByIds);
     console.log("Updated userBox:", userBox);
   }, [usersByIds, userBox]);
 
+
+  
   const handlePageChange = (newPage) => {
     setPage(newPage);
   };
@@ -117,7 +116,6 @@ function UserBox() {
     <View style={styles.container}>
       <View style={styles.contentContainer}>
         {usersToShow.map(renderThumbnail)}
-        <Text>placeholder</Text>
       </View>
       {renderFooter()}
     </View>

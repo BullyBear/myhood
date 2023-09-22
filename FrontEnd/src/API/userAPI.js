@@ -65,6 +65,14 @@ export const fetchUsersByIdsAPI = async (userIds) => {
   return await axios.post(`${API_URL}/fetchUsersByIds`, { ids: userIds }, { headers });
 };
 
+
 export const addProfileToUserBox = async (userId, profileData) => {
   return await axios.post(`${API_URL}/user/${userId}/addProfile`, profileData, { headers });
 };
+
+
+export const fetchUserProfileById = async (userId) => {
+  return await axios.get(`${API_URL}/user/${userId}`, { headers });
+};
+
+
