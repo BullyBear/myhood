@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUsersByIds, addProfileToUserBoxAsync } from '../slices/userSlice';
+import { useNavigation } from '@react-navigation/native';
 import { createSelector } from 'reselect';
+
+import { fetchUsersByIds, addProfileToUserBoxAsync } from '../slices/userSlice';
 
 const { width } = Dimensions.get('window');
 const ITEMS_PER_PAGE = 10;
+
+
 
 const selectUserBox = state => state.user.userBox;
 const selectUsersByIds = state => state.user.usersByIds;
@@ -21,53 +25,31 @@ function UserBox() {
   const userBox = useSelector(getUserBox);
   const usersByIds = useSelector(getUsersByIds);
   const user = useSelector(getUser);
+  const navigation = useNavigation();
   
   const dispatch = useDispatch();
 
 
-  // useEffect(() => {
-  //   console.log("USER", user);
-  //   console.log("PROFILE", user.profile_picture);
-  //   console.log("usersByIds:", usersByIds);
-  //   console.log("userBox:", userBox);
-    
-  //   if (userBox && userBox.length > 0) {
-  //     console.log('Dispatching the fetchUsersByIds thunk');
-  //     dispatch(fetchUsersByIds(userBox.slice(0, 10)));
-      
-  //     // Check if user data is available before dispatching
-  //     if (user && user.id && user.profile_picture) {
-  //       dispatch(addProfileToUserBoxAsync({
-  //         userId: user.id,
-  //         profileData: { profile_picture: user.profile_picture }
-  //       }));
-  //     }
-  //   }
-  // }, [userBox, user]);
-
-
-
-
   useEffect(() => {
-    if (userBox && userBox.length > 0) {
-        console.log('Dispatching the fetchUsersByIds thunk');
-        dispatch(fetchUsersByIds(userBox.slice(0, 10)));
-    }
-  }, [userBox]);
-  
-
-// First useEffect to add the profile
-useEffect(() => {
-  if (user && user.id && user.profile_picture) {
-      dispatch(addProfileToUserBoxAsync({
+    console.log("USER", user);
+    console.log("PROFILE", user.profile_picture);
+    console.log("usersByIds:", usersByIds);
+    console.log("userBox:", userBox);
+    
+    //if (userBox && userBox.length > 0) {
+      if (userBox !== null && userBox.length > 0) {
+      console.log('Dispatching the fetchUsersByIds thunk');
+      dispatch(fetchUsersByIds(userBox.slice(0, 10)));
+      
+      // Check if user data is available before dispatching
+      if (user && user.id && user.profile_picture) {
+        dispatch(addProfileToUserBoxAsync({
           userId: user.id,
           profileData: { profile_picture: user.profile_picture }
-      }));
-  }
-}, [user]);
-
-
-
+        }));
+      }
+    }
+  }, [userBox, user]);
 
 
 
@@ -85,14 +67,16 @@ useEffect(() => {
   const renderThumbnail = (item, index) => {
     let imageSize = usersToShow.length <= 1 ? width * 0.6 : width * 0.3;
     const imageUrl = item.profile_picture;
-    console.log("imageUrl:", imageUrl);
-
+  
     return (
       <TouchableOpacity onPress={() => navigation.navigate('UserDetails', { user: item })} style={styles.imageContainer}>
         <Image source={{ uri: imageUrl }} style={{ width: imageSize, height: imageSize }} />
       </TouchableOpacity>
     );
   };
+  
+  
+  
 
   const renderFooter = () => {
     if (!userBox || userBox.length <= ITEMS_PER_PAGE) {
