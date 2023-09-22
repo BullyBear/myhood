@@ -10,6 +10,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserDataAction, updateUser } from '../slices/userSlice';
 import { S3Client, BUCKET_NAME_TWO } from '../../config.js'; 
 
+
+
 const validationSchema = yup.object().shape({
   bio: yup.string()
 });
@@ -132,6 +134,8 @@ const handleUpdate = async (values) => {
             ) : (
               <Text>Loading user data...</Text>
             )}
+
+
     </ScrollView>
   );
 };

@@ -36,16 +36,18 @@ function UserBox() {
     console.log("usersByIds:", usersByIds);
     console.log("userBox:", userBox);
     
-    //if (userBox && userBox.length > 0) {
+
       if (userBox !== null && userBox.length > 0) {
       console.log('Dispatching the fetchUsersByIds thunk');
       dispatch(fetchUsersByIds(userBox.slice(0, 10)));
       
-      // Check if user data is available before dispatching
+
       if (user && user.id && user.profile_picture) {
         dispatch(addProfileToUserBoxAsync({
           userId: user.id,
-          profileData: { profile_picture: user.profile_picture }
+          profileData: { profile_picture: user.profile_picture },
+          bio: user.bio,
+          name: user.name
         }));
       }
     }

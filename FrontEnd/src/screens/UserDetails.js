@@ -1,21 +1,26 @@
-// UserDetails.js
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
 export default function UserDetails({ route, navigation }) {
-  const { user } = route.params;
+  // const { name, bio, profile_picture } = route.params.user; 
+
+  const { profile_picture } = route.params.user;
+  const name = useSelector((state) => state.user.user.name);
+  const bio = useSelector(state => state.user.user.bio);
+ 
 
   const onChatPressed = () => {
-    // Navigate to the ChatScreen with the user details
+
   };
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: user.image_url }} style={styles.image} />
-      <Text style={styles.text}>{user.name}</Text>
-      <Text style={styles.text}>{user.description}</Text>
+      <Image source={{ uri: profile_picture }} style={styles.image} />
+      <Text style={styles.text}>{name}</Text>
+      <Text style={styles.text}>{bio}</Text>
       <TouchableOpacity style={styles.chatButton} onPress={onChatPressed}>
         <Text style={styles.chatButtonText}>Chat</Text>
       </TouchableOpacity>
