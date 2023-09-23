@@ -8,6 +8,7 @@ import { addToyToToybox, updateToyImages } from '../slices/toySlice';
 
 const { width, height } = Dimensions.get('window');
 
+
 export default function UserDetails({ route }) {
   const { user } = route.params;
   const navigation = useNavigation();
@@ -27,12 +28,14 @@ export default function UserDetails({ route }) {
 
   const onAcceptPressed = () => {
 
+    console.log("PRESSING ACCEPT")
+
     if (user && user.id && currentToy && currentToy.id) {
       recordSwipeAction(user.id, currentToy.id, 'right');
       
       // Dispatch an action to add the toy to the Toybox
       dispatch(addToyToToybox({ userId: user.id, toyId: currentToy.id }));
-      dispatch(updateToyImages({ userId: user.id, toyImages: currentToy.images }));
+      dispatch(updateToyImages({ toyId: currentToy.id, toyImages: currentToy.images }));
 
     }
 

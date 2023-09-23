@@ -31,6 +31,7 @@ export const addToyToToybox = createAsyncThunk(
   async ({ userId, toyId }, { rejectWithValue }) => {
     try {
       const response = await addToyToToyboxAPI(userId, toyId);
+      console.log("addToyToToybox response:", response);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -155,19 +156,26 @@ const toySlice = createSlice({
     resetState: (state) => {
       return initialState;
     },
-    updateToyImages: (state, action) => {
-      const { userId, toyImages } = action.payload;
-      const toy = state.toys.find((toy) => toy.userId === userId);
-      if (toy) {
-          toy.images = toyImages;
-      } else {
-          state.toys.push({
-              userId: userId,
-              images: toyImages
-          });
-          state.toyImages.push(...toyImages); // add the images to toyImages array
-      }
-  },  
+  //   updateToyImages: (state, action) => {
+  //     const { userId, toyImages } = action.payload;
+  //     const toy = state.toys.find((toy) => toy.userId === userId);
+  //     if (toy) {
+  //         toy.images = toyImages;
+  //     } else {
+  //         state.toys.push({
+  //             userId: userId,
+  //             images: toyImages
+  //         });
+  //         state.toyImages.push(...toyImages); 
+  //     }
+  // },  
+  updateToyImages: (state, action) => {
+    const { toyId, toyImages } = action.payload;
+    const toy = state.toys.find((toy) => toy.id === toyId);
+    if (toy) {
+        toy.images = toyImages;
+    }
+},
     removeToyFromCarousel: (state, action) => {
       const toyIdToRemove = action.payload;
       state.toys = state.toys.filter(toy => toy.id !== toyIdToRemove);
@@ -243,6 +251,33 @@ const toySlice = createSlice({
   
   extraReducers: (builder) => {
     builder
+    .addCase(addToyToToybox.fulfilled, (state, action) => {
+      // Logging to ensure that this function is triggered
+      console.log("addToyToToybox.fulfilled triggered with action:", action);
+    
+      // Check if the toy already exists in the state.
+      const existingToyIndex = state.toys.findIndex(toy => toy.id === action.payload.id);
+    
+      // If the toy exists, update it.
+      if (existingToyIndex !== -1) {
+        console.log("Existing toy found at index:", existingToyIndex);  // Log for debugging
+        state.toys[existingToyIndex] = action.payload;
+      } 
+      // If the toy doesn't exist, add it to the end of the array.
+      else {
+        console.log("Toy not found, adding to the end of the array.");  // Log for debugging
+        state.toys.push(action.payload);
+      }
+    })
+    
+    
+    // .addCase(addToyToToybox.fulfilled, (state, action) => {
+    //   console.log("Toy added to toybox:", state); 
+    // })
+    .addCase(addToyToToybox.rejected, (state, action) => {
+          // Handle any errors here
+    })
+  
     .addCase(fetchToysFromAPI.fulfilled, (state, action) => {
       state.toys = action.payload;
       console.log('toyslice action.payload - fetchToysFromAPI.fulfilled', action.payload)

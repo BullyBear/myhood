@@ -174,15 +174,14 @@ class ToySwipe(Resource):
 
 
 class AddToyToToybox(Resource):
-    def post(self):
+    def post(self, user_id, toy_id):
+
         try:
             data = request.json
 
-            user_id = data.get('user_id')
-            toy_id = data.get('toy_id')
+            if data["user_id"] != user_id or data["toy_id"] != toy_id:
+                return {"message": "Mismatch in provided data"}, 400
 
-            if not user_id or not toy_id:
-                return {"message": "Both user_id and toy_id are required"}, 400
 
             # Check if the user and toy exist
             user = User.query.get(user_id)
@@ -191,13 +190,46 @@ class AddToyToToybox(Resource):
             if not user or not toy:
                 return {"message": "User or toy not found"}, 404
 
+            # Check if the toy is already associated with a user
+            if toy.user_id:
+                return {"message": "Toy is already associated with a user"}, 400
+
             # Associate the toy with the user
-            if toy not in user.toys:
-                user.toys.append(toy)
-                db.session.commit()
-                return {"message": "Toy added to User's toys successfully"}, 201
-            else:
-                return {"message": "Toy is already associated with the User"}, 400
+            toy.user_id = user_id
+            db.session.commit()
+
+            return {"message": "Toy added to User's toys successfully"}, 201
 
         except Exception as e:
             return {"message": f"An error occurred while adding the toy to the user's toys: {str(e)}"}, 500
+
+
+# class AddToyToToybox(Resource):
+#     def post(self):
+#         try:
+#             data = request.json
+
+#             user_id = data.get('user_id')
+#             toy_id = data.get('toy_id')
+
+#             if not user_id or not toy_id:
+#                 return {"message": "Both user_id and toy_id are required"}, 400
+
+#             # Check if the user and toy exist
+#             user = User.query.get(user_id)
+#             toy = Toy.query.get(toy_id)
+
+#             if not user or not toy:
+#                 return {"message": "User or toy not found"}, 404
+
+#             # Associate the toy with the user's Toybox
+#             toybox_entry = Toybox(user_id=user_id, toy_id=toy_id)
+#             db.session.add(toybox_entry)
+#             db.session.commit()
+
+#             return {"message": "Toy added to Toybox successfully"}, 201
+
+#         except Exception as e:
+#             return {"message": f"An error occurred while adding the toy to Toybox: {str(e)}"}, 500. 
+
+

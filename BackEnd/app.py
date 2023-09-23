@@ -52,7 +52,8 @@ api.add_resource(UsersByIds, '/fetchUsersByIds')
 api.add_resource(UserProfileByID, '/user/<int:user_id>')  
 api.add_resource(UserProfileBox, '/user/<int:user_id>/addProfile')
 api.add_resource(ToySwipe, '/api/toyswipe')
-api.add_resource(AddToyToToybox, '/api/add-toy-to-toybox')
+api.add_resource(AddToyToToybox, '/user/<int:user_id>/toy/<int:toy_id>/add-toy-to-toybox')
+
 
 
 

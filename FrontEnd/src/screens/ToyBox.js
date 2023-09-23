@@ -65,6 +65,7 @@ function ToyBox() {
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>{toysToShow.map(renderThumbnail)}</View>
+      <Text>Fuck</Text>
       {renderFooter()}
     </View>
   );
