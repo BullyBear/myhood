@@ -1,4 +1,3 @@
-// userSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import {
@@ -9,8 +8,8 @@ import {
   resetPassword as resetPasswordFromAPI,
   inviteUser as inviteUserFromAPI,
   fetchUsersByIdsAPI,
-  addProfileToUserBox as addProfileToUserBoxAPI,
-  fetchUserProfileById
+  fetchUserProfileById,
+  saveProfileToUserBoxInBackend,
 } from '../API/userAPI';
 
 
@@ -157,6 +156,25 @@ export const fetchUsersByIds = createAsyncThunk(
 // );
 
 
+// export const addProfileToUserBoxAsync = createAsyncThunk(
+//   'user/addProfile',
+//   async ({ userId, userIdOfToy }, thunkAPI) => {
+//     try {
+//       // Fetch the user who swiped right on the toy using userIdOfToy
+//       const response = await fetchUserProfileById(userIdOfToy);
+
+//       // Assuming the response contains the user's profile data
+//       const userProfileData = response.data;
+
+//       // Dispatch the user profile data to add it to the user's userbox
+//       thunkAPI.dispatch(addProfileToUserBoxAPI({ userId, profileData: userProfileData }));
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue(error.response.data);
+//     }
+//   }
+// );
+
+
 export const addProfileToUserBoxAsync = createAsyncThunk(
   'user/addProfile',
   async ({ userId, userIdOfToy }, thunkAPI) => {
@@ -167,8 +185,12 @@ export const addProfileToUserBoxAsync = createAsyncThunk(
       // Assuming the response contains the user's profile data
       const userProfileData = response.data;
 
-      // Dispatch the user profile data to add it to the user's userbox
-      thunkAPI.dispatch(addProfileToUserBox({ userId, profileData: userProfileData }));
+      // Save the profile data to the user's box in the backend
+      await saveProfileToUserBoxInBackend(userId, userProfileData);  // Use the adjusted API function
+
+      // Dispatch the Redux action to update the store
+      thunkAPI.dispatch(addProfileToUserBox(userProfileData));
+
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
     }
@@ -397,7 +419,7 @@ export const {
   updateUserSuccess,
   updateUserFailure,
   addProfileToUserBox,
-  removeUserFromBox
+  
 } = userSlice.actions;
 
 

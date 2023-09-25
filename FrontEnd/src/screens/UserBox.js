@@ -31,8 +31,8 @@ function UserBox() {
 
 
   useEffect(() => {
-    console.log("USER", user);
-    console.log("PROFILE", user.profile_picture);
+    console.log("USER FROM USERBOX", user);
+    console.log("PROFILE FROM USERBOX", user.profile_picture);
     console.log("usersByIds:", usersByIds);
     console.log("userBox:", userBox);
     
@@ -53,7 +53,8 @@ function UserBox() {
     }
   }, [userBox, user]);
 
-  
+     
+    
   useEffect(() => {
     console.log("Updated usersByIds:", usersByIds);
     console.log("Updated userBox:", userBox);
