@@ -206,14 +206,16 @@ class UserProfileBox(Resource):
         if not user:
             return {'message': 'User not found'}, 404
 
-        # Modify the user's data with the provided profile data from the request
-        #user.bio = data['bio'][:300]
-        user.profile_picture = data['profile_picture']
+        # Check if 'profile_picture' is in the data and update if present
+        if 'profile_picture' in data:
+            user.profile_picture = data['profile_picture']
 
         db.session.commit()
 
         serialized_user = user_schema.dump(user)  
         return {**serialized_user, 'message': 'Profile added to UserBox successfully'}, 200
+
+
 
 
 

@@ -156,18 +156,28 @@ export const fetchUsersByIds = createAsyncThunk(
 // );
 
 
+
+
 // export const addProfileToUserBoxAsync = createAsyncThunk(
 //   'user/addProfile',
 //   async ({ userId, userIdOfToy }, thunkAPI) => {
 //     try {
 //       // Fetch the user who swiped right on the toy using userIdOfToy
 //       const response = await fetchUserProfileById(userIdOfToy);
+//       console.log('Response from API:', response);
+
 
 //       // Assuming the response contains the user's profile data
-//       const userProfileData = response.data;
+//       //const userProfileData = response.data;
+//       const userProfileData = response.data.data; 
 
-//       // Dispatch the user profile data to add it to the user's userbox
-//       thunkAPI.dispatch(addProfileToUserBoxAPI({ userId, profileData: userProfileData }));
+
+//       // Save the profile data to the user's box in the backend
+//       await saveProfileToUserBoxInBackend(userId, userProfileData);  // Use the adjusted API function
+
+//       // Dispatch the Redux action to update the store
+//       thunkAPI.dispatch(addProfileToUserBox(userProfileData));
+
 //     } catch (error) {
 //       return thunkAPI.rejectWithValue(error.response.data);
 //     }
@@ -181,12 +191,15 @@ export const addProfileToUserBoxAsync = createAsyncThunk(
     try {
       // Fetch the user who swiped right on the toy using userIdOfToy
       const response = await fetchUserProfileById(userIdOfToy);
+      console.log('Response from API:', response);
 
-      // Assuming the response contains the user's profile data
-      const userProfileData = response.data;
+      // Extract the necessary profile data from the response
+      const userProfileData = response.data.data;
+      const { profile_picture } = userProfileData;
+      const payloadToSend = { profile_picture };
 
-      // Save the profile data to the user's box in the backend
-      await saveProfileToUserBoxInBackend(userId, userProfileData);  // Use the adjusted API function
+      // Save the profile picture to the user's box in the backend
+      await saveProfileToUserBoxInBackend(userId, payloadToSend);
 
       // Dispatch the Redux action to update the store
       thunkAPI.dispatch(addProfileToUserBox(userProfileData));
@@ -196,6 +209,9 @@ export const addProfileToUserBoxAsync = createAsyncThunk(
     }
   }
 );
+
+
+
 
 
 
