@@ -4,61 +4,94 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { createSelector } from 'reselect';
 
-import { fetchUsersByIds, addProfileToUserBoxAsync } from '../slices/userSlice';
+import { fetchUsersByIds, addProfileToUserBoxAsync, resetUserState } from '../slices/userSlice';
 
 const { width } = Dimensions.get('window');
 const ITEMS_PER_PAGE = 10;
 
 
-
-const selectUserBox = state => state.user.userBox;
-const selectUsersByIds = state => state.user.usersByIds;
 const selectUser = state => state.user.user;
+const selectUsersByIds = state => state.user.usersByIds;
+const selectUserBox = state => state.user.userBox;
 
-const getUserBox = createSelector([selectUserBox], userBox => userBox || []);
-const getUsersByIds = createSelector([selectUsersByIds], usersByIds => usersByIds || {});
+
 const getUser = createSelector([selectUser], user => user || null);
+const getUsersByIds = createSelector([selectUsersByIds], usersByIds => usersByIds || {});
+const getUserBox = createSelector([selectUserBox], userBox => userBox || []);
+
 
 function UserBox() {
   const [page, setPage] = useState(1);
   
-  const userBox = useSelector(getUserBox);
-  const usersByIds = useSelector(getUsersByIds);
+
   const user = useSelector(getUser);
+  const usersByIds = useSelector(getUsersByIds);
+  const userBox = useSelector(getUserBox);
+
+  // let userBoxArray = [];
+
+  // try {
+  //     userBoxArray = JSON.parse(userBox);
+  // } catch (e) {
+  //     userBoxArray = [];
+    
+  // } 
+
+  const userBoxArray = Array.isArray(userBox) ? userBox : JSON.parse(userBox);
+
+  console.log("Initial userBox:", userBox);
+  console.log("Processed userBoxArray:", userBoxArray);
+  
+
   const navigation = useNavigation();
   
   const dispatch = useDispatch();
 
 
+  // useEffect(() => {
+  //   console.log("USER FROM USERBOX", user);
+  //   console.log("usersByIds:", usersByIds);
+  //   console.log("userBoxArray:", userBoxArray);
+    
+  //     //dispatch(resetUserState());
+
+  //     if (userBoxArray !== null && userBoxArray.length > 0) {
+  //     console.log('Dispatching the fetchUsersByIds thunk');
+  //     dispatch(fetchUsersByIds(userBoxArray.slice(0, 100)));
+
+  //   }
+  // }, [userBoxArray, user]);
+
+
+
   useEffect(() => {
     console.log("USER FROM USERBOX", user);
-    console.log("PROFILE FROM USERBOX", user.profile_picture);
     console.log("usersByIds:", usersByIds);
-    console.log("userBox:", userBox);
+    console.log("userBoxArray:", userBoxArray);
     
-
-      if (userBox !== null && userBox.length > 0) {
-      console.log('Dispatching the fetchUsersByIds thunk');
-      dispatch(fetchUsersByIds(userBox.slice(0, 10)));
-      
-
-      if (user && user.id && user.profile_picture) {
-        dispatch(addProfileToUserBoxAsync({
-          userId: user.id,
-          profileData: { profile_picture: user.profile_picture },
-          bio: user.bio,
-          name: user.name
-        }));
-      }
+    if (user) {
+      // Fetch users who swiped right on your profile based on your user ID
+      dispatch(fetchUsersByIds([user.id]));
     }
-  }, [userBox, user]);
 
+    if (userBoxArray !== null && userBoxArray.length > 0) {
+      console.log('Dispatching the fetchUsersByIds thunk');
+      dispatch(fetchUsersByIds(userBoxArray.slice(0, 100)));
+    }
+}, [userBoxArray, user]);
+
+
+
+
+  
+
+  
      
     
-  useEffect(() => {
-    console.log("Updated usersByIds:", usersByIds);
-    console.log("Updated userBox:", userBox);
-  }, [usersByIds, userBox]);
+  // useEffect(() => {
+  //   console.log("Updated usersByIds:", usersByIds);
+  //   console.log("Updated userBoxArray:", userBoxArray);
+  // }, [usersByIds, userBoxArray]);
 
 
   
@@ -81,11 +114,11 @@ function UserBox() {
   
 
   const renderFooter = () => {
-    if (!userBox || userBox.length <= ITEMS_PER_PAGE) {
+    if (!userBoxArray || userBoxArray.length <= ITEMS_PER_PAGE) {
       return null;
     }
 
-    const numPages = Math.ceil(userBox.length / ITEMS_PER_PAGE);
+    const numPages = Math.ceil(userBoxArray.length / ITEMS_PER_PAGE);
     const pageButtons = [];
     for (let i = 1; i <= numPages; i++) {
       pageButtons.push(
@@ -105,8 +138,8 @@ function UserBox() {
   const startIdx = (page - 1) * ITEMS_PER_PAGE;
   const endIdx = startIdx + ITEMS_PER_PAGE;
 
-  const usersToShow = Array.isArray(userBox) 
-  ? userBox.slice(startIdx, endIdx).reduce((result, id) => {
+  const usersToShow = Array.isArray(userBoxArray) 
+  ? userBoxArray.slice(startIdx, endIdx).reduce((result, id) => {
       const user = usersByIds[id];  
       if (user) result.push(user);
       return result;

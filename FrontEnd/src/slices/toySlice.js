@@ -4,13 +4,8 @@ import { getToysWithinRadius, getAllToys, getToyById, createToy as createToyAPI,
 
 
 
-//const initialState = { toys: [], loading: false, error: null };
-//const initialState = { toys: [], swipedToyIds: [], loading: false, error: null };
-
-
-const initialState = { toys: [], swipedToys: [], toyImages: [], loading: false, error: null };
-//const initialState = { toys: [], userSwipedToys: {}, loading: false, error: null };
-
+//const initialState = { toys: [], swipedToys: [], toyImages: [], loading: false, error: null };
+const initialState = { toys: [], toyBox: [], toyImages: [], swipedToys: [], loading: false, error: null };
 
 
 
@@ -252,34 +247,32 @@ const toySlice = createSlice({
   extraReducers: (builder) => {
     builder
     .addCase(addToyToToybox.fulfilled, (state, action) => {
-      // Logging to ensure that this function is triggered
       console.log("addToyToToybox.fulfilled triggered with action:", action);
-    
+      
+      const newToy = action.payload;  // Assuming this contains the toy details
+      
       // Check if the toy already exists in the state.
-      const existingToyIndex = state.toys.findIndex(toy => toy.id === action.payload.id);
-    
-      // If the toy exists, update it.
-      if (existingToyIndex !== -1) {
-        console.log("Existing toy found at index:", existingToyIndex);  // Log for debugging
-        state.toys[existingToyIndex] = action.payload;
-      } 
-      // If the toy doesn't exist, add it to the end of the array.
-      else {
-        console.log("Toy not found, adding to the end of the array.");  // Log for debugging
-        state.toys.push(action.payload);
+      const existingToyIndex = state.toyBox.findIndex(toy => toy.id === newToy.id);
+      
+      if (existingToyIndex === -1) {
+         state.toyBox.push(newToy);
       }
-    })
+  })
+  
     
     
     // .addCase(addToyToToybox.fulfilled, (state, action) => {
     //   console.log("Toy added to toybox:", state); 
     // })
     .addCase(addToyToToybox.rejected, (state, action) => {
-          // Handle any errors here
-    })
+      console.error("Error adding toy to toybox:", action.error.message);
+      state.error = action.error.message;
+  })
+  
   
     .addCase(fetchToysFromAPI.fulfilled, (state, action) => {
       state.toys = action.payload;
+      state.toyImages = action.payload.toyImages;
       console.log('toyslice action.payload - fetchToysFromAPI.fulfilled', action.payload)
       //console.log('toyslice action.payload.toys - fetchToysFromAPI.fulfilled', action.payload.toys)
       state.loading = false;

@@ -1,5 +1,13 @@
 from extensions import db, ma
 import uuid
+import json
+
+
+# toybox_association = db.Table('toybox_association',
+#     db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+#     db.Column('toy_id', db.Integer, db.ForeignKey('toys.id'))
+# )
+
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -12,8 +20,43 @@ class User(db.Model):
     user_latitude = db.Column(db.Float, nullable=True)
     user_longitude = db.Column(db.Float, nullable=True)
 
-    #toys = db.relationship('Toy', backref='user', lazy=True)
+    is_deleted = db.Column(db.Boolean, default=False)
+
+    # userBox = db.Column(db.String(5000), nullable=True)
+
+    # def set_userBox(self, urls_list):
+    #     """Set the userBox with a list of URLs."""
+    #     self.userBox = ','.join(urls_list)
+
+    # def get_userBox(self):
+    #     """Get the userBox as a list of URLs."""
+    #     return self.userBox.split(',') if self.userBox else []
+
+    
+    userBox = db.Column(db.String(5000), nullable=True)
+
+    def set_userBox(self, urls_list):
+        if urls_list and isinstance(urls_list, list):
+            self.userBox = json.dumps(urls_list)
+        else:
+            self.userBox = json.dumps([])
+
+    def get_userBox(self):
+        try:
+            return json.loads(self.userBox) if self.userBox else []
+        except json.JSONDecodeError:
+            return []
+
+
+
+
+
     toys = db.relationship('Toy', backref='user', lazy='dynamic')
+    # toybox = db.relationship('Toy', secondary=toybox_association, backref='toyboxes', lazy='dynamic')
+
+    #toys = db.relationship('Toy', backref='user')
+    #toybox = db.relationship('Toy', secondary=toybox_association, backref='toyboxes')
+
 
 
 
@@ -28,6 +71,8 @@ class Toy(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     toy_latitude = db.Column(db.Float, nullable=True)
     toy_longitude = db.Column(db.Float, nullable=True)
+
+    is_deleted = db.Column(db.Boolean, default=False)
 
 
 
@@ -46,15 +91,20 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         model = User
-        fields = ('id', 'name', 'email', 'password', 'profile_picture', 'bio', 'user_latitude', 'user_longitude', 'toys')
+        #fields = ('id', 'name', 'email', 'password', 'profile_picture', 'bio', 'user_latitude', 'user_longitude', 'toys', 'toybox')
+        fields = ('id', 'name', 'email', 'password', 'profile_picture', 'bio', 'user_latitude', 'user_longitude', 'is_deleted', 'userBox', 'toys')
         load_instance = True
 
 
 
 class ToySchema(ma.SQLAlchemyAutoSchema):
+    #toyboxes = ma.Nested('UserSchema', many=True)
+
     class Meta:
         model = Toy
-        fields = ('id', 'image_url_one', 'image_url_two', 'image_url_three', 'image_url_four', 'image_url_five', 'user_id', 'toy_latitude', 'toy_longitude')
+        ## First fields line includes toyboxes which I don't think I need but perhaps
+        #fields = ('id', 'image_url_one', 'image_url_two', 'image_url_three', 'image_url_four', 'image_url_five', 'user_id', 'toy_latitude', 'toy_longitude', 'toyboxes')
+        fields = ('id', 'image_url_one', 'image_url_two', 'image_url_three', 'image_url_four', 'image_url_five', 'user_id', 'toy_latitude', 'toy_longitude', 'is_deleted')
         load_instance = True
 
 

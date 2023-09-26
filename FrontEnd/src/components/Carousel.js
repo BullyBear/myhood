@@ -36,7 +36,9 @@ function Carousel() {
 
   const dispatch = useDispatch();
 
-  const { user } = useSelector((state) => state.user);
+  //const { user } = useSelector((state) => state.user);
+  const { user = {} } = useSelector((state) => state.user);
+
 
   //const { user } = useSelector((state) => state.user.users);
   console.log('USER', user)
@@ -45,11 +47,17 @@ function Carousel() {
   // const toys = useSelector((state) => state.toy.toys || []);
 
 
+  // const toys = useSelector((state) => {
+  //   console.log("Debugging state.toy:", state.toy);
+  //   console.log("Debugging state.toyswipe:", state.toy.swipedToys);
+  //   return state.toy.toys.filter((toy) => toy.user_id !== user.id);
+  // });
+
   const toys = useSelector((state) => {
-    console.log("Debugging state.toy:", state.toy);
-    console.log("Debugging state.toyswipe:", state.toy.swipedToys);
-    return state.toy.toys.filter((toy) => toy.user_id !== user.id);
+    if (!state.user || !state.user.user) return [];
+    return state.toy.toys.filter((toy) => toy.user_id !== state.user.user.id);
   });
+  
 
 
   // const toys = useSelector((state) => {
@@ -138,8 +146,8 @@ function Carousel() {
     console.log("Extracted Image URL:", imageUrl);
     console.log("CURRENT TOY", currentToy)
   
-    const bio = useSelector(state => state.user.user.bio);
-    const profilePicture = useSelector(state => state.user.user.profile_picture);
+    //const bio = useSelector(state => state.user.user.bio);
+    //const profilePicture = useSelector(state => state.user.user.profile_picture);
     
     //const [loaded, setLoaded] = useState(false);
     const [imageLoadingError, setImageLoadingError] = useState(false);
@@ -224,11 +232,8 @@ function Carousel() {
   }
   
   
-  
-  
 
   
-
   // const entireState = useSelector((state) => state);
   // console.log("Entire Redux State:", JSON.stringify(entireState));
 
@@ -354,8 +359,8 @@ function Carousel() {
 
     console.log("userIdOfToy:", userIdOfToy);
     console.log("user", user)
-    console.log("Bio in carousel:", bio);
-    console.log("Profile Picture in carousel:", profilePicture);
+    //console.log("Bio in carousel:", bio);
+    //console.log("Profile Picture in carousel:", profilePicture);
 
     if (user && user.id && currentToy && currentToy.id) {
       recordSwipeAction(user.id, currentToy.id, 'right');
@@ -367,8 +372,16 @@ function Carousel() {
         name: currentToy.owner_name,
       };
 
+      console.log('FUCK ME 1', currentToy.user_id)
+      console.log('FUCK ME 2', user.profile_picture)
     
-      dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, userIdOfToy: user.id  }));
+      //dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, userIdOfToy: user.id  }));
+      //dispatch(addProfileToUserBoxAsync({ userId: user.id, profileData: currentToy.profile_picture }));
+      //dispatch(addProfileToUserBoxAsync({ userId: currentToy.user_id, profileData: user.profile_picture }));
+      dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, profilePicture: currentToy.profile_picture }));
+
+
+
 
     }
 

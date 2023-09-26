@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import toySlice from '../slices/toySlice';
 
 const { width, height } = Dimensions.get('window');
 const ITEMS_PER_PAGE = 10;
@@ -10,30 +11,43 @@ function ToyBox() {
   const [page, setPage] = useState(1);
 
   const navigation = useNavigation();
-  const toyBox = useSelector((state) => state.toy.toyBox);
-  const toyImages = useSelector((state) => state.toy.toyImages);
+
+
+  const toyState = useSelector((state) => state.toy);
+
+  const toys = useSelector((state) => state.toy.toys || []);
+  const toyBox = useSelector((state) => state.toy.toyBox || []);
+  const toyImages = useSelector((state) => state.toy.toyImages || []);
+
+
+
+  console.log("Toy State:", toyState);
+  console.log ("TOYS IN TOYBOX", toys);
+  console.log("ToyBox:", toyBox);
+  console.log("ToyImages in ToyBox:", toyImages);
+
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
   };
 
   const renderThumbnail = (item, index) => {
-    if (!item || !toyImages[index]) return null;
-
-    // Assuming each toy object has an 'image_url' property
+    if (!item || !item.image_url_one) return null;
     return (
-      <TouchableOpacity
-        key={item.id}
-        onPress={() => navigation.navigate('ToyDetails', { toyId: item.id })}
-        style={styles.imageContainer}
-      >
-      <Image
-        source={{ uri: toyImages[index] }}
-        style={{ width: width * 0.6, height: width * 0.6 }}
-      />
-      </TouchableOpacity>
+        <TouchableOpacity
+            key={item.id}
+            onPress={() => navigation.navigate('ToyDetails', { toyId: item.id })}
+            style={styles.imageContainer}
+        >
+            <Image
+                source={{ uri: item.image_url_one }}
+                style={{ width: width * 0.6, height: width * 0.6 }}
+            />
+        </TouchableOpacity>
     );
-  };
+};
+
+
 
   const renderFooter = () => {
     if (!toyBox || toyBox.length <= ITEMS_PER_PAGE) {
@@ -87,7 +101,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // ... other styles here
+
 });
 
 export default ToyBox;

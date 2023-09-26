@@ -33,9 +33,10 @@ export default function UserDetails({ route }) {
     if (user && user.id && currentToy && currentToy.id) {
       recordSwipeAction(user.id, currentToy.id, 'right');
       
-      // Dispatch an action to add the toy to the Toybox
+
       dispatch(addToyToToybox({ userId: user.id, toyId: currentToy.id }));
       dispatch(updateToyImages({ toyId: currentToy.id, toyImages: currentToy.images }));
+      //dispatch toast notification
 
     }
 
@@ -43,12 +44,13 @@ export default function UserDetails({ route }) {
   };
 
 
-
   const onDeclinePressed = () => {
 
     dispatch(removeUserFromBox(user.id));
     navigation.goBack();
   };
+
+
 
   return (
     <View style={styles.container}>

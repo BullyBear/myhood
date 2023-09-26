@@ -4,6 +4,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token, jwt_re
 from models import User, UserSchema
 from extensions import bcrypt, db
 from sqlalchemy.exc import IntegrityError  
+import logging 
 
 from emails import send_invite_email
 
@@ -173,21 +174,6 @@ class UserProfile(Resource):
 
 
 
-
-
-class UsersByIds(Resource):
-    def post(self):
-        ids = request.json.get('ids', [])
-        if not ids:
-            return {'message': 'List of ids is required'}, 400
-
-        users = User.query.filter(User.id.in_(ids)).all()
-        if not users:
-            return {'message': 'Users not found'}, 404
-        return users_schema.dump(users), 200
-
-
-
 class UserProfileByID(Resource):
     def get(self, user_id):
         user = User.query.get(user_id)
@@ -198,22 +184,55 @@ class UserProfileByID(Resource):
         return serialized_user, 200
 
 
+
+class UsersByIds(Resource):
+    def post(self):
+        ids = request.json.get('ids', [])
+        if not ids:
+            return {'message': 'List of ids is required'}, 400
+
+        #users = User.query.filter(User.id.in_(ids)).all()
+        users = User.query.filter(User.id.in_(ids), User.is_deleted == False).all()
+        if not users:
+            return {'message': 'No users found for the given IDs', 'users': []}, 200
+        return users_schema.dump(users), 200
+
+
+
+
+
+
 class UserProfileBox(Resource):
     def post(self, user_id):
+        logging.info(f"Handling POST request for user ID: {user_id}")
+
         data = request.json
-        
+        logging.info(f"Received request data: {data}")
+
         user = User.query.get(user_id)
         if not user:
             return {'message': 'User not found'}, 404
-
-        # Check if 'profile_picture' is in the data and update if present
+        
         if 'profile_picture' in data:
-            user.profile_picture = data['profile_picture']
+            current_userBox = user.get_userBox()
+            logging.info(f"Current userBox before update: {current_userBox}")
+            
+            # Parse the current userBox JSON string
+            current_userBox = json.loads(current_userBox) if current_userBox else []
+
+            if data['profile_picture'] not in current_userBox:
+                current_userBox.append(data['profile_picture'])
+                
+                # Convert the updated userBox back to a JSON string
+                user.set_userBox(current_userBox)
+                logging.info(f"Updated userBox: {current_userBox}")
 
         db.session.commit()
-
-        serialized_user = user_schema.dump(user)  
+        
+        serialized_user = user_schema.dump(user)
         return {**serialized_user, 'message': 'Profile added to UserBox successfully'}, 200
+
+
 
 
 
