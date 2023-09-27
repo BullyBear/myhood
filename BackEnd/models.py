@@ -87,6 +87,11 @@ class UserToyAction(db.Model):
 
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
+    userBox = ma.Method("get_decoded_userBox")
+
+    def get_decoded_userBox(self, obj):
+        return obj.get_userBox()
+    
     toys = ma.Nested('ToySchema', many=True)
 
     class Meta:

@@ -27,7 +27,7 @@ import {
 } from '../slices/toySlice';
 
 import {
-  addProfileToUserBoxAsync, setLastInteractedToyId, fetchUserProfileData
+  addProfileToUserBoxAsync, setLastInteractedToyId, fetchUserProfileData, fetchUsersByIds
 } from '../slices/userSlice';
 
 function Carousel() {
@@ -372,13 +372,22 @@ function Carousel() {
         name: currentToy.owner_name,
       };
 
-      console.log('FUCK ME 1', currentToy.user_id)
-      console.log('FUCK ME 2', user.profile_picture)
+      console.log('CAROUSEL 1', userIdOfToy)
+      console.log('CAROUSEL 2', user.profile_picture)
+
     
       //dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, userIdOfToy: user.id  }));
       //dispatch(addProfileToUserBoxAsync({ userId: user.id, profileData: currentToy.profile_picture }));
       //dispatch(addProfileToUserBoxAsync({ userId: currentToy.user_id, profileData: user.profile_picture }));
-      dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, profilePicture: currentToy.profile_picture }));
+
+     //dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, profilePicture: currentToy.profile_picture }));
+
+      dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, profilePicture: user.profile_picture }));
+
+     // dispatch(addProfileToUserBoxAsync({ profilePicture: user.profile_picture }));
+
+
+
 
 
 
@@ -388,7 +397,7 @@ function Carousel() {
       //dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, profileData: user }));
     
 
-
+      //dispatch(fetchUsersByIds(userBoxArray.slice(0, 100)));
 
 
     //   dispatch(fetchUserProfileData(userIdOfToy)).then((userData) => {

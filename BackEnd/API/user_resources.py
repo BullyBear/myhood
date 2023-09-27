@@ -4,7 +4,8 @@ from flask_jwt_extended import create_access_token, create_refresh_token, jwt_re
 from models import User, UserSchema
 from extensions import bcrypt, db
 from sqlalchemy.exc import IntegrityError  
-import logging 
+import logging
+import json
 
 from emails import send_invite_email
 
@@ -218,7 +219,9 @@ class UserProfileBox(Resource):
             logging.info(f"Current userBox before update: {current_userBox}")
             
             # Parse the current userBox JSON string
-            current_userBox = json.loads(current_userBox) if current_userBox else []
+            #current_userBox = json.loads(current_userBox) if current_userBox else []
+            #current_userBox = user.get_userBox()
+
 
             if data['profile_picture'] not in current_userBox:
                 current_userBox.append(data['profile_picture'])

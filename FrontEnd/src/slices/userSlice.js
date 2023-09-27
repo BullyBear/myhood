@@ -164,26 +164,21 @@ export const addProfileToUserBoxAsync = createAsyncThunk(
 
 
 // export const addProfileToUserBoxAsync = createAsyncThunk(
-//   'user/addProfileToUserBox',
-//   async ({ userId, profileData }, { rejectWithValue }) => {
-//     try {
-//       const response = await saveProfileToUserBoxInBackend(userId, profileData);
-//       return response.data; 
-//     } catch (error) {
-//       return rejectWithValue(error.response.data);
-//     }
-//   }
-// );
-
-// export const addProfileToUserBoxAsync = createAsyncThunk(
 //   'user/addProfile',
-//   async ({ userId, profileData }, thunkAPI) => {
-//     try {
-//       const response = await addProfileToUserBoxAPI(userId, profileData);
-//       return response.data;
-//     } catch (error) {
-//       return thunkAPI.rejectWithValue(error.response.data);
-//     }
+//   async ({ profilePicture }, thunkAPI) => {
+//       try {
+//           const profileData = {
+//               profile_picture: profilePicture
+//           };
+          
+//           // Assuming that you have a function saveProfileToUserBoxInBackend
+//           // that constructs the full URL including userId.
+//           const response = await saveProfileToUserBoxInBackend(profileData);
+//           return response.data;
+//       } catch (error) {
+//           console.error("Error in addProfileToUserBoxAsync:", error);
+//           return thunkAPI.rejectWithValue(error.response ? error.response.data : error.message);
+//       }
 //   }
 // );
 
@@ -277,9 +272,9 @@ const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    // resetUserState: (state) => {
-    //   return { ...initialState };
-    // },
+    resetUserState: (state) => {
+      return { ...initialState };
+    },
     removeUserFromBox: (state, action) => {
       state.userBox = state.userBox.filter(userId => userId !== action.payload);
     },
@@ -366,64 +361,107 @@ const userSlice = createSlice({
   },
   extraReducers: {
 
-    // [fetchUsersByIds.fulfilled]: (state, action) => {
-    //   console.log("Payload from fetchUsersByIds:", action.payload);
-    //   action.payload.forEach(user => {
-    //     state.usersByIds[user.id] = user;
-    //     if (!state.userBox.includes(user.id)) {
-    //       //state.userBox.push(user.id);
-    //       state.userBox = [...state.userBox, user.id];
 
-    //     }
-    //   });
-    // },
 
   //   [fetchUsersByIds.fulfilled]: (state, action) => {
   //     console.log("Payload from fetchUsersByIds:", action.payload);
-  //     action.payload.forEach(user => {
-  //         state.usersByIds[user.id] = user;
-  //         if (!state.userBox.includes(user.id)) {
-  //             // Create a new array with the updated userBox
-  //             state.userBox = [...state.userBox, user.id];
-  //         }
-  //     });
+  
+  //     // Ensure we have a valid users array before processing
+  //     if (action.payload.users && Array.isArray(action.payload.users)) {
+  //         action.payload.users.forEach(user => {
+  //             state.usersByIds[user.id] = user;
+  
+  //             if (!state.userBox) {
+  //                 state.userBox = [];
+  //             }
+  
+  //             if (!state.userBox.includes(user.id)) {
+  //                 state.userBox.push(user.id);
+  //             }
+  //         });
+  //     }
   // },
+  
 
   [fetchUsersByIds.fulfilled]: (state, action) => {
-    console.log("Payload from fetchUsersByIds:", action.payload);
-    action.payload.forEach(user => {
-      state.usersByIds[user.id] = user;
-      if (!state.userBox) {
-        // Initialize userBox as an empty array if it's null
-        state.userBox = [];
-      }
-      if (!state.userBox.includes(user.id)) {
-        // Add user.id to userBox if it's not already included
-        state.userBox.push(user.id);
-      }
-    });
+    if (action.payload.users && Array.isArray(action.payload.users)) {
+        action.payload.users.forEach(user => {
+            state.usersByIds[user.profile_picture] = user;
+
+            if (!state.userBox) {
+                state.userBox = [];
+            }
+
+            if (!state.userBox.includes(user.profile_picture)) {
+                state.userBox.push(user.profile_picture);
+            }
+        });
+    }
+},
+
+
+
+
+
+//   [addProfileToUserBoxAsync.fulfilled]: (state, action) => {
+//     state.loading = false;
+  
+//     const userId = action.payload.id;
+//     const newUserBox = action.payload.userBox || [];  // Default to an empty array if null
+  
+//     if (state.usersByIds && state.usersByIds[userId]) {
+//         state.usersByIds[userId].userBox = newUserBox;
+//     } else {
+//         if (!state.usersByIds) state.usersByIds = {};
+//         state.usersByIds[userId] = action.payload;
+//         state.usersByIds[userId].userBox = newUserBox;
+//     }
+  
+//     // Update the global userBox state.
+//     state.userBox = newUserBox;
+// },
+
+
+
+
+  // [addProfileToUserBoxAsync.fulfilled]: (state, action) => {
+  //   state.loading = false;
+  
+  //   const userId = action.payload.id;
+  //   const newUserBox = action.payload.userBox || [];  // Default to an empty array if null
+  
+  //   if (state.usersByIds && state.usersByIds[userId]) {
+  //       state.usersByIds[userId].userBox = newUserBox;
+  //   } else {
+  //       if (!state.usersByIds) state.usersByIds = {};
+  //       state.usersByIds[userId] = action.payload;
+  //       state.usersByIds[userId].userBox = newUserBox;
+  //   }
+  
+  //   // Update the global userBox state.
+  //   state.userBox = newUserBox;
+  // },
+  
+
+  [addProfileToUserBoxAsync.fulfilled]: (state, action) => {
+    state.loading = false;
+  
+    const userId = action.payload.id;
+    const newUserBox = action.payload.userBox || [];  // Default to an empty array if null
+
+    console.log('userslice Complete action:', action);
+    console.log('userslice userid', userId)
+    console.log('userslice newuserbox', newUserBox)
+  
+    if (state.usersByIds && state.usersByIds[userId]) {
+        state.usersByIds[userId].userBox = newUserBox;
+    } else {
+        if (!state.usersByIds) state.usersByIds = {};
+        state.usersByIds[userId] = action.payload;
+        state.usersByIds[userId].userBox = newUserBox;
+    }
   },
-  
-  
 
-    [addProfileToUserBoxAsync.fulfilled]: (state, action) => {
-      state.loading = false;
-    
-      const userId = action.payload.id;
-      const newUserBox = action.payload.userBox || [];  // Default to an empty array if null
-
-      console.log('userslice Complete action:', action);
-      console.log('userslice userid', userId)
-      console.log('userslice newuserbox', newUserBox)
-    
-      if (state.usersByIds && state.usersByIds[userId]) {
-          state.usersByIds[userId].userBox = newUserBox;
-      } else {
-          if (!state.usersByIds) state.usersByIds = {};
-          state.usersByIds[userId] = action.payload;
-          state.usersByIds[userId].userBox = newUserBox;
-      }
-    },
     
     
   // [addProfileToUserBoxAsync.fulfilled]: (state, action) => {
@@ -431,10 +469,12 @@ const userSlice = createSlice({
   //   state.userBox = action.payload.userBox; 
   //   // ... handle other state updates if necessary
   // },
-    [addProfileToUserBoxAsync.pending]: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
+
+
+    // [addProfileToUserBoxAsync.pending]: (state) => {
+    //   state.loading = true;
+    //   state.error = null;
+    // },
     [addProfileToUserBoxAsync.rejected]: (state, action) => {
       state.loading = false;
       state.error = action.error.message;
