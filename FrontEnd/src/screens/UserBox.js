@@ -14,6 +14,9 @@ const getUserBox = createSelector([selectUserBox], userBox => userBox || []);
 function UserBox() {
   const [page, setPage] = useState(1);
 
+  const user = useSelector(state => state.user.user);
+  console.log('userrrrr', user)
+
   const userBox = useSelector(getUserBox);
 
   const userBoxArray = Array.isArray(userBox) ? userBox : [];
@@ -35,9 +38,13 @@ function UserBox() {
     console.log("IMAGE URL", imageUrl);
 
     return (
-      <TouchableOpacity onPress={() => navigation.navigate('UserDetails', { user: imageUrl })} style={styles.imageContainer}>
-        <Image source={{ uri: imageUrl }} style={{ width: imageSize, height: imageSize }} />
+      <TouchableOpacity 
+          onPress={() => navigation.navigate('UserDetails', { user: user, imageUrl: imageUrl })}
+          style={styles.imageContainer}
+      >
+          <Image source={{ uri: imageUrl }} style={{ width: imageSize, height: imageSize }} />
       </TouchableOpacity>
+
     );
 };
 

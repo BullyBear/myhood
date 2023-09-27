@@ -7,8 +7,7 @@ import {
   fetchData as fetchDataFromAPI,
   resetPassword as resetPasswordFromAPI,
   inviteUser as inviteUserFromAPI,
-  fetchUserProfileById,
-  fetchUsersByIdsAPI,
+  //fetchUserProfileByIdAPI as fetchUserProfileById,
   saveProfileToUserBoxInBackend,
 } from '../API/userAPI';
 
@@ -106,6 +105,19 @@ export const updateUser = createAsyncThunk(
   }
 );
 
+
+
+export const fetchUserProfileById = createAsyncThunk(
+  'users/fetchUserProfileById',
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_URL}/user/${userId}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+)
 
 
 // export const fetchUserProfileData = createAsyncThunk(
@@ -479,6 +491,24 @@ const userSlice = createSlice({
       state.loading = false;
       state.error = action.error.message;
     },
+
+    
+    
+      [fetchUserProfileById.pending]: (state) => {
+        state.status = 'loading';
+      },
+      [fetchUserProfileById.fulfilled]: (state, action) => {
+        state.status = 'succeeded';
+        state.user = action.payload;
+      },
+      [fetchUserProfileById.rejected]: (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      },
+    
+    
+    
+
     [updateUser.pending]: (state) => {
       state.loading = true;
       state.error = null;

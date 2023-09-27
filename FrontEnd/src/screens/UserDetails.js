@@ -10,8 +10,8 @@ const { width, height } = Dimensions.get('window');
 
 
 export default function UserDetails({ route }) {
-  const { user } = route.params;
-  
+  const { user, imageUrl } = route.params;
+
   const navigation = useNavigation();
 
 
@@ -61,7 +61,7 @@ export default function UserDetails({ route }) {
   return (
     <View style={styles.container}>
       {/*<Image source={{ uri: user.profile_picture }} style={styles.image} />*/}
-      <Image source={{ uri: user }} style={styles.image} />
+      <Image source={{ uri: imageUrl }} style={styles.image} />
       <Text style={styles.text}>{user.name}</Text>
       <Text style={styles.text}>{user.bio}</Text>
       

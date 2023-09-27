@@ -62,7 +62,7 @@ export const fetchData = async (user_id) => {
 
 
 
-export const fetchUserProfileById = async (userId) => {
+export const fetchUserProfileByIdAPI = async (userId) => {
   return await axios.get(`${API_URL}/user/${userId}`, { headers });
 };
 
