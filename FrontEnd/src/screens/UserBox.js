@@ -35,11 +35,12 @@ function UserBox() {
     console.log("IMAGE URL", imageUrl);
 
     return (
-      <TouchableOpacity onPress={() => {/* Do whatever when image is clicked */}} style={styles.imageContainer}>
+      <TouchableOpacity onPress={() => navigation.navigate('UserDetails', { user: imageUrl })} style={styles.imageContainer}>
         <Image source={{ uri: imageUrl }} style={{ width: imageSize, height: imageSize }} />
       </TouchableOpacity>
     );
-  };
+};
+
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
