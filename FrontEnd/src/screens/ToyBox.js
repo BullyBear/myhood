@@ -34,21 +34,22 @@ function ToyBox() {
     setPage(newPage);
   };
 
-  const renderThumbnail = (item, index) => {
-    if (!item || !item.image_url_one) return null;
+
+  const renderThumbnail = (toy, index) => {
+    if (!toy || !toy.image_url_one) return null;
     return (
-        <TouchableOpacity
-            key={item.id}
-            onPress={() => navigation.navigate('ToyDetails', { toyId: item.id })}
-            style={styles.imageContainer}
-        >
-            <Image
-                source={{ uri: item.image_url_one }}
-                style={{ width: width * 0.6, height: width * 0.6 }}
-            />
-        </TouchableOpacity>
+      <TouchableOpacity
+          key={toy.id}
+          onPress={() => navigation.navigate('ToyDetails', { toyId: toy.id })}
+          style={styles.imageContainer}
+      >
+          <Image
+              source={{ uri: toy.image_url_one }}
+              style={{ width: 100, height: 100 }} // This matches UserBox styling
+          />
+      </TouchableOpacity>
     );
-};
+  };
 
 
 
@@ -77,17 +78,22 @@ function ToyBox() {
 
   const startIdx = (page - 1) * ITEMS_PER_PAGE;
   const endIdx = startIdx + ITEMS_PER_PAGE;
-  const toysToShow = Array.isArray(toyBox) ? toyBox.slice(startIdx, endIdx) : [];
+  //const toysToShow = Array.isArray(toyBox) ? toyBox.slice(startIdx, endIdx) : [];
+  const toysToShow = Array.isArray(toys) ? toys.slice(startIdx, endIdx) : [];
+
+
+
+  console.log("toysToShow length: ", toysToShow.length);
+  console.log("toyBox length: ", toyBox.length);
+ 
 
   console.log('TOYSTOSHOW', toysToShow)
 
   return (
     <View style={styles.container}>
-          {toyImages.map(image => (
-      <Image key={image} source={{ uri: image }} style={{ width: 50, height: 50 }} />
-    ))}
-      <View style={styles.contentContainer}>{toysToShow.map(renderThumbnail)}</View>
-      <Text>Fuck</Text>
+      <View style={styles.contentContainer}>
+        {toysToShow.map((toy, index) => toy && renderThumbnail(toy, index))}
+      </View>
       {renderFooter()}
     </View>
   );
