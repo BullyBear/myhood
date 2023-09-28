@@ -44,8 +44,8 @@ export default function UserDetails({ route }) {
     console.log("PRESSING ACCEPT")
 
     if (user && user.id && currentToy && currentToy.id) {
-      recordSwipeAction(user.id, currentToy.id, 'right');
-      
+
+      //recordSwipeAction(user.id, currentToy.id, 'right');
 
       dispatch(addToyToToybox({ userId: user.id, toyId: currentToy.id }));
       dispatch(updateToyImages({ toyId: currentToy.id, toyImages: currentToy.images }));

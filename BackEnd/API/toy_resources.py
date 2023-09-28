@@ -233,7 +233,7 @@ class AddToyToToybox(Resource):
             user.toybox.append(toy)
             db.session.commit()
 
-            return {"message": "Toy added to user's toybox successfully"}, 201
+            return {"message": "Toy added to user's toybox successfully", "toy": toy.to_dict()}, 201
 
         except Exception as e:
             return {"message": f"An error occurred: {str(e)}"}, 500

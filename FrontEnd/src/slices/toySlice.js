@@ -246,18 +246,18 @@ const toySlice = createSlice({
   
   extraReducers: (builder) => {
     builder
+
+
     .addCase(addToyToToybox.fulfilled, (state, action) => {
-      console.log("addToyToToybox.fulfilled triggered with action:", action);
-      
-      const newToy = action.payload;  // Assuming this contains the toy details
-      
-      // Check if the toy already exists in the state.
+      const newToy = action.payload.toy;
       const existingToyIndex = state.toyBox.findIndex(toy => toy.id === newToy.id);
       
       if (existingToyIndex === -1) {
          state.toyBox.push(newToy);
       }
-  })
+   })
+   
+    
   
     
     

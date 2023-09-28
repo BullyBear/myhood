@@ -17,7 +17,10 @@ function ToyBox() {
 
   const toys = useSelector((state) => state.toy.toys || []);
   const toyBox = useSelector((state) => state.toy.toyBox || []);
-  const toyImages = useSelector((state) => state.toy.toyImages || []);
+  //const toyImages = useSelector((state) => state.toy.toyImages || []);
+
+  const toyImages = toys.map(toy => toy.image_url_one);  // assuming you only want the first image.
+
 
 
 
@@ -76,8 +79,13 @@ function ToyBox() {
   const endIdx = startIdx + ITEMS_PER_PAGE;
   const toysToShow = Array.isArray(toyBox) ? toyBox.slice(startIdx, endIdx) : [];
 
+  console.log('TOYSTOSHOW', toysToShow)
+
   return (
     <View style={styles.container}>
+          {toyImages.map(image => (
+      <Image key={image} source={{ uri: image }} style={{ width: 50, height: 50 }} />
+    ))}
       <View style={styles.contentContainer}>{toysToShow.map(renderThumbnail)}</View>
       <Text>Fuck</Text>
       {renderFooter()}

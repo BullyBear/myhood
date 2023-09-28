@@ -3,10 +3,10 @@ import uuid
 import json
 
 
-# toybox_association = db.Table('toybox_association',
-#     db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
-#     db.Column('toy_id', db.Integer, db.ForeignKey('toys.id'))
-# )
+toybox_association = db.Table('toybox_association',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('toy_id', db.Integer, db.ForeignKey('toys.id'))
+)
 
 
 class User(db.Model):
@@ -22,21 +22,6 @@ class User(db.Model):
 
     is_deleted = db.Column(db.Boolean, default=False)
 
-
-    # userBox = db.Column(db.String(5000), nullable=True)
-
-    # def set_userBox(self, urls_list):
-    #     if urls_list and isinstance(urls_list, list):
-    #         self.userBox = json.dumps(urls_list)
-    #     else:
-    #         self.userBox = json.dumps([])
-
-    # def get_userBox(self):
-    #     try:
-    #         return json.loads(self.userBox) if self.userBox else []
-    #     except json.JSONDecodeError:
-    #         return []
-
     userBox = db.Column(db.Text, nullable=True)
 
     def set_userBox(self, user_data_list):
@@ -50,16 +35,13 @@ class User(db.Model):
             return json.loads(self.userBox) if self.userBox else []
         except json.JSONDecodeError:
             return []
+        
 
+    #toys = db.relationship('Toy', backref='user', lazy='dynamic')
+    toys = db.relationship('Toy', backref='owner', lazy='dynamic') 
 
+    toybox = db.relationship('Toy', secondary=toybox_association, backref='toyboxes', lazy='dynamic')  # Toybox containing toys
 
-
-
-    toys = db.relationship('Toy', backref='user', lazy='dynamic')
-    # toybox = db.relationship('Toy', secondary=toybox_association, backref='toyboxes', lazy='dynamic')
-
-    #toys = db.relationship('Toy', backref='user')
-    #toybox = db.relationship('Toy', secondary=toybox_association, backref='toyboxes')
 
 
 
@@ -90,19 +72,21 @@ class UserToyAction(db.Model):
 
 
 
+
 class UserSchema(ma.SQLAlchemyAutoSchema):
     userBox = ma.Method("get_decoded_userBox")
+    
+    toys = ma.Nested('ToySchema', many=True)
+    toybox = ma.Nested('ToySchema', many=True)  # Representing the many-to-many relationship
 
     def get_decoded_userBox(self, obj):
         return obj.get_userBox()
     
-    toys = ma.Nested('ToySchema', many=True)
-
     class Meta:
         model = User
-        #fields = ('id', 'name', 'email', 'password', 'profile_picture', 'bio', 'user_latitude', 'user_longitude', 'toys', 'toybox')
-        fields = ('id', 'name', 'email', 'password', 'profile_picture', 'bio', 'user_latitude', 'user_longitude', 'is_deleted', 'userBox', 'toys')
+        fields = ('id', 'name', 'email', 'password', 'profile_picture', 'bio', 'user_latitude', 'user_longitude', 'is_deleted', 'userBox', 'toys', 'toybox')
         load_instance = True
+
 
 
 
