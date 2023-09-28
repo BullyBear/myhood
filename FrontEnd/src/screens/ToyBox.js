@@ -40,7 +40,7 @@ function ToyBox() {
     return (
       <TouchableOpacity
           key={toy.id}
-          onPress={() => navigation.navigate('ToyDetails', { toyId: toy.id })}
+          onPress={() => navigation.navigate('ToyDetails', { toy: toy })}
           style={styles.imageContainer}
       >
           <Image

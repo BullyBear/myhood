@@ -9,7 +9,11 @@ const { width: screenWidth } = Dimensions.get('window');
 
 export default function ToyDetails({ route }) {
 
-  const { toy } = route.params;
+ // const { toy } = route.params;
+  const toy = route.params?.toy || {};
+
+  console.log('toy', toy)
+
   const navigation = useNavigation();
   
   const currentUser = useSelector((state) => state.currentUer);
@@ -36,11 +40,11 @@ export default function ToyDetails({ route }) {
   
 
   const toyImages = [
-    toy.image_url_one,
-    toy.image_url_two,
-    toy.image_url_three,
-    toy.image_url_four,
-    toy.image_url_five
+    toy?.image_url_one,
+    toy?.image_url_two,
+    toy?.image_url_three,
+    toy?.image_url_four,
+    toy?.image_url_five
   ].filter(Boolean);
 
 
@@ -84,7 +88,6 @@ export default function ToyDetails({ route }) {
       <TouchableOpacity onPress={() => openModal(0)}>
         <Image source={{ uri: toy.image_url_one }} style={styles.image} />
       </TouchableOpacity>
-      <Text>Fuck</Text>
       <ToyImageModal isVisible={isModalVisible} onClose={closeModal} images={toyImages} />
 
       <TouchableOpacity style={styles.chatButton} onPress={onChatPressed}>
