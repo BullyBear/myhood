@@ -22,22 +22,26 @@ class User(db.Model):
 
     is_deleted = db.Column(db.Boolean, default=False)
 
+
     # userBox = db.Column(db.String(5000), nullable=True)
 
     # def set_userBox(self, urls_list):
-    #     """Set the userBox with a list of URLs."""
-    #     self.userBox = ','.join(urls_list)
+    #     if urls_list and isinstance(urls_list, list):
+    #         self.userBox = json.dumps(urls_list)
+    #     else:
+    #         self.userBox = json.dumps([])
 
     # def get_userBox(self):
-    #     """Get the userBox as a list of URLs."""
-    #     return self.userBox.split(',') if self.userBox else []
+    #     try:
+    #         return json.loads(self.userBox) if self.userBox else []
+    #     except json.JSONDecodeError:
+    #         return []
 
-    
-    userBox = db.Column(db.String(5000), nullable=True)
+    userBox = db.Column(db.Text, nullable=True)
 
-    def set_userBox(self, urls_list):
-        if urls_list and isinstance(urls_list, list):
-            self.userBox = json.dumps(urls_list)
+    def set_userBox(self, user_data_list):
+        if user_data_list and isinstance(user_data_list, list):
+            self.userBox = json.dumps(user_data_list)
         else:
             self.userBox = json.dumps([])
 

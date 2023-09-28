@@ -1,52 +1,103 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { createSelector } from 'reselect';
+import { resetUserState } from '../slices/userSlice';
 
 const { width } = Dimensions.get('window');
 const ITEMS_PER_PAGE = 10;
 
-const selectUserBox = state => state.user.userBox;
+//const selectUserBox = state => state.user.userBox;
+
+const selectUserBox = state => {
+  console.log('Inside selectUserBox:', state.user.user.userBox);
+  return state.user.user.userBox;
+};
+
 
 const getUserBox = createSelector([selectUserBox], userBox => userBox || []);
 
 function UserBox() {
   const [page, setPage] = useState(1);
+  const dispatch = useDispatch();
 
-  const user = useSelector(state => state.user.user);
-  console.log('userrrrr', user)
+  //const user = useSelector(state => state.user.user);
+  //console.log('userrrrr', user)
+
 
   const userBox = useSelector(getUserBox);
-
+  
   const userBoxArray = Array.isArray(userBox) ? userBox : [];
-  if (userBox && typeof userBox === "string") {
-    try {
-      userBoxArray.push(...JSON.parse(userBox));
-    } catch (e) {
-      console.error("Error parsing userBox:", e);
-    }
-  }
+
+
+  //const userBoxArray = Array.isArray(userBox) ? userBox.map(userDetail => userDetail.profilePicture) : [];
+
+  // const userBoxArray = Array.isArray(userBox) ? userBox : [];
+  // if (userBox && typeof userBox === "string") {
+  //   try {
+  //     userBoxArray.push(...JSON.parse(userBox));
+  //   } catch (e) {
+  //     console.error("Error parsing userBox:", e);
+  //   }
+  // }
+
+
+
+  // if (userBox && typeof userBox === "string") {
+  //   try {
+  //     userBoxArray.push(...JSON.parse(userBox));
+  //   } catch (e) {
+  //     console.error("Error parsing userBox:", e);
+  //   }
+  // }
+
+
 
   console.log("Initial userBox:", userBox);
   console.log("Processed userBoxArray:", userBoxArray);
 
   const navigation = useNavigation();
 
-  const renderThumbnail = (imageUrl, index) => {
-    let imageSize = userBoxArray.length <= 1 ? width * 0.6 : width * 0.3;
-    console.log("IMAGE URL", imageUrl);
 
+  const renderThumbnail = (userDetail, index) => {
+    let imageUrl;
+    let userDetailObject = userDetail.user_details;
+  
+    // Add debugging logs
+    console.log('userDetail:', userDetail);
+    console.log('userDetailObject before navigation:', userDetailObject);
+  
+    if (typeof userDetail === 'string') {
+      imageUrl = userDetail;
+      userDetailObject = {}; // If you don't have details, pass an empty object or any default
+    } else {
+      imageUrl = userDetail.profile_picture;
+      userDetailObject = userDetail.user_details;
+    }
+  
+    // Add a log to check the image URL
+    console.log('Rendering thumbnail with imageUrl:', imageUrl);
+  
     return (
-      <TouchableOpacity 
-          onPress={() => navigation.navigate('UserDetails', { user: user, imageUrl: imageUrl })}
-          style={styles.imageContainer}
+      <TouchableOpacity
+        key={index}
+        onPress={() =>
+          navigation.navigate('UserDetails', {
+            user: userDetail,
+            imageUrl: imageUrl,
+          })
+        }
+        style={styles.imageContainer}
       >
-          <Image source={{ uri: imageUrl }} style={{ width: imageSize, height: imageSize }} />
+        <Image source={{ uri: imageUrl }} style={{ width: 100, height: 100 }} />
       </TouchableOpacity>
-
     );
-};
+  };
+  
+  
+
+
 
 
   const handlePageChange = (newPage) => {
@@ -83,7 +134,10 @@ function UserBox() {
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        {usersToShow.map(renderThumbnail)}
+        {/*{usersToShow.map(renderThumbnail)}*/}
+        {/*{usersToShow.map(userDetail => userDetail && renderThumbnail(userDetail))}*/}
+        {usersToShow.map((userDetail, index) => userDetail && renderThumbnail(userDetail, index))}
+
       </View>
       {renderFooter()}
     </View>

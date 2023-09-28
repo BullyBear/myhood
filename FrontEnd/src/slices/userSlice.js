@@ -156,36 +156,16 @@ export const fetchUsersByIds = createAsyncThunk(
 );
 
 
-export const addProfileToUserBoxAsync = createAsyncThunk(
-  'user/addProfile',
-  async ({ userId, profilePicture }, thunkAPI) => {
-      try {
-          // Format the data to match backend structure
-          const profileData = {
-              profile_picture: profilePicture
-          };
-
-          const response = await saveProfileToUserBoxInBackend(userId, profileData);
-          return response.data;
-      } catch (error) {
-          console.error("Error in addProfileToUserBoxAsync:", error);
-          return thunkAPI.rejectWithValue(error.response ? error.response.data : error.message);
-      }
-  }
-);
-
-
 // export const addProfileToUserBoxAsync = createAsyncThunk(
 //   'user/addProfile',
-//   async ({ profilePicture }, thunkAPI) => {
+//   async ({ userId, profilePicture }, thunkAPI) => {
 //       try {
+//           // Format the data to match backend structure
 //           const profileData = {
 //               profile_picture: profilePicture
 //           };
-          
-//           // Assuming that you have a function saveProfileToUserBoxInBackend
-//           // that constructs the full URL including userId.
-//           const response = await saveProfileToUserBoxInBackend(profileData);
+
+//           const response = await saveProfileToUserBoxInBackend(userId, profileData);
 //           return response.data;
 //       } catch (error) {
 //           console.error("Error in addProfileToUserBoxAsync:", error);
@@ -195,54 +175,28 @@ export const addProfileToUserBoxAsync = createAsyncThunk(
 // );
 
 
+export const addProfileToUserBoxAsync = createAsyncThunk(
+  'user/addProfile',
+  async ({ userId, profileData }, thunkAPI) => {
+      try {
+          // Convert frontend data to match backend structure
+          const transformedProfileData = {
+              profile_picture: profileData.profilePicture,
+              user_details: {
+                  name: profileData.name,
+                  bio: profileData.bio,
+              }
+          };
 
+          const response = await saveProfileToUserBoxInBackend(userId, transformedProfileData);
+          return response.data;
+      } catch (error) {
+          console.error("Error in addProfileToUserBoxAsync:", error);
+          return thunkAPI.rejectWithValue(error.response ? error.response.data : error.message);
+      }
+  }
+);
 
-
-
-
-// export const addProfileToUserBoxAsync = createAsyncThunk(
-//   'user/addProfile',
-//   async ({ userId, userIdOfToy }, thunkAPI) => {
-//     try {
-//       // Fetch the user who swiped right on the toy using userIdOfToy
-//       const response = await fetchUserProfileById(userIdOfToy);
-//       console.log('Response from API:', response);
-
-//       // Extract the necessary profile data from the response
-//       const userProfileData = response.data.data;
-//       const { profile_picture } = userProfileData;
-//       const payloadToSend = { profile_picture };
-
-//       // Save the profile picture to the user's box in the backend
-//       await saveProfileToUserBoxInBackend(userId, payloadToSend);
-
-//       // Dispatch the Redux action to update the store
-//       thunkAPI.dispatch(addProfileToUserBox(userProfileData));
-
-//     } catch (error) {
-//       return thunkAPI.rejectWithValue(error.response.data);
-//     }
-//   }
-// );
-
-
-
-// export const addProfileToUserBoxAsync = createAsyncThunk(
-//   'user/addProfile',
-//   async ({ userId, profileData }, thunkAPI) => {
-//       try {
-//           // Save the profile picture to the user's box in the backend
-//           const response = await saveProfileToUserBoxInBackend(userId, profileData);
-//           return response.data
-          
-//           // Dispatch the Redux action to update the store
-//           //thunkAPI.dispatch(addProfileToUserBox(profileData));
-//       } catch (error) {
-//         console.error("Error in addProfileToUserBoxAsync:", error);
-//         return thunkAPI.rejectWithValue(error.response ? error.response.data : error.message);
-//       }
-//   }
-// );
 
 
 
@@ -466,6 +420,7 @@ const userSlice = createSlice({
     console.log('userslice newuserbox', newUserBox)
   
     if (state.usersByIds && state.usersByIds[userId]) {
+      console.log('Updated User Box: ', state.usersByIds[userId].userBox);
         state.usersByIds[userId].userBox = newUserBox;
     } else {
         if (!state.usersByIds) state.usersByIds = {};

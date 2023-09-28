@@ -10,14 +10,21 @@ const { width, height } = Dimensions.get('window');
 
 
 export default function UserDetails({ route }) {
-  const { user, imageUrl } = route.params;
+
+ const { user, imageUrl } = route.params;
+  //const { name, bio } = user; 
+
+  const { details } = user; 
+  const { name, bio } = details; 
+
+
+
+
 
   const navigation = useNavigation();
 
 
-
-
-  console.log("USER", user)
+  //console.log("USER", user)
   
   const [showAcceptButton, setShowAcceptButton] = useState(true);
   const currentToy = useSelector((state) => state.currentToy);
@@ -62,8 +69,8 @@ export default function UserDetails({ route }) {
     <View style={styles.container}>
       {/*<Image source={{ uri: user.profile_picture }} style={styles.image} />*/}
       <Image source={{ uri: imageUrl }} style={styles.image} />
-      <Text style={styles.text}>{user.name}</Text>
-      <Text style={styles.text}>{user.bio}</Text>
+      <Text style={styles.text}>{name}</Text>
+      <Text style={styles.text}>{bio}</Text>
       
       {showAcceptButton && (
         <>

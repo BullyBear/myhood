@@ -76,6 +76,7 @@ export const fetchUsersByIdsAPI = async (userIds) => {
 
 
 export const saveProfileToUserBoxInBackend = async (userId, profileData) => {
+  console.log("Sending data:", profileData);  // <-- Add this line.
   return await axios.post(`${API_URL}/user/${userId}/addProfile`, profileData, { headers });
 };
 

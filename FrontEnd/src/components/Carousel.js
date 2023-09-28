@@ -338,14 +338,11 @@ function Carousel() {
   };
   
   
-  
-  
-  
 
   const onSwipeRight = () => {
     const toyToShow = toys[currentIndex];
     console.log('Swiping Right');
-    
+  
     if (!toyToShow) {
       console.error('No toy found at current index:', currentIndex);
       return;
@@ -356,78 +353,115 @@ function Carousel() {
       console.error('No user ID found for toy with ID:', toyToShow.id);
       return;
     }
+  
 
-    console.log("userIdOfToy:", userIdOfToy);
-    console.log("user", user)
-    //console.log("Bio in carousel:", bio);
-    //console.log("Profile Picture in carousel:", profilePicture);
-
+    console.log("user in carousel", user);
+    console.log("userIdOfToy in carousel:", userIdOfToy);
+    console.log("currentToy in carousel", currentToy)
+  
     if (user && user.id && currentToy && currentToy.id) {
       recordSwipeAction(user.id, currentToy.id, 'right');
-
-
+  
       const ownerProfileData = {
         profile_picture: currentToy.profile_picture,
         bio: currentToy.owner_bio,
         name: currentToy.owner_name,
       };
-
-      console.log('CAROUSEL 1', userIdOfToy)
-      console.log('CAROUSEL 2', user.profile_picture)
-
-    
-      //dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, userIdOfToy: user.id  }));
-      //dispatch(addProfileToUserBoxAsync({ userId: user.id, profileData: currentToy.profile_picture }));
-      //dispatch(addProfileToUserBoxAsync({ userId: currentToy.user_id, profileData: user.profile_picture }));
-
-     //dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, profilePicture: currentToy.profile_picture }));
-
-      dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, profilePicture: user.profile_picture }));
-
-     // dispatch(addProfileToUserBoxAsync({ profilePicture: user.profile_picture }));
-
-
-
-
-
-
-
+  
+      console.log('CAROUSEL 1', userIdOfToy);
+      console.log('CAROUSEL 2', user.profile_picture);
+  
+      console.log("User object before dispatching:", user);
+      dispatch(addProfileToUserBoxAsync({
+        userId: userIdOfToy,
+        profileData: {
+          profilePicture: user.profile_picture,
+          name: user.name,
+          bio: user.bio,
+        }
+      }));
     }
-
-      //dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, profileData: user }));
-    
-
-      //dispatch(fetchUsersByIds(userBoxArray.slice(0, 100)));
-
-
-    //   dispatch(fetchUserProfileData(userIdOfToy)).then((userData) => {
-    //     dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, profileData: userData }));
-    //   });
-    // }
-
-
+  
     dispatch(removeToyFromCarousel(toyToShow));
   
+    setCurrentIndex((prevIndex) => {
+      const newIndex = prevIndex + 1;
+      if (newIndex >= toys.length) {
+        setShowDefaultImage(true);
+      }
+      return newIndex;
+    });
+  }
+  
+
+  
+  
+  
+
+  // const onSwipeRight = () => {
+  //   const toyToShow = toys[currentIndex];
+  //   console.log('Swiping Right');
+    
+  //   if (!toyToShow) {
+  //     console.error('No toy found at current index:', currentIndex);
+  //     return;
+  //   }
+  
+  //   const userIdOfToy = toyToShow.user_id;
+  //   if (!userIdOfToy) {
+  //     console.error('No user ID found for toy with ID:', toyToShow.id);
+  //     return;
+  //   }
+
+  //   console.log("userIdOfToy:", userIdOfToy);
+  //   console.log("user", user)
+  //   //console.log("Bio in carousel:", bio);
+  //   //console.log("Profile Picture in carousel:", profilePicture);
+
+  //   if (user && user.id && currentToy && currentToy.id) {
+  //     recordSwipeAction(user.id, currentToy.id, 'right');
+
+
+  //     const ownerProfileData = {
+  //       profile_picture: currentToy.profile_picture,
+  //       bio: currentToy.owner_bio,
+  //       name: currentToy.owner_name,
+  //     };
+
+  //     console.log('CAROUSEL 1', userIdOfToy)
+  //     console.log('CAROUSEL 2', user.profile_picture)
+
+    
+  //     //dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, profilePicture: user.profile_picture }));
+
+  //     console.log("User object before dispatching:", user);
+  //     dispatch(addProfileToUserBoxAsync({
+  //       userId: userIdOfToy,
+  //       profileData: {
+  //           profilePicture: user.profile_picture,
+  //           name: user.name,
+  //           bio: user.bio,
+  //       }
+  //   }));
+
+
+  //   }
+
+
+  //   dispatch(removeToyFromCarousel(toyToShow));
+
 
   // setCurrentIndex((prevIndex) => {
-  //   if (toys.length === 0) return -1;  // -1 can indicate no toys available
-  //   const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : -1);
+  //   const newIndex = prevIndex + 1;
+  //   if (newIndex >= toys.length) {
+  //     setShowDefaultImage(true);  
+  //   }
+
   //   return newIndex;
   // });
 
+  // }
 
-  setCurrentIndex((prevIndex) => {
-    const newIndex = prevIndex + 1;
-    if (newIndex >= toys.length) {
-      setShowDefaultImage(true);  // <-- Set to show default image
-    }
-    //return (newIndex < toys.length ? newIndex : prevIndex);
-    return newIndex;
-  });
-
-  }
-
-  
   
 
 
@@ -462,6 +496,8 @@ function Carousel() {
     };
 
 
+
+
     useEffect(() => {
       if (user && user.last_interacted_toy_id) {
         const index = toys.findIndex(toy => toy.id === user.last_interacted_toy_id);
@@ -471,6 +507,8 @@ function Carousel() {
       }
     }, [user, toys]);
   
+
+
 
   
     return (

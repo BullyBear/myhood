@@ -7,6 +7,10 @@ from sqlalchemy.exc import IntegrityError
 import logging
 import json
 
+logging.basicConfig(level=logging.INFO)
+
+
+
 from emails import send_invite_email
 
 
@@ -202,13 +206,14 @@ class UsersByIds(Resource):
 
 
 
-
 class UserProfileBox(Resource):
     def post(self, user_id):
         logging.info(f"Handling POST request for user ID: {user_id}")
 
         data = request.json
         logging.info(f"Received request data: {data}")
+        logging.info(f"Received user_details data: {data.get('user_details', {})}")
+
 
         user = User.query.get(user_id)
         if not user:
@@ -217,16 +222,18 @@ class UserProfileBox(Resource):
         if 'profile_picture' in data:
             current_userBox = user.get_userBox()
             logging.info(f"Current userBox before update: {current_userBox}")
-            
-            # Parse the current userBox JSON string
-            #current_userBox = json.loads(current_userBox) if current_userBox else []
-            #current_userBox = user.get_userBox()
 
+            # Assuming user details are stored in 'user_details' key in data
+            new_entry = {
+                "details": {
+                    "name": data.get('user_details', {}).get('name', ''),
+                    "bio": data.get('user_details', {}).get('bio', '')
 
-            if data['profile_picture'] not in current_userBox:
-                current_userBox.append(data['profile_picture'])
-                
-                # Convert the updated userBox back to a JSON string
+                },
+                "profile_picture": data['profile_picture']
+            }
+            if new_entry not in current_userBox:
+                current_userBox.append(new_entry)
                 user.set_userBox(current_userBox)
                 logging.info(f"Updated userBox: {current_userBox}")
 
@@ -237,21 +244,49 @@ class UserProfileBox(Resource):
 
 
 
-
-
-
-
-
 # class UserProfileBox(Resource):
-#     def post(self, user_id):        
+#     def post(self, user_id):
+#         logging.info(f"Handling POST request for user ID: {user_id}")
+
+#         data = request.json
+#         logging.info(f"Received request data: {data}")
+
 #         user = User.query.get(user_id)
 #         if not user:
 #             return {'message': 'User not found'}, 404
         
-#         serialized_user = user_schema.dump(user)  
+#         # Check if 'profile_picture' and 'user_details' are in data
+#         if 'profile_picture' in data and 'user_details' in data:
 
-#         # Return only the user's profile_picture and a success message
-#         return {'profile_picture': serialized_user['profile_picture'], 'message': 'Profile fetched from UserBox successfully'}, 200
+#             # Now check if 'user_details' has both 'name' and 'bio'
+#             if 'name' in data['user_details'] and 'bio' in data['user_details']:
+
+#                 current_userBox = user.get_userBox()
+#                 logging.info(f"Current userBox before update: {current_userBox}")
+
+#                 new_entry = {
+#                     "details": {
+#                         "name": data['user_details']['name'],
+#                         "bio": data['user_details']['bio']
+#                     },
+#                     "profile_picture": data['profile_picture']
+#                 }
+
+#                 if new_entry not in current_userBox:
+#                     current_userBox.append(new_entry)
+#                     user.set_userBox(current_userBox)
+#                     logging.info(f"Updated userBox: {current_userBox}")
+#                     db.session.commit()
+                    
+#                     serialized_user = user_schema.dump(user)
+#                     return {**serialized_user, 'message': 'Profile added to UserBox successfully'}, 200
+
+#             else:
+#                 return {'message': "Either 'name' or 'bio' is missing from 'user_details'"}, 400
+
+#         else:
+#             return {'message': "Missing 'profile_picture' or 'user_details' in the request data"}, 400
+
 
 
 
