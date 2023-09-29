@@ -198,16 +198,24 @@ class AddToyToToybox(Resource):
             user.toybox.append(toy)
             db.session.commit()
 
-            # Return toy details and the push token of the toy owner (assuming owner is different from user)
+            # Determine the pushToken
+            push_token = None
+            if toy.owner:
+                if toy.owner.push_token and toy.owner.push_token != user.push_token:
+                    push_token = toy.owner.push_token
+
+            print(f"Push Token: {push_token}")  # Print for debugging
+
+            # Return toy details and the push token of the toy owner
             return {
                 "message": "Toy added to user's toybox successfully",
-                #"toy": toy.to_dict(),
                 "toy": toy_schema.dump(toy),
-                "pushToken": toy.owner.push_token if toy.owner and toy.owner.push_token != user.push_token else None
+                "pushToken": push_token
             }, 201
 
         except Exception as e:
             return {"message": f"An error occurred: {str(e)}"}, 500
+
 
 
 

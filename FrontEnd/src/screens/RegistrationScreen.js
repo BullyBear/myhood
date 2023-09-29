@@ -11,6 +11,8 @@ import { useDispatch, useSelector } from 'react-redux';
 //import { registerUser, registerUserRequest, registerUserSuccess, registerUserFailure } from '../slices/userSlice';
 import { registerUser, setSuccessMessage, setImageUrl, setError } from '../slices/userSlice';
 
+import * as Notifications from 'expo-notifications';
+
 
 
 
@@ -61,11 +63,32 @@ const RegistrationScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const userState = useSelector((state) => state.user);
   const { isLoading, error, successMessage, image } = userState;
-  //const isLoading = userState.loading;
-  //const error = userState.error;
-  //const [successMessage, setSuccessMessage] = useState(null);
-  //const [image, setImage] = useState(null);
-  //const [errorMessage, setError] = useState(null);
+
+  const [pushToken, setPushToken] = useState(null);
+
+
+  useEffect(() => {
+    // Function to fetch the push token
+    const fetchPushToken = async () => {
+      try {
+        const { status } = await Notifications.getPermissionsAsync();
+        if (status !== 'granted') {
+          const { status: newStatus } = await Notifications.requestPermissionsAsync();
+          if (newStatus !== 'granted') {
+            console.warn('Failed to get push token for push notification!');
+            return;
+          }
+        }
+        const tokenData = await Notifications.getExpoPushTokenAsync();
+        setPushToken(tokenData.data);
+      } catch (error) {
+        console.error("Error fetching push token:", error.message);
+      }
+    };
+
+    fetchPushToken();
+  }, []);
+
 
   useEffect(() => {
     // Clear the image when component unmounts
@@ -119,6 +142,8 @@ const RegistrationScreen = ({ navigation }) => {
       values.user_latitude = location.coords.latitude;
       values.user_longitude = location.coords.longitude;
       values.profile_picture = image;
+
+      values.push_token = pushToken;
       
       await dispatch(registerUser(values)); 
       dispatch(setImageUrl(null));

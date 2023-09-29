@@ -19,17 +19,10 @@ export default function UserDetails({ route }) {
   const { name, bio } = details; 
 
 
-
-
-
   const navigation = useNavigation();
-
-
-  //console.log("USER", user)
   
   const [showAcceptButton, setShowAcceptButton] = useState(true);
   const currentToy = useSelector((state) => state.currentToy);
-
 
   const dispatch = useDispatch();
   
@@ -38,24 +31,6 @@ export default function UserDetails({ route }) {
   const onChatPressed = () => {
     navigation.navigate('ChatScreen');
   };
-
-
-  // const onAcceptPressed = () => {
-
-  //   console.log("PRESSING ACCEPT")
-
-  //   if (user && user.id && currentToy && currentToy.id) {
-
-  //     //recordSwipeAction(user.id, currentToy.id, 'right');
-
-  //     dispatch(addToyToToybox({ userId: user.id, toyId: currentToy.id }));
-  //     dispatch(updateToyImages({ toyId: currentToy.id, toyImages: currentToy.images }));
-  //     //dispatch toast notification
-
-  //   }
-
-  //   setShowAcceptButton(false);
-  // };
 
 
 
@@ -69,31 +44,32 @@ export default function UserDetails({ route }) {
         // Assuming the addToyToToyboxAPI returns the push token for person B
         let response = await addToyToToyboxAPI(user.id, currentToy.id);
         if (response && response.pushToken) {
-            sendPushNotification(response.pushToken);
+          sendPushNotification(response.pushToken, "A new toy was added to your toybox!");
         }
     }
 
     setShowAcceptButton(false);
 };
 
-const sendPushNotification = async (pushToken) => {
-    const message = {
-        to: pushToken,
-        sound: 'default',
-        title: 'New Toy!',
-        body: 'A new toy has been added to your toybox.',
-        data: { data: 'goes here' }, // optional extra data payload
-    };
 
-    await fetch('https://exp.host/--/api/v2/push/send', {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-            'Accept-encoding': 'gzip, deflate',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(message),
-    });
+const sendPushNotification = async (pushToken, message) => {
+  const payload = {
+    to: pushToken,
+    sound: 'default',
+    title: 'New Toy!',
+    body: message,
+    data: { extraData: 'Some data' }
+  };
+
+  await fetch('https://exp.host/--/api/v2/push/send', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Accept-encoding': 'gzip, deflate',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
 };
 
 

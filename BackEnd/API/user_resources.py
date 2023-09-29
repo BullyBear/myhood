@@ -34,7 +34,8 @@ class Register(Resource):
         parser.add_argument('bio', type=str, required=False, trim=True, help="Bio cannot be more than 300 characters.", location="json")
         parser.add_argument('profile_picture', type=str, required=False, help="URL of the profile picture.", location="json")
         parser.add_argument('user_latitude', type=float, required=False) 
-        parser.add_argument('user_longitude', type=float, required=False) 
+        parser.add_argument('user_longitude', type=float, required=False)
+        parser.add_argument('push_token', type=str, required=False, location="json")
         args = parser.parse_args()
 
         existing_user = User.query.filter_by(email=args['email']).first()
@@ -53,7 +54,8 @@ class Register(Resource):
             bio=bio,
             profile_picture=profile_picture,
             user_latitude=user_latitude,  
-            user_longitude=user_longitude
+            user_longitude=user_longitude,
+            push_token=args['push_token'] if args['push_token'] else None
         )
 
         db.session.add(new_user)
@@ -98,10 +100,7 @@ class Login(Resource):
             return {'message': 'Invalid credentials'}, 401
         
 
-
-
- 
-
+#Do I want to include push_token here? 
 class UserUpdate(Resource):
     # @jwt_required() 
     def put(self):
@@ -151,6 +150,9 @@ class UserUpdate(Resource):
         except Exception as e:
             current_app.logger.error("Error in PUT method: %s", str(e))
             return {'message': 'Internal server error'}, 500
+
+
+
 
 
 
