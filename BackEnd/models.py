@@ -19,7 +19,7 @@ class User(db.Model):
     bio = db.Column(db.Text, nullable=True)
     user_latitude = db.Column(db.Float, nullable=True)
     user_longitude = db.Column(db.Float, nullable=True)
-
+ 
     is_deleted = db.Column(db.Boolean, default=False)
 
     userBox = db.Column(db.Text, nullable=True)
@@ -40,7 +40,9 @@ class User(db.Model):
     #toys = db.relationship('Toy', backref='user', lazy='dynamic')
     toys = db.relationship('Toy', backref='owner', lazy='dynamic') 
 
-    toybox = db.relationship('Toy', secondary=toybox_association, backref='toyboxes', lazy='dynamic')  # Toybox containing toys
+    toybox = db.relationship('Toy', secondary=toybox_association, backref='toyboxes', lazy='dynamic') 
+
+    push_token = db.Column(db.String(255), nullable=True, unique=True)
 
 
 
@@ -84,7 +86,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     
     class Meta:
         model = User
-        fields = ('id', 'name', 'email', 'password', 'profile_picture', 'bio', 'user_latitude', 'user_longitude', 'is_deleted', 'userBox', 'toys', 'toybox')
+        fields = ('id', 'name', 'email', 'password', 'profile_picture', 'bio', 'user_latitude', 'user_longitude', 'is_deleted', 'userBox', 'toys', 'toybox', 'push_token')
         load_instance = True
 
 

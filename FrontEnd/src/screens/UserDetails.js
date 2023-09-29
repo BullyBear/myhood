@@ -4,7 +4,8 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'rea
 import { useNavigation } from '@react-navigation/native';
 
 import { removeUserFromBox } from '../slices/userSlice';
-import { addToyToToybox, updateToyImages } from '../slices/toySlice'; 
+import { addToyToToybox, updateToyImages } from '../slices/toySlice';
+import { addToyToToyboxAPI } from '../API/toyAPI';
 
 const { width, height } = Dimensions.get('window');
 
@@ -39,22 +40,62 @@ export default function UserDetails({ route }) {
   };
 
 
-  const onAcceptPressed = () => {
+  // const onAcceptPressed = () => {
 
+  //   console.log("PRESSING ACCEPT")
+
+  //   if (user && user.id && currentToy && currentToy.id) {
+
+  //     //recordSwipeAction(user.id, currentToy.id, 'right');
+
+  //     dispatch(addToyToToybox({ userId: user.id, toyId: currentToy.id }));
+  //     dispatch(updateToyImages({ toyId: currentToy.id, toyImages: currentToy.images }));
+  //     //dispatch toast notification
+
+  //   }
+
+  //   setShowAcceptButton(false);
+  // };
+
+
+
+  const onAcceptPressed = async () => {
     console.log("PRESSING ACCEPT")
 
     if (user && user.id && currentToy && currentToy.id) {
+        dispatch(addToyToToybox({ userId: user.id, toyId: currentToy.id }));
+        dispatch(updateToyImages({ toyId: currentToy.id, toyImages: currentToy.images }));
 
-      //recordSwipeAction(user.id, currentToy.id, 'right');
-
-      dispatch(addToyToToybox({ userId: user.id, toyId: currentToy.id }));
-      dispatch(updateToyImages({ toyId: currentToy.id, toyImages: currentToy.images }));
-      //dispatch toast notification
-
+        // Assuming the addToyToToyboxAPI returns the push token for person B
+        let response = await addToyToToyboxAPI(user.id, currentToy.id);
+        if (response && response.pushToken) {
+            sendPushNotification(response.pushToken);
+        }
     }
 
     setShowAcceptButton(false);
-  };
+};
+
+const sendPushNotification = async (pushToken) => {
+    const message = {
+        to: pushToken,
+        sound: 'default',
+        title: 'New Toy!',
+        body: 'A new toy has been added to your toybox.',
+        data: { data: 'goes here' }, // optional extra data payload
+    };
+
+    await fetch('https://exp.host/--/api/v2/push/send', {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Accept-encoding': 'gzip, deflate',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(message),
+    });
+};
+
 
 
   const onDeclinePressed = () => {

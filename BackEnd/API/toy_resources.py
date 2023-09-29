@@ -175,41 +175,6 @@ class ToySwipe(Resource):
     
 
 
-# class AddToyToToybox(Resource):
-#     def post(self, user_id, toy_id):
-#         try:
-#             data = request.json
-
-#             if data["user_id"] != user_id or data["toy_id"] != toy_id:
-#                 return {"message": "Mismatch in provided data"}, 400
-
-#             user = User.query.get(user_id)
-#             toy = Toy.query.get(toy_id)
-
-#             if not user or not toy:
-#                 return {"message": "User or toy not found"}, 404
-
-#             # Check if the user has already swiped right (liked) the toy
-#             if toy in user.liked_toys:
-#                 # Check if the toy is already in user's toybox
-#                 if toy in user.toybox:
-#                     return {"message": "Toy is already in user's toybox"}, 400
-#                 else:
-#                     # If the toy's owner accepts the user's swipe, add the toy to user's toybox
-#                     if toy.owner_id == user_id:  # This condition assumes the API is called by toy's owner
-#                         user.toybox.append(toy)
-#                         db.session.commit()
-#                         return {"message": "Toy added to User's toybox successfully"}, 201
-#                     else:
-#                         return {"message": "Not authorized to add toy to toybox"}, 403
-#             else:
-#                 return {"message": "User hasn't swiped right on this toy"}, 400
-
-#         except Exception as e:
-#             return {"message": f"An error occurred: {str(e)}"}, 500
-
-
-
 class AddToyToToybox(Resource):
     def post(self, user_id, toy_id):
         try:
@@ -233,10 +198,46 @@ class AddToyToToybox(Resource):
             user.toybox.append(toy)
             db.session.commit()
 
-            return {"message": "Toy added to user's toybox successfully", "toy": toy.to_dict()}, 201
+            # Return toy details and the push token of the toy owner (assuming owner is different from user)
+            return {
+                "message": "Toy added to user's toybox successfully",
+                #"toy": toy.to_dict(),
+                "toy": toy_schema.dump(toy),
+                "pushToken": toy.owner.push_token if toy.owner and toy.owner.push_token != user.push_token else None
+            }, 201
 
         except Exception as e:
             return {"message": f"An error occurred: {str(e)}"}, 500
+
+
+
+# class AddToyToToybox(Resource):
+#     def post(self, user_id, toy_id):
+#         try:
+#             data = request.json
+
+#             if data["user_id"] != user_id or data["toy_id"] != toy_id:
+#                 return {"message": "Mismatch in provided data"}, 400
+
+#             # Check if the user and toy exist
+#             user = User.query.get(user_id)
+#             toy = Toy.query.get(toy_id)
+
+#             if not user or not toy:
+#                 return {"message": "User or toy not found"}, 404
+
+#             # Check if the user has already the toy in their toybox
+#             if toy in user.toybox:
+#                 return {"message": "Toy is already in the user's toybox"}, 400
+
+#             # Add the toy to the user's toybox
+#             user.toybox.append(toy)
+#             db.session.commit()
+
+#             return {"message": "Toy added to user's toybox successfully", "toy": toy.to_dict()}, 201
+
+#         except Exception as e:
+#             return {"message": f"An error occurred: {str(e)}"}, 500
 
 
 
