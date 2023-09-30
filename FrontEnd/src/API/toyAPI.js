@@ -138,11 +138,26 @@ export const deleteToy = async (toyId) => {
 
 
 
+// export const addToyToToyboxAPI = async (userId, toyId) => {
+//   try {
+//     const response = await axios.post(`${API_URL}/user/${userId}/toy/${toyId}/add-toy-to-toybox`);
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error adding toy to Toybox:', error.message);
+//     if (error.response) {
+//       console.error('Server Response:', error.response);
+//     }
+//     return null;
+//   }
+// };
 
 
 export const addToyToToyboxAPI = async (userId, toyId) => {
   try {
-    const response = await axios.post(`${API_URL}/user/${userId}/toy/${toyId}/add-toy-to-toybox`);
+    const response = await axios.post(`${API_URL}/user/${userId}/toy/${toyId}/add-toy-to-toybox`, {
+      user_id: userId,
+      toy_id: toyId,
+    });
     return response.data;
   } catch (error) {
     console.error('Error adding toy to Toybox:', error.message);

@@ -5,7 +5,7 @@ import { getToysWithinRadius, getAllToys, getToyById, createToy as createToyAPI,
 
 
 //const initialState = { toys: [], swipedToys: [], toyImages: [], loading: false, error: null };
-const initialState = { toys: [], toyBox: [], toyImages: [], swipedToys: [], loading: false, error: null };
+const initialState = { toys: [], toyBox: [], toyImages: [], swipedToys: [], swipedToy: [], loading: false, error: null };
 
 
 
@@ -33,6 +33,8 @@ export const addToyToToybox = createAsyncThunk(
     }
   }
 );
+
+
 
 
 
@@ -175,9 +177,14 @@ const toySlice = createSlice({
       const toyIdToRemove = action.payload;
       state.toys = state.toys.filter(toy => toy.id !== toyIdToRemove);
     },
+    // addSwipedToy: (state, action) => {
+    //   state.swipedToys.push(action.payload);
+    // },
+
     addSwipedToy: (state, action) => {
-      state.swipedToys.push(action.payload);
+      state.swipedToy = action.payload; 
     },
+    
     // addSwipedToy: (state, action) => {
     //   const { userId, toyId } = action.payload;
     //   if (!userId || !toyId) return;

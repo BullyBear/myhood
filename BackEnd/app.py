@@ -5,6 +5,7 @@ from config import DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 from extensions import db, ma, bcrypt, jwt, cors
 from flask_migrate import Migrate
 from geopy.distance import geodesic
+from flask_socketio import SocketIO, join_room, leave_room
 
 from models import User, Toy, UserSchema, ToySchema
 from API.toy_resources import ToyList, ToyResourceTime, ToysInRadius, ToySwipe, AddToyToToybox 
@@ -22,6 +23,8 @@ bcrypt.init_app(app)
 jwt.init_app(app)
 #cors.init_app(app)
 
+socketio = SocketIO(app, cors_allowed_origins="*")
+
 cors = CORS(app, resources={r"*": {"origins": "*"}})
 
 migrate = Migrate(app, db)
@@ -31,6 +34,28 @@ api = Api(app)
 @app.before_first_request
 def create_tables():
     db.create_all()
+
+
+# Define the chat event
+@socketio.on('message')
+def handle_message(data):
+    room = data['roomId']
+    socketio.emit(f'room {room}', data, room=room)
+
+@socketio.on('join')
+def on_join(data):
+    username = data['username']
+    room = data['room']
+    join_room(room)
+    socketio.emit('message', {'message': f'{username} has entered the room.'}, room=room)
+
+@socketio.on('leave')
+def on_leave(data):
+    username = data['username']
+    room = data['room']
+    leave_room(room)
+    socketio.emit('message', {'message': f'{username} has left the room.'}, room=room)
+
 
 class Home(Resource):
     def get(self):
@@ -57,8 +82,13 @@ api.add_resource(AddToyToToybox, '/user/<int:user_id>/toy/<int:toy_id>/add-toy-t
 
 
 
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=8000, debug=True, threaded=True)
+
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True, threaded=True)
+    socketio.run(app, host='0.0.0.0', port=8000, debug=True)
+
 
 
 

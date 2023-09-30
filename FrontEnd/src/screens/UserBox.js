@@ -22,6 +22,9 @@ function UserBox() {
   const [page, setPage] = useState(1);
   const dispatch = useDispatch();
 
+  const swipedToy = useSelector(state => state.toy.swipedToy);
+
+
   //const user = useSelector(state => state.user.user);
   //console.log('userrrrr', user)
 
@@ -60,7 +63,7 @@ function UserBox() {
   const navigation = useNavigation();
 
 
-  const renderThumbnail = (userDetail, index) => {
+  const renderThumbnail = (userDetail, index, swipedToy) => {
     let imageUrl;
     let userDetailObject = userDetail.user_details;
   
@@ -86,6 +89,7 @@ function UserBox() {
           navigation.navigate('UserDetails', {
             user: userDetail,
             imageUrl: imageUrl,
+            swipedToy: swipedToy
           })
         }
         style={styles.imageContainer}
@@ -136,7 +140,7 @@ function UserBox() {
       <View style={styles.contentContainer}>
         {/*{usersToShow.map(renderThumbnail)}*/}
         {/*{usersToShow.map(userDetail => userDetail && renderThumbnail(userDetail))}*/}
-        {usersToShow.map((userDetail, index) => userDetail && renderThumbnail(userDetail, index))}
+        {usersToShow.map((userDetail, index) => userDetail && renderThumbnail(userDetail, index, swipedToy))}
 
       </View>
       {renderFooter()}

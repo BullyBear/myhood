@@ -4,6 +4,8 @@ import { View, Animated, Image, Text, StyleSheet, TouchableOpacity, ScrollView, 
 import { useNavigation } from '@react-navigation/native';
 import Modal from 'react-native-modal';
 
+import { generateRoomId } from '../components/utils'
+
 const { width: screenWidth } = Dimensions.get('window');
 
 
@@ -16,7 +18,8 @@ export default function ToyDetails({ route }) {
 
   const navigation = useNavigation();
   
-  const currentUser = useSelector((state) => state.currentUer);
+ 
+  const currentUser = useSelector((state) => state.currentUser);
 
   const dispatch = useDispatch();
 
@@ -27,6 +30,12 @@ export default function ToyDetails({ route }) {
   const onChatPressed = () => {
     navigation.navigate('ChatScreen');
   };
+
+//   const onChatPressed = () => {
+//     const roomId = generateRoomId(toy.id, currentUser.id, 'ID_OF_THE_OTHER_USER'); 
+//     navigation.navigate('ChatScreen', { roomId });
+// };
+
 
 
   const openModal = (index) => {

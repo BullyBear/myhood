@@ -303,7 +303,7 @@ function Carousel() {
 
 
 
-  const recordSwipeAction = async (userId, toyId, action) => {
+  const recordSwipeAction = async (userId, toyId, action, toyToShow) => {
     try {
       console.log(`Sending POST request to /api/toyswipe with userId: ${userId}, toyId: ${toyId}, action: ${action}`);
       
@@ -320,13 +320,17 @@ function Carousel() {
       console.log("Response received:", response);
       console.log("Response status:", response.status);
       console.log("Response status text:", response.statusText);
+
+      console.log("toyToShow", toyToShow)
   
       if (response.status === 200 || response.status === 201) {  
         const data = response.data;
         console.log("JSON Data received from server:", data);
-        //dispatch(toySlice.actions.addSwipedToy(toyId));
-        dispatch(addSwipedToy(toyId));
-        //dispatch(addSwipedToy({ userId: user.id, toyId: toy.id }));
+
+        //dispatch(addSwipedToy(toyId));
+        dispatch(addSwipedToy(toyToShow));
+
+
 
       } else {
         console.error(`Failed to record swipe action. Status: ${response.status}, StatusText: ${response.statusText}`);
@@ -360,7 +364,7 @@ function Carousel() {
     console.log("currentToy in carousel", currentToy)
   
     if (user && user.id && currentToy && currentToy.id) {
-      recordSwipeAction(user.id, currentToy.id, 'right');
+      recordSwipeAction(user.id, currentToy.id, 'right', toyToShow);
   
       const ownerProfileData = {
         profile_picture: currentToy.profile_picture,

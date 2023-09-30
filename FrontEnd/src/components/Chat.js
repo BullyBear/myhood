@@ -9,19 +9,31 @@ const Chat = ({ roomId, userId }) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const socket = io('http://localhost:3000');
-  const dispatch = useDispatch(); // Redux dispatch
+  const dispatch = useDispatch(); 
+
 
   useEffect(() => {
-    socket.on(`room ${roomId}`, (message) => {
-      // Handle incoming messages and dispatch to Redux
-      setMessages((prevMessages) => [...prevMessages, message]);
-      dispatch(addMessage({ chatId: roomId, message }));
-    });
+    socket.emit('join', { username: userId, room: roomId });
 
     return () => {
-      socket.disconnect();
+        socket.emit('leave', { username: userId, room: roomId });
+        socket.disconnect();
     };
-  }, [roomId]);
+}, [roomId]);
+
+
+  // useEffect(() => {
+  //   socket.on(`room ${roomId}`, (message) => {
+  //     // Handle incoming messages and dispatch to Redux
+  //     setMessages((prevMessages) => [...prevMessages, message]);
+  //     dispatch(addMessage({ chatId: roomId, message }));
+  //   });
+
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, [roomId]);
+
 
   const sendMessage = () => {
     // Emit event to send message to server

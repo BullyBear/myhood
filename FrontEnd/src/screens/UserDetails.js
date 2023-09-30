@@ -6,49 +6,107 @@ import { useNavigation } from '@react-navigation/native';
 import { removeUserFromBox } from '../slices/userSlice';
 import { addToyToToybox, updateToyImages } from '../slices/toySlice';
 import { addToyToToyboxAPI } from '../API/toyAPI';
+import { generateRoomId } from '../components/utils'
 
 const { width, height } = Dimensions.get('window');
 
 
 export default function UserDetails({ route }) {
 
- const { user, imageUrl } = route.params;
+ const { user, imageUrl, swipedToy } = route.params;
   //const { name, bio } = user; 
 
   const { details } = user; 
   const { name, bio } = details; 
 
+  //const currentUser = useSelector(state => state.user.currentUser);
+  const currentUser = useSelector(state => state.user.user);
+
+
 
   const navigation = useNavigation();
   
   const [showAcceptButton, setShowAcceptButton] = useState(true);
-  const currentToy = useSelector((state) => state.currentToy);
+
+  //const currentToy = useSelector((state) => state.currentToy);
+  //const currentToy = useSelector((state) => state.toy.toyBox?.[state.toy.toyBox.length - 1]);
+  const currentToy = useSelector((state) => state.toy.toys?.[state.toy.toys.length - 1]);
+
+  const toyStateForDebug = useSelector(state => state.toy);
+  const stateForDebug = useSelector(state => state);
+
+  console.log("SWIPED!", swipedToy)
+  console.log("CURRENT TOY!", currentToy)
+  console.log('Debug toy state:', toyStateForDebug);
+  console.log('Debug state:', stateForDebug);
+
+
+
 
   const dispatch = useDispatch();
   
 
-
-  const onChatPressed = () => {
-    navigation.navigate('ChatScreen');
-  };
-
+  // const onChatPressed = () => {
+  //   navigation.navigate('ChatScreen');
+  // };
 
 
-  const onAcceptPressed = async () => {
-    console.log("PRESSING ACCEPT")
+//   const onChatPressed = () => {
+//     if (currentToy && currentUser && user) {
+//       const roomId = generateRoomId(currentToy.id, currentUser.id, user.id);
+//       navigation.navigate('ChatScreen', { roomId });
+//    } else {
+//     console.log("currentToy", currentToy, "currentUser", currentUser, "user", user);
+  
+//    }
+// };
 
-    if (user && user.id && currentToy && currentToy.id) {
-        dispatch(addToyToToybox({ userId: user.id, toyId: currentToy.id }));
-        dispatch(updateToyImages({ toyId: currentToy.id, toyImages: currentToy.images }));
+const onChatPressed = () => {
+  if (swipedToy && currentUser && user) {
+    const roomId = generateRoomId(swipedToy.id, currentUser.id, user.id);
+    navigation.navigate('ChatScreen', { roomId });
+ } else {
+  console.log("swipedToy", swipedToy, "currentUser", currentUser, "user", user);
 
-        // Assuming the addToyToToyboxAPI returns the push token for person B
-        let response = await addToyToToyboxAPI(user.id, currentToy.id);
-        if (response && response.pushToken) {
-          sendPushNotification(response.pushToken, "A new toy was added to your toybox!");
-        }
-    }
+ }
+};
 
-    setShowAcceptButton(false);
+
+//   const onAcceptPressed = async () => {
+//     console.log("PRESSING ACCEPT")
+
+//     if (user && user.id && currentToy && currentToy.id) {
+//         dispatch(addToyToToybox({ userId: user.id, toyId: currentToy.id }));
+//         dispatch(updateToyImages({ toyId: currentToy.id, toyImages: currentToy.images }));
+
+//         // Assuming the addToyToToyboxAPI returns the push token for person B
+//         let response = await addToyToToyboxAPI(user.id, currentToy.id);
+//         if (response && response.pushToken) {
+//           sendPushNotification(response.pushToken, "A new toy was added to your toybox!");
+//         }
+//     }
+
+//     setShowAcceptButton(false);
+//     onChatPressed();
+// };
+
+
+const onAcceptPressed = async () => {
+  console.log("PRESSING ACCEPT")
+
+  if (user && user.id && swipedToy && swipedToy.id) {
+      dispatch(addToyToToybox({ userId: user.id, toyId: swipedToy.id }));
+      dispatch(updateToyImages({ toyId: swipedToy.id, toyImages: swipedToy.images }));
+
+      // Assuming the addToyToToyboxAPI returns the push token for person B
+      let response = await addToyToToyboxAPI(user.id, swipedToy.id);
+      if (response && response.pushToken) {
+        sendPushNotification(response.pushToken, "A new toy was added to your toybox!");
+      }
+  }
+
+  setShowAcceptButton(false);
+  onChatPressed();
 };
 
 

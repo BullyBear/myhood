@@ -7,6 +7,7 @@ export const chatSlice = createSlice({
     activeChat: null,
     loading: false,
     error: null,
+    usersInChat: [],
   },
   reducers: {
     fetchChatsRequest: (state) => {
