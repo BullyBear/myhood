@@ -5,7 +5,7 @@ import { getToysWithinRadius, getAllToys, getToyById, createToy as createToyAPI,
 
 
 //const initialState = { toys: [], swipedToys: [], toyImages: [], loading: false, error: null };
-const initialState = { toys: [], toyBox: [], toyImages: [], swipedToys: [], swipedToy: [], loading: false, error: null };
+const initialState = { toys: [], toyBox: [], toyImages: [], userSwipedToys: {}, swipedToys: [], swipedToy: [], loading: false, error: null };
 
 
 
@@ -177,24 +177,56 @@ const toySlice = createSlice({
       const toyIdToRemove = action.payload;
       state.toys = state.toys.filter(toy => toy.id !== toyIdToRemove);
     },
-    // addSwipedToy: (state, action) => {
-    //   state.swipedToys.push(action.payload);
-    // },
+
+
+
+
+
+ 
 
     addSwipedToy: (state, action) => {
-      state.swipedToy = action.payload; 
-    },
+      const { userId, toy } = action.payload;
+      console.log('toyslice action.payload', action.payload)
+      if (!userId || !toy) return;
+  
+      // Ensure there's an array for the user
+      if (!state.userSwipedToys[userId]) {
+          state.userSwipedToys[userId] = [];
+      }
+  
+      // Add the toy if it's not already there
+      const existingToyIndex = state.userSwipedToys[userId].findIndex(t => t.id === toy.id);
+      if (existingToyIndex === -1) {
+          state.userSwipedToys[userId].push(toy);
+      }
+      
+      // Store the last swiped toy
+      console.log('toyslice toy', state.swipedToy)
+      state.swipedToy = toy;
+
+  },
+  
+
+
+  // addSwipedToy: (state, action) => {
+  //     const toy = action.payload.toy;
+  //     console.log("toyslice.js Action payload in addSwipedToy:", action.payload);
+  //     if (!toy) return;
+  //     state.swipedToy = toy;
+  // },
+  
+  // addToUserSwipedToys: (state, action) => {
+  //   const { userId, toy } = action.payload;
+  //   if (!state.userSwipedToys[userId]) {
+  //       state.userSwipedToys[userId] = [];
+  //   }
+  //   state.userSwipedToys[userId].push(toy);
+  // },
+
+
+
     
-    // addSwipedToy: (state, action) => {
-    //   const { userId, toyId } = action.payload;
-    //   if (!userId || !toyId) return;
-    //   if (!state.userSwipedToys[userId]) {
-    //     state.userSwipedToys[userId] = [];
-    //   }
-    //   if (!state.userSwipedToys[userId].includes(toyId)) {
-    //     state.userSwipedToys[userId].push(toyId);
-    //   }
-    // },
+    
 
     clearToys: (state) => {
       state.toys = [];
@@ -379,6 +411,6 @@ const toySlice = createSlice({
   }
 });
 
-export const { clearToys, loadToy, loadToys, addProfileToUserBox, removeToyFromCarousel, addSwipedToy, toyAdded, toyUpdated, toyDeleted, resetState, updateToyImages} = toySlice.actions;
+export const { clearToys, loadToy, loadToys, addProfileToUserBox, removeToyFromCarousel, addSwipedToy, addToUserSwipedToys, toyAdded, toyUpdated, toyDeleted, resetState, updateToyImages} = toySlice.actions;
 
 export default toySlice.reducer;

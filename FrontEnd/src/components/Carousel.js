@@ -21,6 +21,7 @@ import {
   loadToys,
   removeToyFromCarousel,
   addSwipedToy,
+  addToUserSwipedToys,
   toyAdded,
   toyUpdated,
   toyDeleted
@@ -311,24 +312,40 @@ function Carousel() {
         user_id: userId,
         toy_id: toyId,
         action
-      }, {
+      }, { 
         headers: {
           'Content-Type': 'application/json'
         }
       });
   
       console.log("Response received:", response);
-      console.log("Response status:", response.status);
-      console.log("Response status text:", response.statusText);
 
-      console.log("toyToShow", toyToShow)
   
       if (response.status === 200 || response.status === 201) {  
         const data = response.data;
         console.log("JSON Data received from server:", data);
 
+      
+        if (!user || typeof user.id === 'undefined') {
+          console.error('User or user ID is not defined.');
+          return;
+      }
+      
+
         //dispatch(addSwipedToy(toyId));
-        dispatch(addSwipedToy(toyToShow));
+        //dispatch(addSwipedToy(toyToShow));
+
+        console.log('Carousel - user id', user.id);
+        console.log ('Carousel - toytoshow', toyToShow);
+        console.log("User object before dispatching addSwipedToy:", user);
+
+
+         dispatch(addSwipedToy({ userId: user.id, toy: toyToShow }));
+
+
+         //dispatch(addToUserSwipedToys({ userId: user.id, toy: toyToShow }));
+
+  
 
 
 
@@ -359,31 +376,58 @@ function Carousel() {
     }
   
 
-    console.log("user in carousel", user);
-    console.log("userIdOfToy in carousel:", userIdOfToy);
-    console.log("currentToy in carousel", currentToy)
+    console.log("onswiperight - user", user);
+    console.log("onswiperight - currenttoy", currentToy);
+    console.log("onswiperight - useridoftoy", userIdOfToy);
+    console.log("onswiperight - toytoshow", toyToShow);
   
+
     if (user && user.id && currentToy && currentToy.id) {
+      //recordSwipeAction(user.id, currentToy.id, 'right');
       recordSwipeAction(user.id, currentToy.id, 'right', toyToShow);
   
+
+
+
+      // const ownerProfileData = {
+      //   profile_picture: currentToy.image_url_one,
+      //   user_details: {
+      //       name: currentToy.owner_name,
+      //       bio: currentToy.owner_bio,
+      //       id: currentToy.id,
+      //   }
+      // };
+
       const ownerProfileData = {
-        profile_picture: currentToy.profile_picture,
-        bio: currentToy.owner_bio,
-        name: currentToy.owner_name,
-      };
-  
-      console.log('CAROUSEL 1', userIdOfToy);
-      console.log('CAROUSEL 2', user.profile_picture);
-  
-      console.log("User object before dispatching:", user);
+        swiper_id: user.id, // This is the ID of User B (the swiper)
+        toy_id: currentToy.id, // The toy they swiped on
+        profile_picture: user.profile_picture,
+        user_details: {
+            name: user.name, 
+            bio: user.bio
+        }
+    };
+    
+    
+
       dispatch(addProfileToUserBoxAsync({
         userId: userIdOfToy,
-        profileData: {
-          profilePicture: user.profile_picture,
-          name: user.name,
-          bio: user.bio,
-        }
-      }));
+        profileData: ownerProfileData
+    }));
+
+  
+      // dispatch(addProfileToUserBoxAsync({
+      //   userId: userIdOfToy,
+      //   profileData: {
+      //     profilePicture: user.profile_picture,
+      //     name: user.name,
+      //     bio: user.bio,
+      //     id: user.id,
+      //   }
+      // }));
+
+
+
     }
   
     dispatch(removeToyFromCarousel(toyToShow));
@@ -475,7 +519,11 @@ function Carousel() {
     //console.log('Current Toy to Remove:', toyToRemove.name, '| Index:', currentIndex);
 
     if (user && user.id && currentToy && currentToy.id) {
+
+      //recordSwipeAction(user.id, currentToy.id, 'right', toyToShow);
+      //recordSwipeAction(user.id, currentToy.id, 'left', toyToRemove);
       recordSwipeAction(user.id, currentToy.id, 'left');
+
       dispatch(setLastInteractedToyId(currentToy.id));
     }
 

@@ -22,11 +22,33 @@ const initialState = {
   successMessage: null,  
   image: null,           
   errorMessage: null,
+  id: '',
   bio: '',      
   profile_picture: '',
   last_interacted_toy_id: null
 
 };
+
+
+// const initialState = {
+//   user: null,
+//   users: [],
+//   usersByIds: {},
+//   userBox: [],
+//   loading: false,
+//   error: null,
+//   successMessage: null,
+//   image: null,
+//   errorMessage: null,
+//   user_details: {
+//       id: '',
+//       bio: '',
+//       // ... any other nested properties
+//   },
+//   profile_picture: '',
+//   last_interacted_toy_id: null
+// };
+
 
 
 console.log("Initial state USER:", initialState);
@@ -156,16 +178,24 @@ export const fetchUsersByIds = createAsyncThunk(
 );
 
 
+
+
+
 // export const addProfileToUserBoxAsync = createAsyncThunk(
 //   'user/addProfile',
-//   async ({ userId, profilePicture }, thunkAPI) => {
+//   async ({ userId, profileData }, thunkAPI) => {
 //       try {
-//           // Format the data to match backend structure
-//           const profileData = {
-//               profile_picture: profilePicture
+//           // Convert frontend data to match backend structure
+//           const transformedProfileData = {
+//               profile_picture: profileData.profilePicture,
+//               user_details: {
+//                   name: profileData.name,
+//                   bio: profileData.bio,
+//                   id: profileData.id,
+//               }
 //           };
 
-//           const response = await saveProfileToUserBoxInBackend(userId, profileData);
+//           const response = await saveProfileToUserBoxInBackend(userId, transformedProfileData);
 //           return response.data;
 //       } catch (error) {
 //           console.error("Error in addProfileToUserBoxAsync:", error);
@@ -179,16 +209,8 @@ export const addProfileToUserBoxAsync = createAsyncThunk(
   'user/addProfile',
   async ({ userId, profileData }, thunkAPI) => {
       try {
-          // Convert frontend data to match backend structure
-          const transformedProfileData = {
-              profile_picture: profileData.profilePicture,
-              user_details: {
-                  name: profileData.name,
-                  bio: profileData.bio,
-              }
-          };
-
-          const response = await saveProfileToUserBoxInBackend(userId, transformedProfileData);
+          // Since the data structure now already matches the backend structure, we just send the profileData as is.
+          const response = await saveProfileToUserBoxInBackend(userId, profileData);
           return response.data;
       } catch (error) {
           console.error("Error in addProfileToUserBoxAsync:", error);
@@ -196,8 +218,6 @@ export const addProfileToUserBoxAsync = createAsyncThunk(
       }
   }
 );
-
-
 
 
 
@@ -256,6 +276,9 @@ const userSlice = createSlice({
     //   if (!state.usersByIds) state.usersByIds = {};
     //   state.usersByIds[userId] = action.payload;
     // },
+    setId: (state, action) => {   
+      state.id = action.payload;
+    },
     setBio: (state, action) => {   
       state.bio = action.payload;
     },
@@ -509,6 +532,7 @@ export const {
   resetState,
   setLastInteractedToyId,
   setImageUrl,
+  setId,
   setBio,        
   setProfilePicture,
   setSuccessMessage,

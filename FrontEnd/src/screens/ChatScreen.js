@@ -1,47 +1,71 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import Chat from '../components/Chat';
 
-
 const ChatScreen = ({ route }) => {
-  //const { toyId, userId } = route.params;
+  // Uncomment the below line if you want to use the params
+  // const { toyId, userId } = route.params;
 
   return (
-    <View>
-      <Text style={styles.text}>ChatRoom</Text>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.text}>ChatRoom</Text>
+      </View>
+
+      {/* Uncomment the below line if you want to render the Chat component */}
       {/*<Chat roomId={toyId} userId={userId} />*/}
+
+      <View style={styles.footer}>
+        <TextInput style={styles.input} placeholder="Type a message..."/>
+        <TouchableOpacity style={styles.sendButton}>
+          <Text style={styles.sendButtonText}>Send</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  header: {
+    backgroundColor: '#007BFF',
+    padding: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 10,
-    backgroundColor: '#fff',
   },
-  image: {
-    width: 300,
-    height: 300,
-    marginBottom: 20,
+  footer: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderTopColor: '#ccc',
+    borderTopWidth: 1,
   },
   text: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  chatButton: {
-    backgroundColor: '#007BFF',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 5,
-    marginTop: 10,
-  },
-  chatButtonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  input: {
+    flex: 1,
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    marginRight: 10,
+    backgroundColor: '#fff',
+  },
+  sendButton: {
+    backgroundColor: '#007BFF',
+    padding: 10,
+    borderRadius: 20,
+  },
+  sendButtonText: {
+    color: '#fff',
   },
 });
 

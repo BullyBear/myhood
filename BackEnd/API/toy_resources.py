@@ -2,7 +2,7 @@ from flask import request, jsonify, Flask
 from flask_restful import Resource, reqparse
 from extensions import db
 #from models import Toy, User, ToySchema, UserSchema, UserToyAction, UserToyActionSchema, toybox_association
-from models import Toy, User, ToySchema, UserSchema, UserToyAction, UserToyActionSchema
+from models import Toy, User, ToySchema, UserSchema, UserToyAction, UserToyActionSchema, toybox_association
 import boto3
 from botocore.exceptions import BotoCoreError, NoCredentialsError
 import uuid
@@ -11,6 +11,7 @@ from geopy.distance import geodesic
 import requests
 from PIL import Image
 from io import BytesIO
+from sqlalchemy import and_
 
 
 toy_schema = ToySchema()
@@ -146,32 +147,81 @@ class ToysInRadius(Resource):
         return toys_schema.dump(toys_within_radius), 200
 
 
+# class ToySwipe(Resource):
+#     def post(self):
+#         user_id = request.json.get('user_id')
+#         toy_id = request.json.get('toy_id')
+#         action = request.json.get('action')  # Should be 'left', 'right', or 'none'
+
+#         if action not in ['left', 'right', 'none']:
+#             return {"error": "Invalid action type"}, 400
+
+#         new_action = UserToyAction(
+#             user_id=user_id,
+#             toy_id=toy_id,
+#             action=action
+#         )
+
+#         db.session.add(new_action)
+
+#         # Updating the user's last_interacted_toy_id
+#         user = User.query.filter_by(id=user_id).first()
+#         if user:
+#             user.last_interacted_toy_id = toy_id
+
+#         db.session.commit()
+
+#         serialized_action = user_toy_action_schema.dump(new_action)
+#         return {**serialized_action, "message": "Swipe action recorded"}, 201
+
+
+
+
 class ToySwipe(Resource):
     def post(self):
-        user_id = request.json.get('user_id')
+        swiper_user_id = request.json.get('user_id')
         toy_id = request.json.get('toy_id')
         action = request.json.get('action')  # Should be 'left', 'right', or 'none'
 
         if action not in ['left', 'right', 'none']:
             return {"error": "Invalid action type"}, 400
+        
+        # Fetch the toy to determine its creator
+        toy = Toy.query.get(toy_id)
+        if not toy:
+            return {"error": "Toy not found"}, 404
 
-        new_action = UserToyAction(
-            user_id=user_id,
-            toy_id=toy_id,
-            action=action
-        )
-
-        db.session.add(new_action)
-
-        # Updating the user's last_interacted_toy_id
-        user = User.query.filter_by(id=user_id).first()
-        if user:
-            user.last_interacted_toy_id = toy_id
+        creator_user_id = toy.user_id
+        
+        # Check if this swipe record already exists
+        existing_swipe = db.session.query(toybox_association).filter_by(
+            toy_id=toy_id, 
+            creator_user_id=creator_user_id, 
+            swiper_user_id=swiper_user_id).first()
+        
+        if existing_swipe:
+            # Update the action if record already exists
+            stmt = toybox_association.update().where(
+                and_(
+                    toybox_association.c.toy_id == toy_id,
+                    toybox_association.c.creator_user_id == creator_user_id,
+                    toybox_association.c.swiper_user_id == swiper_user_id
+                )
+            ).values(action=action)
+            db.session.execute(stmt)
+        else:
+            # Create a new swipe record
+            new_swipe = toybox_association.insert().values(
+                toy_id=toy_id,
+                creator_user_id=creator_user_id,
+                swiper_user_id=swiper_user_id,
+                action=action
+            )
+            db.session.execute(new_swipe)
 
         db.session.commit()
 
-        serialized_action = user_toy_action_schema.dump(new_action)
-        return {**serialized_action, "message": "Swipe action recorded"}, 201
+        return {"message": "Swipe action recorded"}, 201
     
 
 

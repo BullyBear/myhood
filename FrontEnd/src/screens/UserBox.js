@@ -4,29 +4,65 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { createSelector } from 'reselect';
 import { resetUserState } from '../slices/userSlice';
+import { addSwipedToy } from '../slices/toySlice';
+
 
 const { width } = Dimensions.get('window');
 const ITEMS_PER_PAGE = 10;
 
-//const selectUserBox = state => state.user.userBox;
 
 const selectUserBox = state => {
-  console.log('Inside selectUserBox:', state.user.user.userBox);
   return state.user.user.userBox;
 };
 
-
 const getUserBox = createSelector([selectUserBox], userBox => userBox || []);
 
+
 function UserBox() {
+  
   const [page, setPage] = useState(1);
   const dispatch = useDispatch();
 
+
+  //const user = useSelector(state => state.user);
+  const user = useSelector(state => state.user.user);
+  const userId = user.id;
+
   const swipedToy = useSelector(state => state.toy.swipedToy);
 
+  console.log("USERBOX user", user)
+  console.log("USERBOX userid", userId)
 
-  //const user = useSelector(state => state.user.user);
-  //console.log('userrrrr', user)
+  console.log("USERBOX swipedtoy", swipedToy)
+
+
+  const state = useSelector(state => state);
+  console.log("USERBOX STATE!", state)
+
+
+
+
+
+
+
+
+// const selectSwipedToysForUser = (state, userId) => {
+//   return state.userSwipedToys ? state.userSwipedToys[userId] || [] : [];
+// };
+
+
+
+
+const selectSwipedToysForUser = (state, userId) => {
+  console.log('USERBOX state.toy.userswipedtoy', state.toy.userSwipedToys)
+  return state.toy.userSwipedToys ? state.toy.userSwipedToys[userId] || [] : [];
+};
+
+console.log('TACO', selectSwipedToysForUser(state, userId));
+
+// Inside your component
+const userSwipedToys = useSelector(state => selectSwipedToysForUser(state, userId));
+
 
 
   const userBox = useSelector(getUserBox);
@@ -34,75 +70,115 @@ function UserBox() {
   const userBoxArray = Array.isArray(userBox) ? userBox : [];
 
 
-  //const userBoxArray = Array.isArray(userBox) ? userBox.map(userDetail => userDetail.profilePicture) : [];
-
-  // const userBoxArray = Array.isArray(userBox) ? userBox : [];
-  // if (userBox && typeof userBox === "string") {
-  //   try {
-  //     userBoxArray.push(...JSON.parse(userBox));
-  //   } catch (e) {
-  //     console.error("Error parsing userBox:", e);
-  //   }
-  // }
-
-
-
-  // if (userBox && typeof userBox === "string") {
-  //   try {
-  //     userBoxArray.push(...JSON.parse(userBox));
-  //   } catch (e) {
-  //     console.error("Error parsing userBox:", e);
-  //   }
-  // }
-
-
-
-  console.log("Initial userBox:", userBox);
-  console.log("Processed userBoxArray:", userBoxArray);
-
   const navigation = useNavigation();
 
 
-  const renderThumbnail = (userDetail, index, swipedToy) => {
-    let imageUrl;
-    let userDetailObject = userDetail.user_details;
+
+  useEffect(() => {
+    console.log("USERBOX swipedToy updated in UserBox:", swipedToy);
+  }, [swipedToy]);
   
-    // Add debugging logs
-    console.log('userDetail:', userDetail);
-    console.log('userDetailObject before navigation:', userDetailObject);
-  
-    if (typeof userDetail === 'string') {
-      imageUrl = userDetail;
-      userDetailObject = {}; // If you don't have details, pass an empty object or any default
-    } else {
-      imageUrl = userDetail.profile_picture;
-      userDetailObject = userDetail.user_details;
-    }
-  
-    // Add a log to check the image URL
-    console.log('Rendering thumbnail with imageUrl:', imageUrl);
-  
+
+
+  const renderThumbnail = (userDetail, index) => {
+    console.log("Entire userDetail:", userDetail);
+    const imageUrl = userDetail.profile_picture;
+    const userDetailObject = userDetail.details || {};
+
+    // Fetching the toy for this specific user
+    const toyForThisUser = userSwipedToys[userDetail.id];
+    const mostRecentToy = toyForThisUser ? toyForThisUser[toyForThisUser.length - 1] : null;
+
     return (
-      <TouchableOpacity
-        key={index}
-        onPress={() =>
-          navigation.navigate('UserDetails', {
-            user: userDetail,
-            imageUrl: imageUrl,
-            swipedToy: swipedToy
-          })
-        }
-        style={styles.imageContainer}
-      >
-        <Image source={{ uri: imageUrl }} style={{ width: 100, height: 100 }} />
-      </TouchableOpacity>
+        <TouchableOpacity
+            key={index}
+            onPress={() =>
+                navigation.navigate('UserDetails', {
+                    user: userDetail,
+                    imageUrl: imageUrl,
+                    swipedToy: selectSwipedToysForUser(state, userDetail.id)
+                })
+            }
+            style={styles.imageContainer}
+        >
+            <Image source={{ uri: imageUrl }} style={{ width: 100, height: 100 }} />
+        </TouchableOpacity>
     );
-  };
+};
+
+
+
+
+
+  // const renderThumbnail = (userDetail, index) => {
+  //   console.log("Entire userDetail:", userDetail);
+  //   let imageUrl;
+  //   //let userDetailObject = userDetail.user_details;
+  //   let userDetailObject = userDetail.user_details || {}; 
+
+    
+  //   // Fetching the toy for this specific user
+  //   //const toyForThisUser = userSwipedToys[userDetail.id];
+  //   const toyForThisUser = userSwipedToys[userDetail.details.id];
+    
+
+  //   const mostRecentToy = toyForThisUser ? toyForThisUser[toyForThisUser.length - 1] : null;
+
+
+  //   console.log("hmmm", userDetail.details)
+
+  //   console.log("Toys swiped by user with ID:", userId, userSwipedToys);
+  //   console.log("USERDETAILOBJECT", userDetailObject)
+
+  
+  //   if (typeof userDetail === 'string') {
+  //     imageUrl = userDetail;
+  //     userDetailObject = {}; 
+  //   } else {
+  //     imageUrl = userDetail.profile_picture;
+  //     userDetailObject = userDetail.user_details;
+  //   }
+
+
+  // //   if (typeof userDetail === 'string') {
+  // //     imageUrl = userDetail;
+  // //     userDetailObject = {}; 
+  // // } else if (userDetail && userDetail.profile_picture && userDetail.user_details) {
+  // //     imageUrl = userDetail.profile_picture;
+  // //     userDetailObject = userDetail.user_details;
+  // // } else {
+  // //     // Handle unexpected data structures here
+  // //     imageUrl = '';
+  // //     userDetailObject = {};
+  // // }
+  
+  
+  //   return (
+  //     <TouchableOpacity
+  //       key={index}
+  //       onPress={() =>
+  //         navigation.navigate('UserDetails', {
+  //           user: userDetail,
+  //           imageUrl: imageUrl,
+  //           //swipedToy: mostRecentToy
+  //           //swipedToy: swipedToy
+  //           //swipedToy: userSwipedToys
+  //           swipedToy: selectSwipedToysForUser(state, userDetail.details.id)
+
+  //         })
+  //       }
+  //       style={styles.imageContainer}
+  //     >
+  //       <Image source={{ uri: imageUrl }} style={{ width: 100, height: 100 }} />
+  //     </TouchableOpacity>
+  //   );
+  // };
   
   
 
 
 
+ 
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -142,11 +218,14 @@ function UserBox() {
         {/*{usersToShow.map(userDetail => userDetail && renderThumbnail(userDetail))}*/}
         {usersToShow.map((userDetail, index) => userDetail && renderThumbnail(userDetail, index, swipedToy))}
 
+
+
       </View>
       {renderFooter()}
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -165,5 +244,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
 });
+
 
 export default UserBox;

@@ -3,8 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-import { removeUserFromBox } from '../slices/userSlice';
-import { addToyToToybox, updateToyImages } from '../slices/toySlice';
+import { removeUserFromBox, addProfileToUserBoxAsync } from '../slices/userSlice';
+import { addToyToToybox, updateToyImages, addSwipedToy } from '../slices/toySlice';
 import { addToyToToyboxAPI } from '../API/toyAPI';
 import { generateRoomId } from '../components/utils'
 
@@ -14,10 +14,13 @@ const { width, height } = Dimensions.get('window');
 export default function UserDetails({ route }) {
 
  const { user, imageUrl, swipedToy } = route.params;
-  //const { name, bio } = user; 
+
 
   const { details } = user; 
   const { name, bio } = details; 
+
+  //const { name, bio } = user?.details || {};
+
 
   //const currentUser = useSelector(state => state.user.currentUser);
   const currentUser = useSelector(state => state.user.user);
@@ -30,18 +33,20 @@ export default function UserDetails({ route }) {
 
   //const currentToy = useSelector((state) => state.currentToy);
   //const currentToy = useSelector((state) => state.toy.toyBox?.[state.toy.toyBox.length - 1]);
-  const currentToy = useSelector((state) => state.toy.toys?.[state.toy.toys.length - 1]);
+  //const currentToy = useSelector((state) => state.toy.toys?.[state.toy.toys.length - 1]);
 
   const toyStateForDebug = useSelector(state => state.toy);
   const stateForDebug = useSelector(state => state);
 
   console.log("SWIPED!", swipedToy)
-  console.log("CURRENT TOY!", currentToy)
+  //console.log("CURRENT TOY!", currentToy)
   console.log('Debug toy state:', toyStateForDebug);
   console.log('Debug state:', stateForDebug);
 
+  //console.log("creator id", creatorId)
 
 
+  console.log("USERDETAILS swipedToy", swipedToy, "USERDETAILS currentUser", currentUser, "USERDETAILS user", user);
 
   const dispatch = useDispatch();
   

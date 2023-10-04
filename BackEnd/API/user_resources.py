@@ -208,6 +208,55 @@ class UsersByIds(Resource):
 
 
 
+# class UserProfileBox(Resource):
+#     def post(self, user_id):
+#         logging.info(f"Handling POST request for user ID: {user_id}")
+
+#         data = request.json
+#         logging.info(f"Received request data: {data}")
+#         logging.info(f"Received user_details data: {data.get('user_details', {})}")
+
+
+#         user = User.query.get(user_id)
+#         if not user:
+#             return {'message': 'User not found'}, 404
+        
+#         if 'profile_picture' in data:
+#             current_userBox = user.get_userBox()
+#             logging.info(f"Current userBox before update: {current_userBox}")
+
+#             # Assuming user details are stored in 'user_details' key in data
+#             # new_entry = {
+#             #     "id": user.id,  
+#             #     "details": {
+#             #         "name": data.get('user_details', {}).get('name', ''),
+#             #         "bio": data.get('user_details', {}).get('bio', ''),
+#             #     },
+#             #     "profile_picture": data['profile_picture']
+#             # }
+
+#             new_entry = {
+#                 "id": swiper_id,  # This is the ID of User B (the swiper), not the toy's creator.
+#                 "details": {
+#                     "name": data.get('user_details', {}).get('name', ''),
+#                     "bio": data.get('user_details', {}).get('bio', ''),
+#                 },
+#                 "profile_picture": data['profile_picture']  # This should be User B's profile picture.
+#             }
+
+
+#             if new_entry not in current_userBox:
+#                 current_userBox.append(new_entry)
+#                 user.set_userBox(current_userBox)
+#                 logging.info(f"Updated userBox: {current_userBox}")
+
+#         db.session.commit()
+        
+#         serialized_user = user_schema.dump(user)
+#         return {**serialized_user, 'message': 'Profile added to UserBox successfully'}, 200
+
+
+
 class UserProfileBox(Resource):
     def post(self, user_id):
         logging.info(f"Handling POST request for user ID: {user_id}")
@@ -216,24 +265,33 @@ class UserProfileBox(Resource):
         logging.info(f"Received request data: {data}")
         logging.info(f"Received user_details data: {data.get('user_details', {})}")
 
-
         user = User.query.get(user_id)
         if not user:
             return {'message': 'User not found'}, 404
         
+        # This is the ID of User B (the swiper)
+        swiper_id = data.get('swiper_id', None)
+        # Optional: You can also fetch toy_id if needed for other logic
+        toy_id = data.get('toy_id', None)
+
+        # Check if required swiper_id is present in the data
+        if not swiper_id:
+            return {'message': 'swiper_id not found in request data'}, 400
+
         if 'profile_picture' in data:
             current_userBox = user.get_userBox()
             logging.info(f"Current userBox before update: {current_userBox}")
 
-            # Assuming user details are stored in 'user_details' key in data
             new_entry = {
+                "id": swiper_id,
                 "details": {
                     "name": data.get('user_details', {}).get('name', ''),
-                    "bio": data.get('user_details', {}).get('bio', '')
-
+                    "bio": data.get('user_details', {}).get('bio', ''),
                 },
                 "profile_picture": data['profile_picture']
             }
+
+            # Check if the swiper's details are already in the userBox
             if new_entry not in current_userBox:
                 current_userBox.append(new_entry)
                 user.set_userBox(current_userBox)
@@ -244,50 +302,6 @@ class UserProfileBox(Resource):
         serialized_user = user_schema.dump(user)
         return {**serialized_user, 'message': 'Profile added to UserBox successfully'}, 200
 
-
-
-# class UserProfileBox(Resource):
-#     def post(self, user_id):
-#         logging.info(f"Handling POST request for user ID: {user_id}")
-
-#         data = request.json
-#         logging.info(f"Received request data: {data}")
-
-#         user = User.query.get(user_id)
-#         if not user:
-#             return {'message': 'User not found'}, 404
-        
-#         # Check if 'profile_picture' and 'user_details' are in data
-#         if 'profile_picture' in data and 'user_details' in data:
-
-#             # Now check if 'user_details' has both 'name' and 'bio'
-#             if 'name' in data['user_details'] and 'bio' in data['user_details']:
-
-#                 current_userBox = user.get_userBox()
-#                 logging.info(f"Current userBox before update: {current_userBox}")
-
-#                 new_entry = {
-#                     "details": {
-#                         "name": data['user_details']['name'],
-#                         "bio": data['user_details']['bio']
-#                     },
-#                     "profile_picture": data['profile_picture']
-#                 }
-
-#                 if new_entry not in current_userBox:
-#                     current_userBox.append(new_entry)
-#                     user.set_userBox(current_userBox)
-#                     logging.info(f"Updated userBox: {current_userBox}")
-#                     db.session.commit()
-                    
-#                     serialized_user = user_schema.dump(user)
-#                     return {**serialized_user, 'message': 'Profile added to UserBox successfully'}, 200
-
-#             else:
-#                 return {'message': "Either 'name' or 'bio' is missing from 'user_details'"}, 400
-
-#         else:
-#             return {'message': "Missing 'profile_picture' or 'user_details' in the request data"}, 400
 
 
 

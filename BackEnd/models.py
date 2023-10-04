@@ -1,12 +1,23 @@
 from extensions import db, ma
 import uuid
 import json
+import logging
+
+
+# toybox_association = db.Table('toybox_association',
+#     db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+#     db.Column('toy_id', db.Integer, db.ForeignKey('toys.id'))
+# )
 
 
 toybox_association = db.Table('toybox_association',
-    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
-    db.Column('toy_id', db.Integer, db.ForeignKey('toys.id'))
+    db.Column('swiper_user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('toy_id', db.Integer, db.ForeignKey('toys.id'), primary_key=True),
+    db.Column('creator_user_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('action', db.String(50))  # Here, we also record the action ('left', 'right', or 'none')
 )
+
+
 
 
 class User(db.Model):
@@ -24,11 +35,35 @@ class User(db.Model):
 
     userBox = db.Column(db.Text, nullable=True)
 
+
+
     def set_userBox(self, user_data_list):
         if user_data_list and isinstance(user_data_list, list):
             self.userBox = json.dumps(user_data_list)
         else:
             self.userBox = json.dumps([])
+
+
+    # def set_userBox(self, user_data_list):
+    #     if user_data_list and isinstance(user_data_list, list):
+    #         for user_data in user_data_list:
+    #             # Set the toyId under "details"
+    #             user_data["details"].setdefault("toyId", user_data["details"].pop("id", None))
+    #         self.userBox = json.dumps(user_data_list)
+    #     else:
+    #         self.userBox = json.dumps([])
+
+
+    def set_userBox(self, user_data_list):
+        if user_data_list and isinstance(user_data_list, list):
+            for index, user_data in enumerate(user_data_list):
+                user_data["details"]["id"] = user_data["id"]
+                self.userBox = json.dumps(user_data_list)
+
+
+
+
+
 
     def get_userBox(self):
         try:
@@ -37,10 +72,18 @@ class User(db.Model):
             return []
         
 
-    #toys = db.relationship('Toy', backref='user', lazy='dynamic')
+
     toys = db.relationship('Toy', backref='owner', lazy='dynamic') 
 
-    toybox = db.relationship('Toy', secondary=toybox_association, backref='toyboxes', lazy='dynamic') 
+    #toybox = db.relationship('Toy', secondary=toybox_association, backref='toyboxes', lazy='dynamic') 
+
+    toybox = db.relationship('Toy', 
+                         secondary=toybox_association, 
+                         primaryjoin=id==toybox_association.c.swiper_user_id, 
+                         secondaryjoin=id==toybox_association.c.creator_user_id, 
+                         backref='toyboxes', 
+                         lazy='dynamic')
+
 
     push_token = db.Column(db.String(255), nullable=True, unique=True)
 
