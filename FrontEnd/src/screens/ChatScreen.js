@@ -3,8 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions } from 
 import Chat from '../components/Chat';
 
 const ChatScreen = ({ route }) => {
-  // Uncomment the below line if you want to use the params
-  // const { toyId, userId } = route.params;
+  const { roomId, userId } = route.params;
 
   return (
     <View style={styles.container}>
@@ -12,8 +11,8 @@ const ChatScreen = ({ route }) => {
         <Text style={styles.text}>ChatRoom</Text>
       </View>
 
-      {/* Uncomment the below line if you want to render the Chat component */}
-      {/*<Chat roomId={toyId} userId={userId} />*/}
+
+      <Chat roomId={roomId} userId={userId} />
 
       <View style={styles.footer}>
         <TextInput style={styles.input} placeholder="Type a message..."/>

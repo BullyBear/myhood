@@ -14,7 +14,19 @@ export default function ToyDetails({ route }) {
  // const { toy } = route.params;
   const toy = route.params?.toy || {};
 
-  console.log('toy', toy)
+
+
+  const toyId = toy.id;
+  const creatorUserId = toy.user_id;
+  const currentUserMan = useSelector(state => state.user.user);
+  
+  console.log('toybox toy creator Toy ID:', toyId);
+  console.log('toybox Toy Creator User ID:', creatorUserId);
+  console.log("toybox toy swiper user id", currentUserMan.id)
+
+  
+  
+
 
   const navigation = useNavigation();
   
@@ -27,12 +39,27 @@ export default function ToyDetails({ route }) {
   const [modalImageIndex, setModalImageIndex] = useState(0);
 
 
+
+
+
   const onChatPressed = () => {
-    navigation.navigate('ChatScreen');
+    // Check if we have all the necessary details
+    if (toyId && currentUserMan.id && creatorUserId) {
+      // Generate the unique room ID
+      const roomId = generateRoomId(toyId, currentUserMan.id, creatorUserId);
+  
+      // Navigate to the ChatScreen with the roomId
+      navigation.navigate('ChatScreen', { roomId, creatorUserId });
+    } else {
+      // Log any missing details for debugging purposes
+      console.log("toyId", toyId, "currentUserMan", currentUserMan, "user", user);
+    }
   };
 
+
+
 //   const onChatPressed = () => {
-//     const roomId = generateRoomId(toy.id, currentUser.id, 'ID_OF_THE_OTHER_USER'); 
+//     {/*const roomId = generateRoomId(toy.id, currentUser.id, 'ID_OF_THE_OTHER_USER');*/}
 //     navigation.navigate('ChatScreen', { roomId });
 // };
 

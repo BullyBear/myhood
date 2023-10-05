@@ -15,7 +15,7 @@ export default function UserDetails({ route }) {
 
  const { user, imageUrl, swipedToy } = route.params;
 
- console.log("user bro", user)
+//  console.log("user bro", user)
  console.log("swipedToy son", swipedToy)
 
 
@@ -24,12 +24,16 @@ export default function UserDetails({ route }) {
 
 
   const currentUser = useSelector(state => state.user.user);
-  console.log("current user id", currentUser.id)
+  console.log("toy creator user id", currentUser.id)
 
-  const currentToy = currentUser.toys
-  console.log("current toys", currentToy)
+
+  const currentToyId = currentUser.toys && currentUser.toys.length > 0 ? currentUser.toys[0].id : null;
+  console.log("toy creator toy id", currentToyId);
+
  
-
+  const userId = user.id;
+  console.log("swiper user id", userId);
+  
 
 
 
@@ -60,30 +64,35 @@ export default function UserDetails({ route }) {
   const dispatch = useDispatch();
   
 
-  // const onChatPressed = () => {
-  //   navigation.navigate('ChatScreen');
-  // };
 
 
-//   const onChatPressed = () => {
-//     if (currentToy && currentUser && user) {
-//       const roomId = generateRoomId(currentToy.id, currentUser.id, user.id);
-//       navigation.navigate('ChatScreen', { roomId });
-//    } else {
-//     console.log("currentToy", currentToy, "currentUser", currentUser, "user", user);
-  
-//    }
+// const onChatPressed = () => {
+//   if (swipedToy && currentUser && user) {
+//     const roomId = generateRoomId(swipedToy.id, currentUser.id, user.id);
+//     navigation.navigate('ChatScreen', { roomId });
+//  } else {
+//   console.log("swipedToy", swipedToy, "currentUser", currentUser, "user", user);
+
+//  }
 // };
 
-const onChatPressed = () => {
-  if (swipedToy && currentUser && user) {
-    const roomId = generateRoomId(swipedToy.id, currentUser.id, user.id);
-    navigation.navigate('ChatScreen', { roomId });
- } else {
-  console.log("swipedToy", swipedToy, "currentUser", currentUser, "user", user);
 
- }
+const onChatPressed = () => {
+  // Check if we have all the necessary details
+  if (currentToyId && currentUser.id && userId) {
+    // Generate the unique room ID
+    const roomId = generateRoomId(currentToyId, currentUser.id, userId);
+
+    // Navigate to the ChatScreen with the roomId
+    navigation.navigate('ChatScreen', { roomId, userId });
+  } else {
+    // Log any missing details for debugging purposes
+    console.log("currentToyId", currentToyId, "currentUser", currentUser, "user", user);
+  }
 };
+
+
+
 
 
 //   const onAcceptPressed = async () => {
