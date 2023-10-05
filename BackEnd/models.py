@@ -2,6 +2,8 @@ from extensions import db, ma
 import uuid
 import json
 import logging
+from datetime import datetime
+
 
 
 # toybox_association = db.Table('toybox_association',
@@ -37,11 +39,11 @@ class User(db.Model):
 
 
 
-    def set_userBox(self, user_data_list):
-        if user_data_list and isinstance(user_data_list, list):
-            self.userBox = json.dumps(user_data_list)
-        else:
-            self.userBox = json.dumps([])
+    # def set_userBox(self, user_data_list):
+    #     if user_data_list and isinstance(user_data_list, list):
+    #         self.userBox = json.dumps(user_data_list)
+    #     else:
+    #         self.userBox = json.dumps([])
 
 
     # def set_userBox(self, user_data_list):
@@ -59,9 +61,6 @@ class User(db.Model):
             for index, user_data in enumerate(user_data_list):
                 user_data["details"]["id"] = user_data["id"]
                 self.userBox = json.dumps(user_data_list)
-
-
-
 
 
 
@@ -107,12 +106,13 @@ class Toy(db.Model):
 
 
 
-class UserToyAction(db.Model):
-    __tablename__ = 'user_toy_actions'
+
+class ChatMessage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    toy_id = db.Column(db.Integer, db.ForeignKey('toys.id'), nullable=False)
-    action = db.Column(db.String(10), nullable=False)  # 'left', 'right', or 'none'
+    roomId = db.Column(db.String(255), nullable=False)
+    userId = db.Column(db.Integer, nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 
@@ -145,6 +145,30 @@ class ToySchema(ma.SQLAlchemyAutoSchema):
         fields = ('id', 'image_url_one', 'image_url_two', 'image_url_three', 'image_url_four', 'image_url_five', 'user_id', 'toy_latitude', 'toy_longitude', 'is_deleted')
         load_instance = True
 
+
+
+
+class ChatMessageSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = ChatMessage
+        fields = ('id', 'roomId', 'userId', 'message', 'timestamp')
+        load_instance = True
+
+
+
+
+
+
+
+
+# Do I need these? 
+
+class UserToyAction(db.Model):
+    __tablename__ = 'user_toy_actions'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    toy_id = db.Column(db.Integer, db.ForeignKey('toys.id'), nullable=False)
+    action = db.Column(db.String(10), nullable=False)  # 'left', 'right', or 'none'
 
 
 class UserToyActionSchema(ma.SQLAlchemyAutoSchema):

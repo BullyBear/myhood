@@ -14,12 +14,13 @@ const ChatScreen = ({ route }) => {
 
       <Chat roomId={roomId} userId={userId} />
 
-      <View style={styles.footer}>
+      {/* <View style={styles.footer}>
         <TextInput style={styles.input} placeholder="Type a message..."/>
         <TouchableOpacity style={styles.sendButton}>
           <Text style={styles.sendButtonText}>Send</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
+      
     </View>
   );
 };

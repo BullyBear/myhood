@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_restful import Api, Resource
 from flask_cors import CORS  # Import the CORS object
 from config import DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
@@ -8,8 +8,10 @@ from geopy.distance import geodesic
 from flask_socketio import SocketIO, join_room, leave_room
 
 from models import User, Toy, UserSchema, ToySchema
+
 from API.toy_resources import ToyList, ToyResourceTime, ToysInRadius, ToySwipe, AddToyToToybox 
 from API.user_resources import Users, Register, Login, Invite, Forgot, UserUpdate, UserProfile, UserProfileBox, UsersByIds, UserProfileByID
+from API.chat_resources import ChatMessagesResource
 
 app = Flask(__name__)
 
@@ -34,6 +36,11 @@ api = Api(app)
 @app.before_first_request
 def create_tables():
     db.create_all()
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify(error="Internal server error"), 500
 
 
 # Define the chat event
@@ -78,6 +85,9 @@ api.add_resource(UsersByIds, '/fetchUsersByIds')
 api.add_resource(UserProfileBox, '/user/<int:user_id>/addProfile')
 api.add_resource(ToySwipe, '/api/toyswipe')
 api.add_resource(AddToyToToybox, '/user/<int:user_id>/toy/<int:toy_id>/add-toy-to-toybox')
+
+
+api.add_resource(ChatMessagesResource, '/chat-messages/<string:roomId>')
 
 
 

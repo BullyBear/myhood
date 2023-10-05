@@ -3,14 +3,18 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 
 import io from 'socket.io-client';
 //import { GiftedChat } from 'react-native-gifted-chat';
 import { useDispatch, useSelector } from 'react-redux';
+
 import { addMessage } from '../slices/chatSlice';
+import { API_URL } from '../../config';
+
 
 const Chat = ({ roomId, userId }) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
-  const socket = io('http://localhost:3000');
-  const dispatch = useDispatch(); 
+  const [usersInChat, setUsersInChat] = useState([]);
 
+  const socket = io(API_URL); // Updated to use your API_URL for WebSockets as well.
+  const dispatch = useDispatch();
 
   useEffect(() => {
     socket.emit('join', { username: userId, room: roomId });
@@ -19,32 +23,58 @@ const Chat = ({ roomId, userId }) => {
         socket.emit('leave', { username: userId, room: roomId });
         socket.disconnect();
     };
-}, [roomId]);
-
-
-  // useEffect(() => {
-  //   socket.on(`room ${roomId}`, (message) => {
-  //     // Handle incoming messages and dispatch to Redux
-  //     setMessages((prevMessages) => [...prevMessages, message]);
-  //     dispatch(addMessage({ chatId: roomId, message }));
-  //   });
-
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // }, [roomId]);
-
+  }, [roomId]);
 
   const sendMessage = () => {
     // Emit event to send message to server
     socket.emit('message', { roomId, userId, message });
 
-    // Update local state with new message
-    setMessages((prevMessages) => [...prevMessages, { user: userId, message }]);
-    
+    // Save message to the backend
+    fetch(`${API_URL}/chat-messages/${roomId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            roomId,
+            userId,
+            message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update local state with the saved message returned from the backend
+        setMessages(prevMessages => [...prevMessages, data]);
+    })
+    .catch(error => {
+        console.error('Error saving the message:', error);
+    });
+
     // Clear input field
     setMessage('');
   };
+
+  useEffect(() => {
+    // Fetch past messages when component mounts
+    fetch(`${API_URL}/chat-messages/${roomId}`)
+    .then(response => {
+      if (!response.ok) {
+          return response.text().then(text => {
+              throw new Error(text);
+          });
+      }
+      return response.json();
+  })
+    .then(data => {
+        setMessages(data);
+    })
+    .catch(error => {
+        console.error('Error fetching past messages:', error);
+    });
+  }, [roomId]);
+
+
+
 
   return (
     <View style={styles.container}>
@@ -71,6 +101,7 @@ const Chat = ({ roomId, userId }) => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -115,5 +146,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
+
 
 export default Chat;
