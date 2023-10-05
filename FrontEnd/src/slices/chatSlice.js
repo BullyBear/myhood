@@ -24,13 +24,24 @@ export const chatSlice = createSlice({
     activateChat: (state, action) => {
       state.activeChat = action.payload;
     },
+    // addMessage: (state, action) => {
+    //   const { chatId, message } = action.payload;
+    //   const chat = state.chats.find((chat) => chat.id === chatId);
+    //   if (chat) {
+    //     chat.messages.push(message);
+    //   }
+    // },
     addMessage: (state, action) => {
       const { chatId, message } = action.payload;
-      const chat = state.chats.find((chat) => chat.id === chatId);
-      if (chat) {
-        chat.messages.push(message);
+      let chat = state.chats.find((chat) => chat.id === chatId);
+      if (!chat) {
+          // If chat doesn't exist, create one and add to state.chats
+          chat = { id: chatId, messages: [] };
+          state.chats.push(chat);
       }
-    },
+      chat.messages.push(message);
+  },
+  
   },
 });
 

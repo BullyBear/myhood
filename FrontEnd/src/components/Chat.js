@@ -9,11 +9,19 @@ import { API_URL } from '../../config';
 
 
 const Chat = ({ roomId, userId }) => {
+
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [usersInChat, setUsersInChat] = useState([]);
 
-  const socket = io(API_URL); // Updated to use your API_URL for WebSockets as well.
+
+  //const chat = useSelector(state => state.chat.chats.find(chat => chat.id === roomId));
+  //const messages = chat ? chat.messages : [];
+
+
+
+
+  const socket = io(API_URL); 
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -43,8 +51,10 @@ const Chat = ({ roomId, userId }) => {
     })
     .then(response => response.json())
     .then(data => {
-        // Update local state with the saved message returned from the backend
+
         setMessages(prevMessages => [...prevMessages, data]);
+        //dispatch(addMessage({ chatId: roomId, message: data }));
+
     })
     .catch(error => {
         console.error('Error saving the message:', error);
@@ -68,6 +78,11 @@ const Chat = ({ roomId, userId }) => {
     .then(data => {
         setMessages(data);
     })
+    // .then(data => {
+    //   data.forEach(msg => {
+    //       dispatch(addMessage({ chatId: roomId, message: msg }));
+    //   });
+    // })
     .catch(error => {
         console.error('Error fetching past messages:', error);
     });

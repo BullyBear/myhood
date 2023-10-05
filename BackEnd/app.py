@@ -51,17 +51,17 @@ def handle_message(data):
 
 @socketio.on('join')
 def on_join(data):
-    username = data['username']
+    #username = data['username']
     room = data['room']
     join_room(room)
-    socketio.emit('message', {'message': f'{username} has entered the room.'}, room=room)
+    socketio.emit('message', {'message': f'A user has entered the room.'}, room=room)
 
 @socketio.on('leave')
 def on_leave(data):
-    username = data['username']
+    #username = data['username']
     room = data['room']
     leave_room(room)
-    socketio.emit('message', {'message': f'{username} has left the room.'}, room=room)
+    socketio.emit('message', {'message': f'A user has left the room.'}, room=room)
 
 
 class Home(Resource):
