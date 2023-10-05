@@ -58,6 +58,10 @@ const selectSwipedToysForUser = (state, userId) => {
   return state.toy.userSwipedToys ? state.toy.userSwipedToys[userId] || [] : [];
 };
 
+
+
+
+
 console.log('TACO', selectSwipedToysForUser(state, userId));
 
 // Inside your component
@@ -89,6 +93,11 @@ const userSwipedToys = useSelector(state => selectSwipedToysForUser(state, userI
     const toyForThisUser = userSwipedToys[userDetail.id];
     const mostRecentToy = toyForThisUser ? toyForThisUser[toyForThisUser.length - 1] : null;
 
+    const currentSwipedToy = selectSwipedToysForUser(state, userDetail.id);
+    
+    
+    console.log("USERBOX SWIPED KID", currentSwipedToy);
+
     return (
         <TouchableOpacity
             key={index}
@@ -110,69 +119,25 @@ const userSwipedToys = useSelector(state => selectSwipedToysForUser(state, userI
 
 
 
-  // const renderThumbnail = (userDetail, index) => {
-  //   console.log("Entire userDetail:", userDetail);
-  //   let imageUrl;
-  //   //let userDetailObject = userDetail.user_details;
-  //   let userDetailObject = userDetail.user_details || {}; 
+// const renderThumbnail = (userDetail, index) => {
+//   const imageUrl = userDetail.profile_picture;
+//   const toyId = userDetail.details.toy_id; // extract the toy_id
 
-    
-  //   // Fetching the toy for this specific user
-  //   //const toyForThisUser = userSwipedToys[userDetail.id];
-  //   const toyForThisUser = userSwipedToys[userDetail.details.id];
-    
+//   return (
+//       <TouchableOpacity
+//           key={index}
+//           onPress={() => navigation.navigate('UserDetails', {
+//               user: userDetail,
+//               imageUrl: imageUrl,
+//               swipedToyId: toyId
+//           })}
+//           style={styles.imageContainer}
+//       >
+//           <Image source={{ uri: imageUrl }} style={{ width: 100, height: 100 }} />
+//       </TouchableOpacity>
+//   );
+// };
 
-  //   const mostRecentToy = toyForThisUser ? toyForThisUser[toyForThisUser.length - 1] : null;
-
-
-  //   console.log("hmmm", userDetail.details)
-
-  //   console.log("Toys swiped by user with ID:", userId, userSwipedToys);
-  //   console.log("USERDETAILOBJECT", userDetailObject)
-
-  
-  //   if (typeof userDetail === 'string') {
-  //     imageUrl = userDetail;
-  //     userDetailObject = {}; 
-  //   } else {
-  //     imageUrl = userDetail.profile_picture;
-  //     userDetailObject = userDetail.user_details;
-  //   }
-
-
-  // //   if (typeof userDetail === 'string') {
-  // //     imageUrl = userDetail;
-  // //     userDetailObject = {}; 
-  // // } else if (userDetail && userDetail.profile_picture && userDetail.user_details) {
-  // //     imageUrl = userDetail.profile_picture;
-  // //     userDetailObject = userDetail.user_details;
-  // // } else {
-  // //     // Handle unexpected data structures here
-  // //     imageUrl = '';
-  // //     userDetailObject = {};
-  // // }
-  
-  
-  //   return (
-  //     <TouchableOpacity
-  //       key={index}
-  //       onPress={() =>
-  //         navigation.navigate('UserDetails', {
-  //           user: userDetail,
-  //           imageUrl: imageUrl,
-  //           //swipedToy: mostRecentToy
-  //           //swipedToy: swipedToy
-  //           //swipedToy: userSwipedToys
-  //           swipedToy: selectSwipedToysForUser(state, userDetail.details.id)
-
-  //         })
-  //       }
-  //       style={styles.imageContainer}
-  //     >
-  //       <Image source={{ uri: imageUrl }} style={{ width: 100, height: 100 }} />
-  //     </TouchableOpacity>
-  //   );
-  // };
   
   
 

@@ -184,45 +184,55 @@ const toySlice = createSlice({
 
  
 
-    addSwipedToy: (state, action) => {
-      const { userId, toy } = action.payload;
-      console.log('toyslice action.payload', action.payload)
-      if (!userId || !toy) return;
+  //   addSwipedToy: (state, action) => {
+  //     const { userId, toy } = action.payload;
+  //     console.log('toyslice action.payload', action.payload);
+  //     if (!userId || !toy) return;
   
-      // Ensure there's an array for the user
-      if (!state.userSwipedToys[userId]) {
-          state.userSwipedToys[userId] = [];
-      }
+  //     // Ensure there's an array for the user
+  //     if (!state.userSwipedToys[userId]) {
+  //         state.userSwipedToys[userId] = [];
+  //     }
   
-      // Add the toy if it's not already there
-      const existingToyIndex = state.userSwipedToys[userId].findIndex(t => t.id === toy.id);
-      if (existingToyIndex === -1) {
-          state.userSwipedToys[userId].push(toy);
-      }
-      
-      // Store the last swiped toy
-      console.log('toyslice toy', state.swipedToy)
-      state.swipedToy = toy;
+  //     // Add the toy if it's not already there
+  //     const existingToyIndex = state.userSwipedToys[userId].findIndex(t => t.id === toy.id);
+  //     if (existingToyIndex === -1) {
+  //         state.userSwipedToys[userId].push(toy);
+  //     }
+  
+  //     console.log('toyslice toy', state.userSwipedToys);
+  // },
+  
+  // addSwipedToy: (state, action) => {
+  //   const { userId, toy } = action.payload;
+  //   if (!userId || !toy) return;
+  
+  //   // Store the toy data in the state when swiped
+  //   state.swipedToy = toy;
+  //   console.log("Swiped toy stored in Redux:", state.swipedToy);
+  // },
+  
 
+
+  addSwipedToy: (state, action) => {
+    const { userId, toy } = action.payload;
+    if (!userId || !toy) return;
+  
+    // Ensure userSwipedToys exists
+    if (!state.userSwipedToys) {
+      state.userSwipedToys = {};
+    }
+  
+    // Add or append the toy to this user's list of swiped toys
+    if (!state.userSwipedToys[userId]) {
+      state.userSwipedToys[userId] = [toy];
+    } else {
+      state.userSwipedToys[userId].push(toy);
+    }
+  
+    console.log("NEW Swiped toy stored in Redux for user:", userId, "toy:", toy);
   },
   
-
-
-  // addSwipedToy: (state, action) => {
-  //     const toy = action.payload.toy;
-  //     console.log("toyslice.js Action payload in addSwipedToy:", action.payload);
-  //     if (!toy) return;
-  //     state.swipedToy = toy;
-  // },
-  
-  // addToUserSwipedToys: (state, action) => {
-  //   const { userId, toy } = action.payload;
-  //   if (!state.userSwipedToys[userId]) {
-  //       state.userSwipedToys[userId] = [];
-  //   }
-  //   state.userSwipedToys[userId].push(toy);
-  // },
-
 
 
     

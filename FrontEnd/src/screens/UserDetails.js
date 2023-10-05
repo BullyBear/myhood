@@ -15,15 +15,23 @@ export default function UserDetails({ route }) {
 
  const { user, imageUrl, swipedToy } = route.params;
 
+ console.log("user bro", user)
+ console.log("swipedToy son", swipedToy)
+
 
   const { details } = user; 
   const { name, bio } = details; 
 
-  //const { name, bio } = user?.details || {};
 
-
-  //const currentUser = useSelector(state => state.user.currentUser);
   const currentUser = useSelector(state => state.user.user);
+  console.log("current user id", currentUser.id)
+
+  const currentToy = currentUser.toys
+  console.log("current toys", currentToy)
+ 
+
+
+
 
 
 
@@ -45,6 +53,7 @@ export default function UserDetails({ route }) {
 
   //console.log("creator id", creatorId)
 
+  console.log("CURRENT USER USERBOX", currentUser.userBox)
 
   console.log("USERDETAILS swipedToy", swipedToy, "USERDETAILS currentUser", currentUser, "USERDETAILS user", user);
 

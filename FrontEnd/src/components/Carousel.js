@@ -341,6 +341,8 @@ function Carousel() {
 
 
          dispatch(addSwipedToy({ userId: user.id, toy: toyToShow }));
+         console.log("NEW am i working:", toyToShow);
+
 
 
          //dispatch(addToUserSwipedToys({ userId: user.id, toy: toyToShow }));
@@ -404,7 +406,9 @@ function Carousel() {
         profile_picture: user.profile_picture,
         user_details: {
             name: user.name, 
-            bio: user.bio
+            bio: user.bio,
+            //toy_id: currentToy.id
+
         }
     };
     

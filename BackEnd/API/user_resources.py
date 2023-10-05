@@ -287,6 +287,7 @@ class UserProfileBox(Resource):
                 "details": {
                     "name": data.get('user_details', {}).get('name', ''),
                     "bio": data.get('user_details', {}).get('bio', ''),
+                    #"toy_id": toy_id
                 },
                 "profile_picture": data['profile_picture']
             }
