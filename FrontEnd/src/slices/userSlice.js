@@ -573,7 +573,8 @@ export const {
   updateUserSuccess,
   updateUserFailure,
   addProfileToUserBox,
-  acceptUser
+  acceptUser,
+  removeUserFromBox
   
 } = userSlice.actions;
 
