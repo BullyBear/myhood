@@ -109,12 +109,13 @@ const onAcceptPressed = async () => {
   console.log("SwipedToy ID: ", swipedToy[0] ? swipedToy[0].id : "No ID found");
 
 
-  if (user && user.id && swipedToy && swipedToy[0].id) {
+  //if (user && user.id && swipedToy && swipedToy[0].id) {
+  if (user && user.id) {
     console.log("tacoooo")
 
       //dispatch(addToyToToybox({ userId: user.id, toyId: swipedToy[0].id}));
       console.log("cheese man")
-      dispatch(updateToyImages({ toyId: swipedToy[0].id, toyImages: swipedToy.images }));
+      //dispatch(updateToyImages({ toyId: swipedToy[0].id, toyImages: swipedToy.images }));
       console.log("brocolli man")
       dispatch(acceptUser(user.id));
       console.log("icecream man")

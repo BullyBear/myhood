@@ -267,6 +267,12 @@ const userSlice = createSlice({
           state.acceptedUsers = [...state.acceptedUsers, action.payload];
       }
     },
+    // acceptUser: (state, action) => {
+    //   // Add the user ID to the acceptedUsers array if it's not already there
+    //   if (!state.acceptedUsers.includes(action.payload)) {
+    //     state.acceptedUsers.push(action.payload);
+    //   }
+    // },
     resetUserState: (state) => {
       return { ...initialState };
     },
