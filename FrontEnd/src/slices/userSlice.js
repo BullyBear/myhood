@@ -16,7 +16,8 @@ const initialState = {
   user: null,
   users: [],
   usersByIds: {}, 
-  userBox: [], 
+  userBox: [],
+  acceptedUsers: [],
   loading: false,
   error: null,
   successMessage: null,  
@@ -258,6 +259,14 @@ const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
+    acceptUser: (state, action) => {
+      if (!state.acceptedUsers) {
+          state.acceptedUsers = [];
+      }
+      if (!state.acceptedUsers.includes(action.payload)) {
+          state.acceptedUsers = [...state.acceptedUsers, action.payload];
+      }
+    },
     resetUserState: (state) => {
       return { ...initialState };
     },
@@ -432,6 +441,13 @@ const userSlice = createSlice({
   // },
   
 
+  // [acceptUser.fulfilled]: (state, action) => {
+  //   if (!state.acceptedUsers.includes(action.payload)) {
+  //     state.acceptedUsers.push(action.payload);
+  //   }
+  // },
+  
+
   [addProfileToUserBoxAsync.fulfilled]: (state, action) => {
     state.loading = false;
   
@@ -551,6 +567,7 @@ export const {
   updateUserSuccess,
   updateUserFailure,
   addProfileToUserBox,
+  acceptUser
   
 } = userSlice.actions;
 

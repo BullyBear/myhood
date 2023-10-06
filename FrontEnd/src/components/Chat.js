@@ -1,25 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { 
+    View, Text, TextInput, TouchableOpacity, 
+    StyleSheet, ScrollView, KeyboardAvoidingView, Platform 
+} from 'react-native';
 import io from 'socket.io-client';
-//import { GiftedChat } from 'react-native-gifted-chat';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { addMessage } from '../slices/chatSlice';
 import { API_URL } from '../../config';
-
 
 const Chat = ({ roomId, userId }) => {
 
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [usersInChat, setUsersInChat] = useState([]);
-
-
-  //const chat = useSelector(state => state.chat.chats.find(chat => chat.id === roomId));
-  //const messages = chat ? chat.messages : [];
-
-
-
 
   const socket = io(API_URL); 
   const dispatch = useDispatch();
@@ -34,10 +28,7 @@ const Chat = ({ roomId, userId }) => {
   }, [roomId]);
 
   const sendMessage = () => {
-    // Emit event to send message to server
     socket.emit('message', { roomId, userId, message });
-
-    // Save message to the backend
     fetch(`${API_URL}/chat-messages/${roomId}`, {
         method: 'POST',
         headers: {
@@ -51,72 +42,64 @@ const Chat = ({ roomId, userId }) => {
     })
     .then(response => response.json())
     .then(data => {
-
         setMessages(prevMessages => [...prevMessages, data]);
-        //dispatch(addMessage({ chatId: roomId, message: data }));
-
     })
     .catch(error => {
         console.error('Error saving the message:', error);
     });
 
-    // Clear input field
     setMessage('');
   };
 
   useEffect(() => {
-    // Fetch past messages when component mounts
     fetch(`${API_URL}/chat-messages/${roomId}`)
-    .then(response => {
-      if (!response.ok) {
-          return response.text().then(text => {
-              throw new Error(text);
-          });
-      }
-      return response.json();
-  })
+    .then(response => response.json())
     .then(data => {
         setMessages(data);
     })
-    // .then(data => {
-    //   data.forEach(msg => {
-    //       dispatch(addMessage({ chatId: roomId, message: msg }));
-    //   });
-    // })
     .catch(error => {
         console.error('Error fetching past messages:', error);
     });
   }, [roomId]);
 
-
-
-
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.messageContainer}>
-        {messages.map((message, index) => (
-          <View key={index} style={styles.message}>
-            <Text style={styles.messageUser}>{message.user}:</Text>
-            <Text style={styles.messageText}>{message.message}</Text>
-            {/* Add timestamp here if needed */}
-          </View>
-        ))}
-      </ScrollView>
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="Type your message here"
-          value={message}
-          onChangeText={(text) => setMessage(text)}
-          style={styles.input}
-        />
-        <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
-          <Text style={styles.sendButtonText}>Send</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    <KeyboardAvoidingView 
+        behavior={Platform.OS === "ios" ? "padding" : "height"} 
+        style={{flex: 1}}
+    >
+        <View style={styles.container}>
+            <ScrollView contentContainerStyle={styles.messageContainer}>
+                {messages.map((message, index) => {
+                    const isSender = userId === message.user;
+                    return (
+                        <View 
+                            key={index} 
+                            style={isSender ? styles.senderMessage : styles.receiverMessage}
+                        >
+                            <View style={isSender ? styles.senderBubble : styles.receiverBubble}>
+                                <Text style={isSender ? styles.senderText : styles.messageText}>
+                                    {message.message}
+                                </Text>
+                            </View>
+                        </View>
+                    );
+                })}
+            </ScrollView>
+            <View style={styles.inputContainer}>
+                <TextInput
+                    placeholder="Type your message here"
+                    value={message}
+                    onChangeText={(text) => setMessage(text)}
+                    style={styles.input}
+                />
+                <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
+                    <Text style={styles.sendButtonText}>Send</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+    </KeyboardAvoidingView>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -126,29 +109,20 @@ const styles = StyleSheet.create({
   messageContainer: {
     padding: 10,
   },
-  message: {
-    flexDirection: 'row',
-    marginBottom: 10,
-  },
-  messageUser: {
-    fontWeight: 'bold',
-    marginRight: 5,
-  },
-  messageText: {
-    flex: 1,
-  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingHorizontal: 5,
+    paddingBottom: 50,
+    paddingTop: 10,
   },
   input: {
-    flex: 1,
+    flex: 5.5,  
     backgroundColor: '#fff',
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginRight: 10,
+    borderRadius: 7,
+    paddingHorizontal: 15,
+    marginRight: 5,
+
   },
   sendButton: {
     backgroundColor: '#007BFF',
@@ -160,8 +134,38 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  senderMessage: {
+    flexDirection: 'row',
+    marginBottom: 10,
+    justifyContent: 'flex-end',
+    marginRight: 10,
+  },
+  receiverMessage: {
+    flexDirection: 'row',
+    marginBottom: 10,
+    justifyContent: 'flex-start',
+    marginLeft: 10,
+  },
+  senderBubble: {
+    padding: 10,
+    backgroundColor: '#007BFF',
+    borderRadius: 20,
+    borderBottomRightRadius: 0,
+    maxWidth: '70%',
+  },
+  receiverBubble: {
+    padding: 10,
+    backgroundColor: '#E1E1E1',
+    borderRadius: 20,
+    borderBottomLeftRadius: 0,
+    maxWidth: '70%',
+  },
+  messageText: {
+    color: '#000',
+  },
+  senderText: {
+    color: '#fff',
+  },
 });
-
-
 
 export default Chat;

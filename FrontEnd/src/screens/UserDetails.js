@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-import { removeUserFromBox, addProfileToUserBoxAsync } from '../slices/userSlice';
+import { removeUserFromBox, addProfileToUserBoxAsync, acceptUser  } from '../slices/userSlice';
 import { addToyToToybox, updateToyImages, addSwipedToy } from '../slices/toySlice';
 import { addToyToToyboxAPI } from '../API/toyAPI';
 import { generateRoomId } from '../components/utils'
@@ -17,6 +17,9 @@ export default function UserDetails({ route }) {
 
 //  console.log("user bro", user)
  console.log("swipedToy son", swipedToy)
+
+//  const state = useSelector(state => state);
+//  console.log("USERDETAILS STATE!", state)
 
 
   const { details } = user; 
@@ -35,8 +38,10 @@ export default function UserDetails({ route }) {
   console.log("swiper user id", userId);
   
 
-
-
+  const acceptedUsers = useSelector(state => state.user.acceptedUsers);
+  const isUserAccepted = acceptedUsers ? acceptedUsers.includes(user.id) : false;
+  
+  
 
 
   const navigation = useNavigation();
@@ -95,34 +100,30 @@ const onChatPressed = () => {
 
 
 
-//   const onAcceptPressed = async () => {
-//     console.log("PRESSING ACCEPT")
-
-//     if (user && user.id && currentToy && currentToy.id) {
-//         dispatch(addToyToToybox({ userId: user.id, toyId: currentToy.id }));
-//         dispatch(updateToyImages({ toyId: currentToy.id, toyImages: currentToy.images }));
-
-//         // Assuming the addToyToToyboxAPI returns the push token for person B
-//         let response = await addToyToToyboxAPI(user.id, currentToy.id);
-//         if (response && response.pushToken) {
-//           sendPushNotification(response.pushToken, "A new toy was added to your toybox!");
-//         }
-//     }
-
-//     setShowAcceptButton(false);
-//     onChatPressed();
-// };
-
 
 const onAcceptPressed = async () => {
   console.log("PRESSING ACCEPT")
+  console.log("User object: ", user);
+  console.log("User ID: ", user.id);
+  console.log("SwipedToy object: ", swipedToy);
+  console.log("SwipedToy ID: ", swipedToy[0] ? swipedToy[0].id : "No ID found");
 
-  if (user && user.id && swipedToy && swipedToy.id) {
-      dispatch(addToyToToybox({ userId: user.id, toyId: swipedToy.id }));
-      dispatch(updateToyImages({ toyId: swipedToy.id, toyImages: swipedToy.images }));
+
+  if (user && user.id && swipedToy && swipedToy[0].id) {
+    console.log("tacoooo")
+
+      //dispatch(addToyToToybox({ userId: user.id, toyId: swipedToy[0].id}));
+      console.log("cheese man")
+      dispatch(updateToyImages({ toyId: swipedToy[0].id, toyImages: swipedToy.images }));
+      console.log("brocolli man")
+      dispatch(acceptUser(user.id));
+      console.log("icecream man")
+
+      console.log("Accepted users after dispatch: ", useSelector(state => state.user.acceptedUsers));
+
 
       // Assuming the addToyToToyboxAPI returns the push token for person B
-      let response = await addToyToToyboxAPI(user.id, swipedToy.id);
+      let response = await addToyToToyboxAPI(user.id, swipedToy[0].id);
       if (response && response.pushToken) {
         sendPushNotification(response.pushToken, "A new toy was added to your toybox!");
       }
@@ -170,7 +171,7 @@ const sendPushNotification = async (pushToken, message) => {
       <Text style={styles.text}>{name}</Text>
       <Text style={styles.text}>{bio}</Text>
       
-      {showAcceptButton && (
+      {!isUserAccepted && (
         <>
           <TouchableOpacity style={styles.acceptButton} onPress={onAcceptPressed}>
             <Text style={styles.acceptButtonText}>Accept</Text>
@@ -181,7 +182,7 @@ const sendPushNotification = async (pushToken, message) => {
         </>
       )}
       
-      {!showAcceptButton && (
+      {isUserAccepted && (
         <TouchableOpacity style={styles.chatButton} onPress={onChatPressed}>
           <Text style={styles.chatButtonText}>Chat</Text>
         </TouchableOpacity>
