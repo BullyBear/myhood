@@ -66,7 +66,7 @@ export default function UserDetails({ route }) {
 
   console.log("USERDETAILS swipedToy", swipedToy, "USERDETAILS currentUser", currentUser, "USERDETAILS user", user);
 
-  console.log("BRO", swipedToy[0].image_url_one)
+  //console.log("BRO", swipedToy[0].image_url_one)
 
   const dispatch = useDispatch();
   
@@ -111,8 +111,9 @@ const onAcceptPressed = async () => {
   console.log("SwipedToy ID: ", swipedToy[0] ? swipedToy[0].id : "No ID found");
 
 
-  if (user && user.id && swipedToy && swipedToy[0].id) {
+  //if (user && user.id && swipedToy && swipedToy[0].id) {
   //if (user && user.id) {
+  if (user?.id && swipedToy?.[0]?.id) {
     console.log("tacoooo")
 
       dispatch(addToyToToybox({ userId: user.id, toyId: swipedToy[0].id }));

@@ -12,7 +12,13 @@ import { API_URL } from '../../config';
 const Chat = ({ roomId, userId }) => {
 
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([]);
+
+  // Uncomment line below and comment two below it if need to go back
+  //const [messages, setMessages] = useState([]);
+  const chat = useSelector(state => state.chat.chats.find(chat => chat.id === roomId));
+  const messages = chat ? chat.messages : [];
+
+
   const [usersInChat, setUsersInChat] = useState([]);
 
   const socket = io(API_URL); 
@@ -42,7 +48,10 @@ const Chat = ({ roomId, userId }) => {
     })
     .then(response => response.json())
     .then(data => {
-        setMessages(prevMessages => [...prevMessages, data]);
+        //uncomment line below and comment line below it to go back
+        //setMessages(prevMessages => [...prevMessages, data]);
+        dispatch(addMessage({ chatId: roomId, message: data }));
+
     })
     .catch(error => {
         console.error('Error saving the message:', error);
@@ -54,9 +63,16 @@ const Chat = ({ roomId, userId }) => {
   useEffect(() => {
     fetch(`${API_URL}/chat-messages/${roomId}`)
     .then(response => response.json())
+    //uncomment lines below and comment lines below it to go back
+    // .then(data => {
+    //     setMessages(data);
+    // })
     .then(data => {
-        setMessages(data);
-    })
+      data.forEach(msg => {
+          dispatch(addMessage({ chatId: roomId, message: msg }));
+      });
+  })
+  
     .catch(error => {
         console.error('Error fetching past messages:', error);
     });
