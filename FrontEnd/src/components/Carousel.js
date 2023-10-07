@@ -301,6 +301,12 @@ function Carousel() {
     { useNativeDriver: true }
   );
 
+  const rotate = translateX.interpolate({
+    inputRange: [-200, 0, 200],
+    outputRange: ["-30deg", "0deg", "30deg"],
+});
+
+
 
 
 
@@ -362,98 +368,11 @@ function Carousel() {
   
   
 
-  const onSwipeRight = () => {
-    const toyToShow = toys[currentIndex];
-    console.log('Swiping Right');
-  
-    if (!toyToShow) {
-      console.error('No toy found at current index:', currentIndex);
-      return;
-    }
-  
-    const userIdOfToy = toyToShow.user_id;
-    if (!userIdOfToy) {
-      console.error('No user ID found for toy with ID:', toyToShow.id);
-      return;
-    }
-  
-
-    console.log("onswiperight - user", user);
-    console.log("onswiperight - currenttoy", currentToy);
-    console.log("onswiperight - useridoftoy", userIdOfToy);
-    console.log("onswiperight - toytoshow", toyToShow);
-  
-
-    if (user && user.id && currentToy && currentToy.id) {
-      //recordSwipeAction(user.id, currentToy.id, 'right');
-      recordSwipeAction(user.id, currentToy.id, 'right', toyToShow);
-  
-
-
-
-      // const ownerProfileData = {
-      //   profile_picture: currentToy.image_url_one,
-      //   user_details: {
-      //       name: currentToy.owner_name,
-      //       bio: currentToy.owner_bio,
-      //       id: currentToy.id,
-      //   }
-      // };
-
-      const ownerProfileData = {
-        swiper_id: user.id, // This is the ID of User B (the swiper)
-        toy_id: currentToy.id, // The toy they swiped on
-        profile_picture: user.profile_picture,
-        user_details: {
-            name: user.name, 
-            bio: user.bio,
-            //toy_id: currentToy.id
-
-        }
-    };
-    
-    
-
-      dispatch(addProfileToUserBoxAsync({
-        userId: userIdOfToy,
-        profileData: ownerProfileData
-    }));
-
-  
-      // dispatch(addProfileToUserBoxAsync({
-      //   userId: userIdOfToy,
-      //   profileData: {
-      //     profilePicture: user.profile_picture,
-      //     name: user.name,
-      //     bio: user.bio,
-      //     id: user.id,
-      //   }
-      // }));
-
-
-
-    }
-  
-    dispatch(removeToyFromCarousel(toyToShow));
-  
-    setCurrentIndex((prevIndex) => {
-      const newIndex = prevIndex + 1;
-      if (newIndex >= toys.length) {
-        setShowDefaultImage(true);
-      }
-      return newIndex;
-    });
-  }
-  
-
-  
-  
-  
 
   // const onSwipeRight = () => {
   //   const toyToShow = toys[currentIndex];
   //   console.log('Swiping Right');
-    
+  
   //   if (!toyToShow) {
   //     console.error('No toy found at current index:', currentIndex);
   //     return;
@@ -464,104 +383,196 @@ function Carousel() {
   //     console.error('No user ID found for toy with ID:', toyToShow.id);
   //     return;
   //   }
+  
 
-  //   console.log("userIdOfToy:", userIdOfToy);
-  //   console.log("user", user)
-  //   //console.log("Bio in carousel:", bio);
-  //   //console.log("Profile Picture in carousel:", profilePicture);
+  //   console.log("onswiperight - user", user);
+  //   console.log("onswiperight - currenttoy", currentToy);
+  //   console.log("onswiperight - useridoftoy", userIdOfToy);
+  //   console.log("onswiperight - toytoshow", toyToShow);
+  
 
   //   if (user && user.id && currentToy && currentToy.id) {
-  //     recordSwipeAction(user.id, currentToy.id, 'right');
+  //     //recordSwipeAction(user.id, currentToy.id, 'right');
+  //     recordSwipeAction(user.id, currentToy.id, 'right', toyToShow);
+  
 
+
+
+  //     // const ownerProfileData = {
+  //     //   profile_picture: currentToy.image_url_one,
+  //     //   user_details: {
+  //     //       name: currentToy.owner_name,
+  //     //       bio: currentToy.owner_bio,
+  //     //       id: currentToy.id,
+  //     //   }
+  //     // };
 
   //     const ownerProfileData = {
-  //       profile_picture: currentToy.profile_picture,
-  //       bio: currentToy.owner_bio,
-  //       name: currentToy.owner_name,
-  //     };
+  //       swiper_id: user.id, // This is the ID of User B (the swiper)
+  //       toy_id: currentToy.id, // The toy they swiped on
+  //       profile_picture: user.profile_picture,
+  //       user_details: {
+  //           name: user.name, 
+  //           bio: user.bio,
+  //           //toy_id: currentToy.id
 
-  //     console.log('CAROUSEL 1', userIdOfToy)
-  //     console.log('CAROUSEL 2', user.profile_picture)
-
+  //       }
+  //   };
     
-  //     //dispatch(addProfileToUserBoxAsync({ userId: userIdOfToy, profilePicture: user.profile_picture }));
+    
 
-  //     console.log("User object before dispatching:", user);
   //     dispatch(addProfileToUserBoxAsync({
   //       userId: userIdOfToy,
-  //       profileData: {
-  //           profilePicture: user.profile_picture,
-  //           name: user.name,
-  //           bio: user.bio,
-  //       }
+  //       profileData: ownerProfileData
   //   }));
 
+  
+  //     // dispatch(addProfileToUserBoxAsync({
+  //     //   userId: userIdOfToy,
+  //     //   profileData: {
+  //     //     profilePicture: user.profile_picture,
+  //     //     name: user.name,
+  //     //     bio: user.bio,
+  //     //     id: user.id,
+  //     //   }
+  //     // }));
+
+
 
   //   }
-
-
+  
   //   dispatch(removeToyFromCarousel(toyToShow));
-
-
-  // setCurrentIndex((prevIndex) => {
-  //   const newIndex = prevIndex + 1;
-  //   if (newIndex >= toys.length) {
-  //     setShowDefaultImage(true);  
-  //   }
-
-  //   return newIndex;
-  // });
-
+  
+  //   setCurrentIndex((prevIndex) => {
+  //     const newIndex = prevIndex + 1;
+  //     if (newIndex >= toys.length) {
+  //       setShowDefaultImage(true);
+  //     }
+  //     return newIndex;
+  //   });
   // }
+  
+
+  
+  
+  
+
 
   
 
 
+  // const onSwipeLeft = () => {
+  //   const toyToRemove = toys[currentIndex];
+  //   console.log('Swiping Left');
+  //   //console.log('Current Toy to Remove:', toyToRemove.name, '| Index:', currentIndex);
+
+  //   if (user && user.id && currentToy && currentToy.id) {
+
+  //     //recordSwipeAction(user.id, currentToy.id, 'right', toyToShow);
+  //     //recordSwipeAction(user.id, currentToy.id, 'left', toyToRemove);
+  //     recordSwipeAction(user.id, currentToy.id, 'left');
+
+  //     dispatch(setLastInteractedToyId(currentToy.id));
+  //   }
+
+  //   dispatch(removeToyFromCarousel(toyToRemove));
+
+  //   // setCurrentIndex((prevIndex) => {
+  //   //   if (toys.length === 0) return 0;  // If toys array is empty, keep index at 0
+  //   //   const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
+  //   //   console.log('New Current Index after Swipe Left:', newIndex);
+  //   //   return newIndex;
+  //   //   });
+
+  //   setCurrentIndex((prevIndex) => {
+  //     const newIndex = prevIndex + 1;
+  //     if (newIndex >= toys.length) {
+  //       setShowDefaultImage(true);  // <-- Set to show default image
+  //     }
+  //     //return (newIndex < toys.length ? newIndex : prevIndex);
+  //     return newIndex;
+  //   });
+
+  //   };
+
+
+
+
+  //   useEffect(() => {
+  //     if (user && user.last_interacted_toy_id) {
+  //       const index = toys.findIndex(toy => toy.id === user.last_interacted_toy_id);
+  //       if (index !== -1) {
+  //         setCurrentIndex(index);
+  //       }
+  //     }
+  //   }, [user, toys]);
+  
+
+
+
+  const onSwipeRight = () => {
+    const toyToShow = toys[currentIndex];
+    console.log('Swiping Right');
+  
+    if (!toyToShow) {
+      console.error('No toy found at current index:', currentIndex);
+      return;
+    }
+  
+    if (user && user.id && currentToy && currentToy.id) {
+      recordSwipeAction(user.id, currentToy.id, 'right', toyToShow);
+  
+      const ownerProfileData = {
+        swiper_id: user.id,
+        toy_id: currentToy.id,
+        profile_picture: user.profile_picture,
+        user_details: {
+          name: user.name,
+          bio: user.bio,
+        }
+      };
+  
+      dispatch(addProfileToUserBoxAsync({
+        userId: toyToShow.user_id,
+        profileData: ownerProfileData
+      }));
+    }
+  
+    dispatch(removeToyFromCarousel(toyToShow));
+  
+    setCurrentIndex(currentIndex + 1);
+  
+    Animated.timing(translateX, {
+      toValue: Dimensions.get('window').width,
+      duration: 250,
+      useNativeDriver: true
+    }).start(() => {
+      translateX.setValue(0);
+    });
+  }
+  
   const onSwipeLeft = () => {
     const toyToRemove = toys[currentIndex];
     console.log('Swiping Left');
-    //console.log('Current Toy to Remove:', toyToRemove.name, '| Index:', currentIndex);
-
+  
     if (user && user.id && currentToy && currentToy.id) {
-
-      //recordSwipeAction(user.id, currentToy.id, 'right', toyToShow);
-      //recordSwipeAction(user.id, currentToy.id, 'left', toyToRemove);
       recordSwipeAction(user.id, currentToy.id, 'left');
-
       dispatch(setLastInteractedToyId(currentToy.id));
     }
-
+  
     dispatch(removeToyFromCarousel(toyToRemove));
-
-    // setCurrentIndex((prevIndex) => {
-    //   if (toys.length === 0) return 0;  // If toys array is empty, keep index at 0
-    //   const newIndex = (prevIndex < toys.length - 1 ? prevIndex + 1 : 0);
-    //   console.log('New Current Index after Swipe Left:', newIndex);
-    //   return newIndex;
-    //   });
-
-    setCurrentIndex((prevIndex) => {
-      const newIndex = prevIndex + 1;
-      if (newIndex >= toys.length) {
-        setShowDefaultImage(true);  // <-- Set to show default image
-      }
-      //return (newIndex < toys.length ? newIndex : prevIndex);
-      return newIndex;
+  
+    setCurrentIndex(currentIndex + 1);
+  
+    Animated.timing(translateX, {
+      toValue: -Dimensions.get('window').width,
+      duration: 250,
+      useNativeDriver: true
+    }).start(() => {
+      translateX.setValue(0);
     });
-
-    };
-
-
-
-
-    useEffect(() => {
-      if (user && user.last_interacted_toy_id) {
-        const index = toys.findIndex(toy => toy.id === user.last_interacted_toy_id);
-        if (index !== -1) {
-          setCurrentIndex(index);
-        }
-      }
-    }, [user, toys]);
+  }
+  
   
 
 
@@ -572,32 +583,53 @@ function Carousel() {
     <PanGestureHandler
       onGestureEvent={onGestureEvent}
       onHandlerStateChange={({ nativeEvent }) => {
-        if (nativeEvent.oldState === State.ACTIVE) {
-          if (currentToy) { // Only swipe if there's a current toy
-            if (nativeEvent.translationX >= 100) {
-              onSwipeRight();
-              translateX.setValue(0);
-            } else if (nativeEvent.translationX <= -100) {
-              onSwipeLeft();
-              translateX.setValue(0);
-            } else {
-              Animated.spring(translateX, {
-                toValue: 0,
-                useNativeDriver: true,
-              }).start();
-            }
+            if (nativeEvent.oldState === State.ACTIVE) {
+              let isActive = true;
+              if (nativeEvent.translationX > 150) {
+                  Animated.spring(translateX, {
+                      toValue: Dimensions.get('window').width,
+                      useNativeDriver: true
+                  }).start(() => isActive && onSwipeRight());
+              } else if (nativeEvent.translationX < -150) {
+                  Animated.spring(translateX, {
+                      toValue: -Dimensions.get('window').width,
+                      useNativeDriver: true
+                  }).start(() => isActive && onSwipeLeft());
+              } else {
+                  Animated.spring(translateX, {
+                      toValue: 0,
+                      stiffness: 80,
+                      damping: 12,
+                      mass: 1,
+                      useNativeDriver: true
+                  }).start();
+              }
+          
+              return () => {
+                  isActive = false;
+              };
           }
-        }
+      
       }}
       enabled={currentToy !== null} // Enable the gesture handler only if there's a current toy
     >
 
       <Animated.View
-        style={[
-          styles.carouselItem,
-          { transform: [{ translateX }] },
-        ]}
+          style={[
+              styles.carouselItem,
+              {
+                  transform: [
+                      { translateX },
+                      { rotate }
+                  ],
+                  opacity: translateX.interpolate({
+                      inputRange: [-Dimensions.get('window').width, 0, Dimensions.get('window').width],
+                      outputRange: [0.5, 1, 0.5]
+                  })
+              }
+          ]}
       >
+
         
 
         {currentToy ? (
