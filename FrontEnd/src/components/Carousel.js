@@ -295,6 +295,13 @@ function Carousel() {
   // }, [toys]);
   
 
+  //const likeOpacity = new Animated.Value(0);
+ // const nahOpacity = new Animated.Value(0);
+
+  const likeOpacity = useRef(new Animated.Value(0)).current;
+  const nahOpacity = useRef(new Animated.Value(0)).current;
+
+
 
   const onGestureEvent = Animated.event(
     [{ nativeEvent: { translationX: translateX } }],
@@ -511,6 +518,20 @@ function Carousel() {
 
 
   const onSwipeRight = () => {
+    Animated.timing(likeOpacity, {
+      toValue: 1,
+      duration: 100,
+      useNativeDriver: true
+  }).start(() => {
+      setTimeout(() => {
+          Animated.timing(likeOpacity, {
+              toValue: 0,
+              duration: 100,
+              useNativeDriver: true
+
+          }).start();
+      }, 500);
+  });
     const toyToShow = toys[currentIndex];
     console.log('Swiping Right');
   
@@ -551,7 +572,22 @@ function Carousel() {
     });
   }
   
+
+
   const onSwipeLeft = () => {
+    Animated.timing(nahOpacity, {
+      toValue: 1,
+      duration: 100,
+      useNativeDriver: true
+  }).start(() => {
+      setTimeout(() => {
+          Animated.timing(nahOpacity, {
+              toValue: 0,
+              duration: 100,
+              useNativeDriver: true
+          }).start();
+      }, 500);
+  });
     const toyToRemove = toys[currentIndex];
     console.log('Swiping Left');
   
@@ -580,10 +616,12 @@ function Carousel() {
   
     return (
       <View style={styles.carouselContainer}>
+
     <PanGestureHandler
       onGestureEvent={onGestureEvent}
       onHandlerStateChange={({ nativeEvent }) => {
             if (nativeEvent.oldState === State.ACTIVE) {
+              console.log(`TranslationX value: ${nativeEvent.translationX}`);
               let isActive = true;
               if (nativeEvent.translationX > 150) {
                   Animated.spring(translateX, {
@@ -650,6 +688,14 @@ function Carousel() {
         )}
       </Animated.View>
     </PanGestureHandler>
+
+    <Animated.View style={{...styles.actionText, ...styles.likeText, opacity: likeOpacity}}>
+    <Text style={{ fontSize: 100 }}>LIKE</Text>
+      </Animated.View>
+      <Animated.View style={{...styles.actionText, ...styles.nahText, opacity: nahOpacity}}>
+      <Text style={{ fontSize: 100 }}>NAH</Text>
+    </Animated.View>
+
     <TouchableOpacity
     style={{ position: 'absolute', bottom: 50 }}
     onPress={() => openModal(currentToy, currentIndex)}>
@@ -693,6 +739,41 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'contain'
   },
+  actionText: {
+    position: 'absolute',
+    fontSize: 500,  
+    fontWeight: 'bold',
+    top: '20%',    
+    padding: 10,
+    borderRadius: 5,
+    textTransform: 'uppercase',  
+    // backgroundColor: 'rgba(0,0,0,0.6)', 
+    shadowColor: "#000",
+    zIndex: 10000,  
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+
+  likeText: {
+    // color: 'limegreen', 
+    color: 'rgba(170, 255, 0)',
+    left: 50,      
+    zIndex: 100,
+    transform: [{ rotate: '-30deg' }]  // <-- Rotation for "LIKE"
+  },
+  
+  nahText: {
+    color: 'darkred',   
+    right: 50,     
+    zIndex: 100,
+    transform: [{ rotate: '30deg' }]  // <-- Opposite rotation for "NAH"
+  },
+
   
 
 });
