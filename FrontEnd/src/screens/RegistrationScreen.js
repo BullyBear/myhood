@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image, ScrollView, ActivityIndicator  } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, ScrollView, ActivityIndicator, TouchableOpacity  } from 'react-native';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import { Formik } from 'formik';
@@ -211,7 +211,7 @@ const RegistrationScreen = ({ navigation }) => {
                         multiline
                     />
 
-                    <Button title="Pick an image" onPress={handleImagePick} color="black" />
+                    <Button title="Pick an image" onPress={handleImagePick} color="blue" />
                     {/*{image && <Image source={{ uri: image }} style={{ width: 200, height: 200, marginTop: 10 }} />}*/}
                     {image && <Text style={styles.imageSelectedText}>Image Selected!</Text>}
 
@@ -219,15 +219,24 @@ const RegistrationScreen = ({ navigation }) => {
                     {error && <Text style={styles.errorText}>{error}</Text>}
                     {successMessage && <Text style={styles.successText}>{successMessage}</Text>}
 
-                    <View style={{ marginTop: 70 }}>
-                      <Button title={isLoading ? 'Loading...' : 'Register'} color="white" onPress={handleSubmit} disabled={isLoading} />
-                   </View>
+                    <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={isLoading}>
+    <Text style={styles.buttonText}>
+        {isLoading ? 'Loading...' : 'Register'}
+    </Text>
+</TouchableOpacity>
+
 
                 </View>
             )}
         </Formik>
         </View>
-        <Button title="Go to Login" onPress={() => navigation.navigate('Login')} color="blue" style={styles.loginButton} />
+        {/*<Button title="Go to Login" onPress={() => navigation.navigate('Login')} color="blue" style={styles.loginButton} />*/}
+        <TouchableOpacity 
+          style={{ marginTop: 50 }} 
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.boldButtonText}>Go Back</Text>
+        </TouchableOpacity>
 
     </ScrollView>
 );
@@ -240,7 +249,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',  // Set the main axis direction to column
     justifyContent: 'space-between',  // Push content to the start and end of the container
     alignItems: 'center',
-    paddingTop: 20,
+    paddingTop: 50,
     paddingBottom: 80,
     backgroundColor: '#6BCD9B',
   },
@@ -249,10 +258,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   formContainer: {
-    width: '90%', // This determines the width. Adjust this to your preference.
-    alignItems: 'stretch',
+    width: '90%', 
+    alignItems: 'center',
     marginTop: 40
   },
+  
   input: {
     height: 40,
     borderColor: 'gray',
@@ -287,6 +297,32 @@ imageSelectedText: {
   fontFamily: 'Roboto-Regular',
   marginTop: 10,
   textAlign: 'center'
+},
+submitButton: {
+  width: '60%',  // Reduce the width for a smaller button
+  height: 40,    // Reduce the height for a smaller button
+  backgroundColor: 'blue',
+  justifyContent: 'center',
+  alignItems: 'center',
+  borderRadius: 25,
+  marginTop: 125  // Increased margin-top to move the button lower
+},
+
+
+buttonText: {
+  fontWeight: 'bold',
+  color: 'white',
+  fontSize: 18,  // or any other size you prefer
+  textAlign: 'center',
+  padding: 10,  // or adjust as needed
+},
+
+boldButtonText: {
+  fontWeight: 'bold',
+  color: 'blue',
+  fontSize: 18,  // or any other size you prefer
+  textAlign: 'center',
+  padding: 10,  // or adjust as needed
 },
 
 

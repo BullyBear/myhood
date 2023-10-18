@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
@@ -52,7 +52,7 @@ return (
       validationSchema={validationSchema}
     >
       {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-        <View style={{ width: '80%' }}> 
+        <View style={styles.formContainer}> 
           <Text style={styles.labelText}>Email</Text>
           <TextInput
             name="email"
@@ -76,14 +76,16 @@ return (
           )}
           {error && <Text style={styles.errorText}>{error}</Text>}
           {successMessage && <Text style={styles.successText}>{successMessage}</Text>}
-          <View style={styles.submitButtonContainer}>
-          <Button 
-            title={isLoading ? 'Loading...' : 'Submit'} 
+          <TouchableOpacity 
+            style={styles.submitButton} 
             onPress={handleSubmit} 
-            disabled={isLoading} 
-            color="white"
-          />
-        </View>   
+            disabled={isLoading}
+          >
+            <Text style={{ color: 'white', fontSize: 18 }}>
+              {isLoading ? 'Loading...' : 'Submit'}
+            </Text>
+          </TouchableOpacity>
+  
         </View>
 
       )}
@@ -99,6 +101,14 @@ return (
       onPress={() => navigation.navigate('InviteUser')} 
       color="blue"
     />
+    <TouchableOpacity 
+      style={{ marginTop: 50 }} 
+      onPress={() => navigation.goBack()}
+    >
+      <Text style={styles.boldButtonText}>Go Back</Text>
+    </TouchableOpacity>
+
+
     </View>
   </View>
 );
@@ -113,6 +123,10 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#6BCD9B', // Setting the same background color
   },
+  formContainer: {
+    width: '80%',
+    alignItems: 'center',  // This will center the child items horizontally
+},
 
   input: {
     height: 40,
@@ -131,15 +145,38 @@ const styles = StyleSheet.create({
     color: 'green',
     fontFamily: 'Roboto-Regular', // Using the same font family
   },
-  labelText: { // For labels such as "Email" and "Password"
-    fontFamily: 'Roboto-Regular', // Using the same font family
-    fontSize: 24, // Size taken from subtitle of LandingPage
-    color: 'black', // Color taken from title of LandingPage
-    marginBottom: 10, // Some spacing before the input
+  labelText: { 
+    fontFamily: 'Roboto-Regular',
+    fontSize: 24,
+    color: 'black',
+    marginBottom: 10,
+    fontWeight: 'bold',  // Added this line to make it bold
   },
+  
   submitButtonContainer: {
-    marginTop: 125, // Adjust this value as needed
-  },
+    width: '100%',
+    padding: 15, 
+    alignItems: 'center',
+},
+
+submitButton: {
+    width: '85%',  // Reduce the width for a smaller button
+    height: 45,    // Reduce the height for a smaller button
+    backgroundColor: 'blue',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 25,
+    marginTop: 150
+},
+boldButtonText: {
+  fontWeight: 'bold',
+  color: 'blue',
+  fontSize: 18,  // or any other size you prefer
+  textAlign: 'center',
+  padding: 10,  // or adjust as needed
+},
+
+
 
 
 });

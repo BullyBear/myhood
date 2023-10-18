@@ -11,10 +11,10 @@ const Stack = createStackNavigator();
 const AuthNavigator = () => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Registration" component={RegistrationScreen} />
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-      <Stack.Screen name="InviteUser" component={InviteUserScreen} />
+      <Stack.Screen name="Registration" component={RegistrationScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="InviteUser" component={InviteUserScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 };
