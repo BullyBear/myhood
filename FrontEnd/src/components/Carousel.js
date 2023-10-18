@@ -689,12 +689,14 @@ function Carousel() {
       </Animated.View>
     </PanGestureHandler>
 
-    <Animated.View style={{...styles.actionText, ...styles.likeText, opacity: likeOpacity}}>
-    <Text style={{ fontSize: 100 }}>LIKE</Text>
-      </Animated.View>
-      <Animated.View style={{...styles.actionText, ...styles.nahText, opacity: nahOpacity}}>
-      <Text style={{ fontSize: 100 }}>NAH</Text>
+    <Animated.View style={{...styles.actionText, ...styles.nahText, opacity: nahOpacity}}>
+      <Text style={{ fontSize: 100, color: 'red' }}>NAH</Text>
     </Animated.View>
+
+    <Animated.View style={{...styles.actionText, ...styles.likeText, opacity: likeOpacity}}>
+      <Text style={{ fontSize: 100, color: 'green' }}>LIKE</Text>
+    </Animated.View>
+
 
     <TouchableOpacity
     style={{ position: 'absolute', bottom: 50 }}
@@ -762,16 +764,16 @@ const styles = StyleSheet.create({
   likeText: {
     // color: 'limegreen', 
     color: 'rgba(170, 255, 0)',
-    left: 50,      
+    right: 50,      
     zIndex: 100,
-    transform: [{ rotate: '-30deg' }]  // <-- Rotation for "LIKE"
+    transform: [{ rotate: '30deg' }]  // <-- Rotation for "LIKE"
   },
   
   nahText: {
     color: 'darkred',   
-    right: 50,     
+    left: 50,     
     zIndex: 100,
-    transform: [{ rotate: '30deg' }]  // <-- Opposite rotation for "NAH"
+    transform: [{ rotate: '-30deg' }]  // <-- Opposite rotation for "NAH"
   },
 
   
