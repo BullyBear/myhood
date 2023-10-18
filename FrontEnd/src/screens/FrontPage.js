@@ -87,7 +87,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#6BCD9B',
     //backgroundColor: "white"
-  },
+    fontFamily: 'Roboto-Regular',
+   },
+
   userNameText: {
     fontSize: 20,
     fontWeight: 'bold',

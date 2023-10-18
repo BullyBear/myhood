@@ -717,6 +717,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    fontFamily: 'Roboto-Regular',
   },
   carouselItem: {
     flexDirection: 'row',
@@ -759,6 +760,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    fontFamily: 'Roboto-Regular',
   },
 
   likeText: {
@@ -766,14 +768,16 @@ const styles = StyleSheet.create({
     color: 'rgba(170, 255, 0)',
     right: 50,      
     zIndex: 100,
-    transform: [{ rotate: '30deg' }]  // <-- Rotation for "LIKE"
+    transform: [{ rotate: '30deg' }],  // <-- Rotation for "LIKE"
+    fontFamily: 'Roboto-Regular',
   },
   
   nahText: {
     color: 'darkred',   
     left: 50,     
     zIndex: 100,
-    transform: [{ rotate: '-30deg' }]  // <-- Opposite rotation for "NAH"
+    transform: [{ rotate: '-30deg' }],
+    fontFamily: 'Roboto-Regular',  // <-- Opposite rotation for "NAH"
   },
 
   
