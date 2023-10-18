@@ -702,7 +702,7 @@ function Carousel() {
     style={{ position: 'absolute', bottom: 50 }}
     onPress={() => openModal(currentToy, currentIndex)}>
 
-      <Text style={{fontSize: 18, color: 'blue'}}>See More</Text>
+      <Text style={{fontSize: 18, color: 'white'}}>See More</Text>
     </TouchableOpacity>
 
     <ToyImageModal isVisible={isModalVisible} onClose={closeModal} images={selectedToyImages} />

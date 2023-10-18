@@ -76,13 +76,16 @@ return (
           )}
           {error && <Text style={styles.errorText}>{error}</Text>}
           {successMessage && <Text style={styles.successText}>{successMessage}</Text>}
+          <View style={styles.submitButtonContainer}>
           <Button 
             title={isLoading ? 'Loading...' : 'Submit'} 
             onPress={handleSubmit} 
             disabled={isLoading} 
             color="white"
           />
+        </View>   
         </View>
+
       )}
     </Formik>
     <View style={{ marginTop: 200 }}> 
@@ -134,6 +137,11 @@ const styles = StyleSheet.create({
     color: 'black', // Color taken from title of LandingPage
     marginBottom: 10, // Some spacing before the input
   },
+  submitButtonContainer: {
+    marginTop: 125, // Adjust this value as needed
+  },
+
+
 });
 
 
