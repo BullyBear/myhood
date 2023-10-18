@@ -44,67 +44,98 @@ const LoginScreen = ({ navigation }) => {
 };
 
 
-  return (
-    <View style={styles.container}>
-      <Formik
-        initialValues={{ email: '', password: '' }}
-        onSubmit={onSubmit}
-        validationSchema={validationSchema}
-      >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-          <View>
-            <Text>Email</Text>
-            <TextInput
-              name="email"
-              onChangeText={handleChange('email')}
-              onBlur={handleBlur('email')}
-              value={values.email}
-              style={styles.input}
-            />
-            {touched.email && errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-            <Text>Password</Text>
-            <TextInput
-              name="password"
-              onChangeText={handleChange('password')}
-              onBlur={handleBlur('password')}
-              value={values.password}
-              secureTextEntry
-              style={styles.input}
-            />
-            {touched.password && errors.password && (
-              <Text style={styles.errorText}>{errors.password}</Text>
-            )}
-            {error && <Text style={styles.errorText}>{error}</Text>}
-            {successMessage && <Text style={styles.successText}>{successMessage}</Text>}
-            <Button title={isLoading ? 'Loading...' : 'Submit'} onPress={handleSubmit} disabled={isLoading} />
-          </View>
-        )}
-      </Formik>
-      <Button title="Forgot Password?" onPress={() => navigation.navigate('ForgotPassword')} />
-      <Button title="Invite User" onPress={() => navigation.navigate('InviteUser')} />
+return (
+  <View style={styles.container}>
+    <Formik
+      initialValues={{ email: '', password: '' }}
+      onSubmit={onSubmit}
+      validationSchema={validationSchema}
+    >
+      {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+        <View style={{ width: '80%' }}> 
+          <Text style={styles.labelText}>Email</Text>
+          <TextInput
+            name="email"
+            onChangeText={handleChange('email')}
+            onBlur={handleBlur('email')}
+            value={values.email}
+            style={styles.input}
+          />
+          {touched.email && errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+          <Text style={styles.labelText}>Password</Text>
+          <TextInput
+            name="password"
+            onChangeText={handleChange('password')}
+            onBlur={handleBlur('password')}
+            value={values.password}
+            secureTextEntry
+            style={styles.input}
+          />
+          {touched.password && errors.password && (
+            <Text style={styles.errorText}>{errors.password}</Text>
+          )}
+          {error && <Text style={styles.errorText}>{error}</Text>}
+          {successMessage && <Text style={styles.successText}>{successMessage}</Text>}
+          <Button 
+            title={isLoading ? 'Loading...' : 'Submit'} 
+            onPress={handleSubmit} 
+            disabled={isLoading} 
+            color="white"
+          />
+        </View>
+      )}
+    </Formik>
+    <View style={{ marginTop: 200 }}> 
+    <Button 
+      title="Forgot Password?" 
+      onPress={() => navigation.navigate('ForgotPassword')} 
+      color="blue"
+    />
+    <Button 
+      title="Invite User" 
+      onPress={() => navigation.navigate('InviteUser')} 
+      color="blue"
+    />
     </View>
-  );
+  </View>
+);
 };
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center', // To align items to the center similar to LandingPage
     padding: 16,
+    backgroundColor: '#6BCD9B', // Setting the same background color
   },
+
   input: {
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,
     marginBottom: 15,
     paddingHorizontal: 10,
+    fontFamily: 'Roboto-Regular', // Using the same font family
+    width: '100%', // Optionally, you can set this to make sure the inputs stretch to full width
   },
   errorText: {
     color: 'red',
+    fontFamily: 'Roboto-Regular', // Using the same font family
   },
   successText: {
     color: 'green',
+    fontFamily: 'Roboto-Regular', // Using the same font family
+  },
+  labelText: { // For labels such as "Email" and "Password"
+    fontFamily: 'Roboto-Regular', // Using the same font family
+    fontSize: 24, // Size taken from subtitle of LandingPage
+    color: 'black', // Color taken from title of LandingPage
+    marginBottom: 10, // Some spacing before the input
   },
 });
+
+
 
 export default LoginScreen;

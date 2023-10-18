@@ -13,8 +13,8 @@ const LandingPage = ({ navigation }) => {
       />
       <Text style={styles.title}>MyHood</Text>
       <Text style={styles.subtitle}>Where Tinder & Meetup Collide. </Text>
-      <Button title="Login" onPress={() => navigation.navigate('Auth', { screen: 'Login' })} />
-      <Button title="Register" onPress={() => navigation.navigate('Auth', { screen: 'Registration' })} />
+      <Button color="blue" title="Login" onPress={() => navigation.navigate('Auth', { screen: 'Login' })} />
+      <Button color="blue" title="Register" onPress={() => navigation.navigate('Auth', { screen: 'Registration' })} />
     </View>
   );
 };

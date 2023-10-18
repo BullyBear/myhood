@@ -64,30 +64,30 @@ const RegistrationScreen = ({ navigation }) => {
   const userState = useSelector((state) => state.user);
   const { isLoading, error, successMessage, image } = userState;
 
-  const [pushToken, setPushToken] = useState(null);
+  // const [pushToken, setPushToken] = useState(null);
 
 
-  useEffect(() => {
-    // Function to fetch the push token
-    const fetchPushToken = async () => {
-      try {
-        const { status } = await Notifications.getPermissionsAsync();
-        if (status !== 'granted') {
-          const { status: newStatus } = await Notifications.requestPermissionsAsync();
-          if (newStatus !== 'granted') {
-            console.warn('Failed to get push token for push notification!');
-            return;
-          }
-        }
-        const tokenData = await Notifications.getExpoPushTokenAsync();
-        setPushToken(tokenData.data);
-      } catch (error) {
-        console.error("Error fetching push token:", error.message);
-      }
-    };
+  // useEffect(() => {
+  //   // Function to fetch the push token
+  //   const fetchPushToken = async () => {
+  //     try {
+  //       const { status } = await Notifications.getPermissionsAsync();
+  //       if (status !== 'granted') {
+  //         const { status: newStatus } = await Notifications.requestPermissionsAsync();
+  //         if (newStatus !== 'granted') {
+  //           console.warn('Failed to get push token for push notification!');
+  //           return;
+  //         }
+  //       }
+  //       const tokenData = await Notifications.getExpoPushTokenAsync();
+  //       setPushToken(tokenData.data);
+  //     } catch (error) {
+  //       console.error("Error fetching push token:", error.message);
+  //     }
+  //   };
 
-    fetchPushToken();
-  }, []);
+  //   fetchPushToken();
+  // }, []);
 
 
   useEffect(() => {
@@ -143,7 +143,7 @@ const RegistrationScreen = ({ navigation }) => {
       values.user_longitude = location.coords.longitude;
       values.profile_picture = image;
 
-      values.push_token = pushToken;
+      //values.push_token = pushToken;
       
       await dispatch(registerUser(values)); 
       dispatch(setImageUrl(null));
@@ -159,76 +159,99 @@ const RegistrationScreen = ({ navigation }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
-      <Formik
-        initialValues={{ name: '', email: '', password: '', bio: '' }}
-        onSubmit={handleRegister}
-        validationSchema={validationSchema}
-      >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-          <View>
-            <Text>Name</Text>
-            <TextInput
-              name="name"
-              onChangeText={handleChange('name')}
-              onBlur={handleBlur('name')}
-              value={values.name}
-              style={styles.input}
-            />
-            {touched.name && errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+      <View style={styles.formWrapper}>
+        {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
+        <Formik
+            initialValues={{ name: '', email: '', password: '', bio: '' }}
+            onSubmit={handleRegister}
+            validationSchema={validationSchema}
+        >
+            {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+                <View style={styles.formContainer}>
+                    <Text style={styles.labelText}>Name</Text>
+                    <TextInput
+                        name="name"
+                        onChangeText={handleChange('name')}
+                        onBlur={handleBlur('name')}
+                        value={values.name}
+                        style={styles.input}
+                    />
+                    {touched.name && errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
 
-            <Text>Email</Text>
-            <TextInput
-              name="email"
-              onChangeText={handleChange('email')}
-              onBlur={handleBlur('email')}
-              value={values.email}
-              style={styles.input}
-            />
-            {touched.email && errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+                    <Text style={styles.labelText}>Email</Text>
+                    <TextInput
+                        name="email"
+                        onChangeText={handleChange('email')}
+                        onBlur={handleBlur('email')}
+                        value={values.email}
+                        style={styles.input}
+                    />
+                    {touched.email && errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-            <Text>Password</Text>
-            <TextInput
-              name="password"
-              onChangeText={handleChange('password')}
-              onBlur={handleBlur('password')}
-              value={values.password}
-              secureTextEntry
-              style={styles.input}
-            />
-            {touched.password && errors.password && (
-              <Text style={styles.errorText}>{errors.password}</Text>
+                    <Text style={styles.labelText}>Password</Text>
+                    <TextInput
+                        name="password"
+                        onChangeText={handleChange('password')}
+                        onBlur={handleBlur('password')}
+                        value={values.password}
+                        secureTextEntry
+                        style={styles.input}
+                    />
+                    {touched.password && errors.password && (
+                        <Text style={styles.errorText}>{errors.password}</Text>
+                    )}
+
+                    <Text style={styles.labelText}>Bio</Text>
+                    <TextInput
+                        name="bio"
+                        onChangeText={handleChange('bio')}
+                        onBlur={handleBlur('bio')}
+                        value={values.bio}
+                        style={styles.input}
+                        multiline
+                    />
+
+                    <Button title="Pick an image" onPress={handleImagePick} color="black" />
+                    {/*{image && <Image source={{ uri: image }} style={{ width: 200, height: 200, marginTop: 10 }} />}*/}
+                    {image && <Text style={styles.imageSelectedText}>Image Selected!</Text>}
+
+
+                    {error && <Text style={styles.errorText}>{error}</Text>}
+                    {successMessage && <Text style={styles.successText}>{successMessage}</Text>}
+
+                    <View style={{ marginTop: 70 }}>
+                      <Button title={isLoading ? 'Loading...' : 'Register'} color="white" onPress={handleSubmit} disabled={isLoading} />
+                   </View>
+
+                </View>
             )}
+        </Formik>
+        </View>
+        <Button title="Go to Login" onPress={() => navigation.navigate('Login')} color="blue" style={styles.loginButton} />
 
-            <Text>Bio</Text>
-            <TextInput
-              name="bio"
-              onChangeText={handleChange('bio')}
-              onBlur={handleBlur('bio')}
-              value={values.bio}
-              style={styles.input}
-              multiline
-            />
-
-            <Button title="Pick an image" onPress={handleImagePick} />
-            {image && <Image source={{ uri: image }} style={{ width: 200, height: 200, marginTop: 10 }} />}
-
-            {error && <Text style={styles.errorText}>{error}</Text>}
-            {successMessage && <Text style={styles.successText}>{successMessage}</Text>}
-
-            <Button title={isLoading ? 'Loading...' : 'Register'} onPress={handleSubmit} disabled={isLoading} />
-            <Button title="Go to Login" onPress={() => navigation.navigate('Login')} />
-          </View>
-        )}
-      </Formik>
     </ScrollView>
-  );
+);
 };
+
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'flex-start',
-    padding: 16,
+    flex: 1,
+    flexDirection: 'column',  // Set the main axis direction to column
+    justifyContent: 'space-between',  // Push content to the start and end of the container
+    alignItems: 'center',
+    paddingTop: 20,
+    paddingBottom: 80,
+    backgroundColor: '#6BCD9B',
+  },
+  formWrapper: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  formContainer: {
+    width: '90%', // This determines the width. Adjust this to your preference.
+    alignItems: 'stretch',
+    marginTop: 40
   },
   input: {
     height: 40,
@@ -236,13 +259,42 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 15,
     paddingHorizontal: 10,
+    fontFamily: 'Roboto-Regular', // Font family from LoginScreen
+    width: '100%',  // Stretching to full width
   },
   errorText: {
     color: 'red',
+    fontFamily: 'Roboto-Regular',  // Font family from LoginScreen
   },
   successText: {
     color: 'green',
+    fontFamily: 'Roboto-Regular',  // Font family from LoginScreen
   },
+  labelText: {  // Optional, if you want to use these styles for labels
+    fontFamily: 'Roboto-Regular', 
+    fontSize: 24, 
+    color: 'black',
+    marginBottom: 10,
+  },
+  registerButton: {
+    marginTop: 30,  // Adding a 20-pixel margin to the bottom of the Register button
+},
+loginButton: {
+  marginBottom: 10,  // Adjust the value to your liking
+},
+imageSelectedText: {
+  color: 'black',
+  fontFamily: 'Roboto-Regular',
+  marginTop: 10,
+  textAlign: 'center'
+},
+
+
+
+
 });
+
+
+
 
 export default RegistrationScreen;
