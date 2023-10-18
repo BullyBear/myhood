@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Using FontAwesome as an example.
 
@@ -22,6 +22,12 @@ export default function NavigationPage({ navigation }) {
           </ListItem.Content>
         </ListItem>
       ))}
+            <TouchableOpacity 
+        style={{ marginTop: 50 }} 
+        onPress={() => navigation.goBack()}
+      >
+        <Text style={styles.boldButtonText}>Go Back</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -45,6 +51,12 @@ const styles = StyleSheet.create({
   },
   listItemContainer: {
     marginVertical: 5, // Adjust this value to increase or decrease the space between list items
+  },
+  boldButtonText: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 200
   },
 
 

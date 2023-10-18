@@ -56,17 +56,17 @@ export default function App() {
         <PaperProvider>
         <NavigationContainer>
         <Stack.Navigator initialRouteName="Landing">
-          <Stack.Screen name="Landing" component={LandingPage} />
-          <Stack.Screen name="Auth" component={AuthNavigator} />
-          <Stack.Screen name="FrontPage" component={FrontPage} />
-          <Stack.Screen name="NavigationPage" component={NavigationPage} />
-          <Stack.Screen name="Toy" component={Toy} />
-          <Stack.Screen name="ToyBox" component={ToyBox} />
-          <Stack.Screen name="ToyDetails" component={ToyDetails} />
-          <Stack.Screen name="Profile" component={Profile} />
-          <Stack.Screen name="UserBox" component={UserBox} />
-          <Stack.Screen name="UserDetails" component={UserDetails} />
-          <Stack.Screen name="ChatScreen" component={ChatScreen} />
+          <Stack.Screen name="Landing" component={LandingPage} options={{ headerShown: false }} />
+          <Stack.Screen name="Auth" component={AuthNavigator} options={{ headerShown: false }} />
+          <Stack.Screen name="FrontPage" component={FrontPage} options={{ headerShown: false }} />
+          <Stack.Screen name="NavigationPage" component={NavigationPage} options={{ headerShown: false }} />
+          <Stack.Screen name="Toy" component={Toy} options={{ headerShown: false }} />
+          <Stack.Screen name="ToyBox" component={ToyBox} options={{ headerShown: false }} />
+          <Stack.Screen name="ToyDetails" component={ToyDetails} options={{ headerShown: false }} />
+          <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
+          <Stack.Screen name="UserBox" component={UserBox} options={{ headerShown: false }} />
+          <Stack.Screen name="UserDetails" component={UserDetails} options={{ headerShown: false }} />
+          <Stack.Screen name="ChatScreen" component={ChatScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
 
