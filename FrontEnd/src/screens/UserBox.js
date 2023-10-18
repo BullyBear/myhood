@@ -202,7 +202,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 25
+    padding: 25,
+    backgroundColor: '#6BCD9B',
   },
   contentContainer: {
     flexDirection: 'row',

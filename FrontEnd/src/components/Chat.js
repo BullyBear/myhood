@@ -120,7 +120,7 @@ const Chat = ({ roomId, userId }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#6BCD9B',
   },
   messageContainer: {
     padding: 10,

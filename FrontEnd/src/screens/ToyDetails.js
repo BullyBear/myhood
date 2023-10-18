@@ -130,6 +130,13 @@ export default function ToyDetails({ route }) {
           <Text style={styles.chatButtonText}>Chat</Text>
       </TouchableOpacity>
 
+      <TouchableOpacity 
+            style={{ marginTop: 50 }} 
+            onPress={() => navigation.goBack()}
+            >
+          <Text style={styles.boldButtonText}>Go Back</Text>
+      </TouchableOpacity>
+
     </View>
   );
 
@@ -143,7 +150,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10,
-    backgroundColor: '#fff',
+    backgroundColor: '#6BCD9B',
   },
   image: {
     width: 300,
@@ -174,6 +181,21 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
   },
+  boldButtonText: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center',
+    backgroundColor: '#333', // Dark background for contrast
+    color: '#fff', // White text
+    padding: 10, // Padding for a larger touch target and better look
+    borderRadius: 5, // Rounded corners
+    marginTop: 300, // Give it some space from the list items
+    alignSelf: 'center', // Center the button horizontally
+    width: 120, // Set a fixed width
+  },
+
+
+
 });
 
 

@@ -264,7 +264,8 @@ export default function Toy() {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      padding: 100
+      padding: 100,
+      backgroundColor: '#6BCD9B',
     },
     imageContainer: {
       flexDirection: 'row',
