@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Image, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Formik } from 'formik';
 import * as yup from 'yup';
@@ -136,6 +136,14 @@ const handleUpdate = async (values) => {
             )}
 
 
+          <TouchableOpacity 
+            style={{ marginTop: 50 }} 
+            onPress={() => navigation.goBack()}
+            >
+          <Text style={styles.boldButtonText}>Go Back</Text>
+          </TouchableOpacity>
+
+
     </ScrollView>
   );
 };
@@ -158,6 +166,22 @@ const styles = StyleSheet.create({
   successText: {
     color: 'green',
   },
+  boldButtonText: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center',
+    backgroundColor: '#333', // Dark background for contrast
+    color: '#fff', // White text
+    padding: 10, // Padding for a larger touch target and better look
+    borderRadius: 5, // Rounded corners
+    marginTop: 300, // Give it some space from the list items
+    alignSelf: 'center', // Center the button horizontally
+    width: 120, // Set a fixed width
+  },
+
+
+
+
 });
 
 

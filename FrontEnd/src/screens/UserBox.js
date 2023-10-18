@@ -183,10 +183,15 @@ const userSwipedToys = useSelector(state => selectSwipedToysForUser(state, userI
         {/*{usersToShow.map(userDetail => userDetail && renderThumbnail(userDetail))}*/}
         {usersToShow.map((userDetail, index) => userDetail && renderThumbnail(userDetail, index, swipedToy))}
 
-
+        <TouchableOpacity 
+        style={{ marginTop: 50 }} 
+        onPress={() => navigation.goBack()}
+      >
+        <Text style={styles.boldButtonText}>Go Back</Text>
+      </TouchableOpacity>
 
       </View>
-      {renderFooter()}
+      {/*{renderFooter()}*/}
     </View>
   );
 }
@@ -197,6 +202,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 25
   },
   contentContainer: {
     flexDirection: 'row',
@@ -208,6 +214,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
+  boldButtonText: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center',
+    backgroundColor: '#333', // Dark background for contrast
+    color: '#fff', // White text
+    padding: 10, // Padding for a larger touch target and better look
+    borderRadius: 5, // Rounded corners
+    marginTop: 200, // Give it some space from the list items
+    alignSelf: 'center', // Center the button horizontally
+    width: 120, // Set a fixed width
+
+  },
+
+
+
 });
 
 

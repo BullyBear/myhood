@@ -94,7 +94,13 @@ function ToyBox() {
       <View style={styles.contentContainer}>
         {toysToShow.map((toy, index) => toy && renderThumbnail(toy, index))}
       </View>
-      {renderFooter()}
+      <TouchableOpacity 
+        style={{ marginTop: 50 }} 
+        onPress={() => navigation.goBack()}
+      >
+        <Text style={styles.boldButtonText}>Go Back</Text>
+      </TouchableOpacity>
+      {/*{renderFooter()}*/}
     </View>
   );
 }
@@ -114,6 +120,19 @@ const styles = StyleSheet.create({
     margin: 10,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  boldButtonText: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center',
+    backgroundColor: '#333', // Dark background for contrast
+    color: '#fff', // White text
+    padding: 10, // Padding for a larger touch target and better look
+    borderRadius: 5, // Rounded corners
+    marginTop: 200, // Give it some space from the list items
+    alignSelf: 'center', // Center the button horizontally
+    width: 120, // Set a fixed width
+
   },
 
 });

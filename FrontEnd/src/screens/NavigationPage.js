@@ -4,8 +4,7 @@ import { ListItem } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Using FontAwesome as an example.
 
 const ListItems = [
-  { title: 'Carousel', icon: 'home', navigateTo: 'FrontPage' }, // 'home' icon as an example
-    { title: 'My ToyBox', icon: 'gift', navigateTo: 'ToyBox' }, // 'gift' icon as an example
+  { title: 'My ToyBox', icon: 'gift', navigateTo: 'ToyBox' }, // 'gift' icon as an example
   { title: 'My UserBox', icon: 'users', navigateTo: 'UserBox' }, // 'users' icon as an example
   { title: 'Create Toy', icon: 'plus-circle', navigateTo: 'Toy' }, // 'plus-circle' icon as an example
   { title: 'Edit Profile', icon: 'user-circle', navigateTo: 'Profile' }, // 'user-circle' icon as an example
@@ -32,32 +31,39 @@ export default function NavigationPage({ navigation }) {
   );
 }
 
+
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     backgroundColor: '#6BCD9B',
+    padding: 75,
   },
   title: {
     fontFamily: 'Roboto-Regular',
-    fontSize: 24, 
-    color: 'black', // You may want to adjust this to 'white' if you prefer the color from subtitle of LandingPage.
-    textAlign: 'center',
-    width: '100%',
-  },
-  centeredText: {
-    textAlign: 'center',
-    width: '100%',
+    fontSize: 18, // Decreased font size for a neater look
+    color: '#333', // Slightly lighter than black for a softer look
+    marginLeft: 10, // Provide some spacing between the icon and title
   },
   listItemContainer: {
-    marginVertical: 5, // Adjust this value to increase or decrease the space between list items
+    backgroundColor: '#fff', // Make the list items pop with a white background
+    marginVertical: 10, // Increased space between list items
+    borderRadius: 10, // Rounded corners for a softer look
+    overflow: 'hidden', // Ensures the rounded corners effect
+    marginTop: 20,
+    backgroundColor: 'white'
   },
   boldButtonText: {
     fontWeight: 'bold',
     fontSize: 16,
     textAlign: 'center',
-    marginTop: 200
+    backgroundColor: '#333', // Dark background for contrast
+    color: '#fff', // White text
+    padding: 10, // Padding for a larger touch target and better look
+    borderRadius: 5, // Rounded corners
+    marginTop: 300, // Give it some space from the list items
+    alignSelf: 'center', // Center the button horizontally
+    width: 120, // Set a fixed width
   },
-
-
 });
+
