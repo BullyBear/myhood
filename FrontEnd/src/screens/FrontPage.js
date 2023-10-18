@@ -85,6 +85,8 @@ const FrontPage = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#6BCD9B',
+    //backgroundColor: "white"
   },
   userNameText: {
     fontSize: 20,
