@@ -101,86 +101,147 @@ const handleUpdate = async (values) => {
   
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
-      {user ? (
-      <Formik
-        initialValues={{ bio: user.bio }} // Use user's current bio from redux store
-        onSubmit={handleUpdate}
-        validationSchema={validationSchema}
-      >
-        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-          <View>
-            <Text>Bio</Text>
-            <TextInput
+    <ScrollView style={styles.background} contentContainerStyle={styles.container}>
+        {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
+        {user ? (
+        <Formik
+            initialValues={{ bio: user.bio }}
+            onSubmit={handleUpdate}
+            validationSchema={validationSchema}
+        >
+            {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+            <View style={styles.formContainer}>
+
+      <View style={styles.bioContainer}>
+          <Text style={styles.changeBioText}>Edit Bio</Text>
+
+          <TextInput
               name="bio"
               onChangeText={handleChange('bio')}
               onBlur={handleBlur('bio')}
               value={values.bio}
               style={styles.input}
               multiline
-            />
-            {touched.bio && errors.bio && <Text style={styles.errorText}>{errors.bio}</Text>}
+          />
+          {touched.bio && errors.bio && <Text style={styles.errorText}>{errors.bio}</Text>}
+      </View>
 
-            <Button title="Change Image" onPress={handleImagePick} />
-            {image && <Image source={{ uri: image }} style={{ width: 200, height: 200, marginTop: 10 }} />}
-            {/* Show the user's current image if no new image is picked */}
-            {!image && user.profile_picture && <Image source={{ uri: user.profile_picture }} style={{ width: 200, height: 200, marginTop: 10 }} />}
+    {/* Modified the button here */}
+    <TouchableOpacity style={styles.changeImageButton} onPress={handleImagePick}>
+        <Text style={styles.buttonText}>Select Image</Text>
+    </TouchableOpacity>
 
-            <Button title="Save Changes" onPress={handleSubmit} />
-          </View>
-          )}
-        </Formik>
-            ) : (
-              <Text>Loading user data...</Text>
+    {image && <Image source={{ uri: image }} style={styles.image} />}
+    {!image && user.profile_picture && <Image source={{ uri: user.profile_picture }} style={styles.image} />}
+
+    <TouchableOpacity style={styles.saveChangesButton} onPress={handleSubmit}>
+    <Text style={styles.buttonText}>Save Changes</Text>
+    </TouchableOpacity>
+
+    </View>
             )}
+        </Formik>
+        ) : (
+            <Text>Loading user data...</Text>
+        )}
 
-
-          <TouchableOpacity 
-            style={{ marginTop: 50 }} 
-            onPress={() => navigation.goBack()}
-            >
-          <Text style={styles.boldButtonText}>Go Back</Text>
-          </TouchableOpacity>
-
-
+        <TouchableOpacity style={styles.goBackButton} onPress={() => navigation.goBack()}>
+            <Text style={styles.boldButtonText}>Go Back</Text>
+        </TouchableOpacity>
     </ScrollView>
-  );
+);
 };
 
+
+
 const styles = StyleSheet.create({
+  background: {
+      flex: 1,
+      backgroundColor: '#6BCD9B',
+  },
   container: {
-    justifyContent: 'flex-start',
+    flexGrow: 1,
+    justifyContent: 'center',
     padding: 16,
-    backgroundColor: '#6BCD9B',
-  },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 15,
     paddingHorizontal: 10,
-  },
+    marginTop: 50
+},
+formContainer: {
+  alignItems: 'stretch', // Change from 'center' to 'stretch'.
+  width: '100%',
+  //marginTop: -100
+},
+
+input: {
+  width: '90%',
+  height: 80,
+  borderColor: 'gray',
+  borderWidth: 1,
+  marginBottom: 15,
+  paddingHorizontal: 10,
+  alignSelf: 'center' 
+},
+changeImageButton: {
+  marginTop: 40,
+  backgroundColor: '#333',
+  padding: 10,
+  borderRadius: 5,
+  alignSelf: 'center',
+  width: 150, // Adjust this to the width you prefer
+  alignItems: 'center' // This ensures the text inside the button is centered
+},
+saveChangesButton: {
+  marginTop: 50, // Add space between the image and the button
+  backgroundColor: 'blue',
+  padding: 10,
+  borderRadius: 5,
+  alignSelf: 'center',
+  width: 150, // Adjust this to the width you prefer
+  alignItems: 'center' // This ensures the text inside the button is centered
+},
+
+
+buttonText: {
+  color: '#fff',
+  fontSize: 16
+},
+
+image: {
+  width: 300,
+  height: 300,
+  marginTop: 20,
+  marginBottom: 50,
+  borderRadius: 10,
+  alignSelf: 'center',  
+},
   errorText: {
-    color: 'red',
+      color: 'red',
   },
-  successText: {
-    color: 'green',
+  goBackButton: {
+      marginTop: 100,
+      alignSelf: 'center',
+      borderRadius: 5,
+      padding: 10
   },
   boldButtonText: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    textAlign: 'center',
-    backgroundColor: '#333', // Dark background for contrast
-    color: '#fff', // White text
-    padding: 10, // Padding for a larger touch target and better look
-    borderRadius: 5, // Rounded corners
-    marginTop: 300, // Give it some space from the list items
-    alignSelf: 'center', // Center the button horizontally
-    width: 120, // Set a fixed width
+      fontWeight: 'bold',
+      fontSize: 16,
+      backgroundColor: '#333',
+      color: '#fff',
+      padding: 10,
+      borderRadius: 5,
+      width: 120,
+      textAlign: 'center',
   },
-
-
+  bioContainer: {
+    marginTop: -40, 
+},
+changeBioText: {
+  fontWeight: 'bold',
+  fontSize: 16,
+  alignSelf: 'center', // This will center the text horizontally
+  marginBottom: 10, // Space between the text and the input box
+}
 
 
 });
