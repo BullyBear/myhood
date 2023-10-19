@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Using FontAwesome as an example.
+import LottieView from 'lottie-react-native';
 
 const ListItems = [
   { title: 'My ToyBox', icon: 'gift', navigateTo: 'ToyBox' }, // 'gift' icon as an example
@@ -21,12 +22,21 @@ export default function NavigationPage({ navigation }) {
           </ListItem.Content>
         </ListItem>
       ))}
-            <TouchableOpacity 
+
+      <LottieView 
+        source={require('../../assets/pyramid.json')} 
+        autoPlay 
+        loop 
+        style={styles.lottie}
+      />
+
+      <TouchableOpacity 
         style={{ marginTop: 50 }} 
         onPress={() => navigation.goBack()}
       >
         <Text style={styles.boldButtonText}>Go Back</Text>
       </TouchableOpacity>
+
     </View>
   );
 }
@@ -61,9 +71,17 @@ const styles = StyleSheet.create({
     color: '#fff', // White text
     padding: 10, // Padding for a larger touch target and better look
     borderRadius: 5, // Rounded corners
-    marginTop: 300, // Give it some space from the list items
+    marginTop: 50, // Give it some space from the list items
     alignSelf: 'center', // Center the button horizontally
     width: 120, // Set a fixed width
   },
+  lottie: {
+    width: 300,
+    height: 300,
+    marginBottom: 30,
+    alignSelf: 'center',
+  },
+
+
 });
 
