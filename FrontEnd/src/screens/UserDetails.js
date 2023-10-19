@@ -210,16 +210,19 @@ const sendPushNotification = async (pushToken, message) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',  // Changed this from 'center'
     alignItems: 'center',
     padding: 10,
+    paddingTop: 100,  // Added this line
     backgroundColor: '#6BCD9B',
-  },
+},
+
   image: {
     width: 300,
     height: 300,
     marginBottom: 20,
-  },
+    marginTop: 100, // Added this line
+},
   text: {
     fontSize: 18,
     marginBottom: 10,
@@ -251,7 +254,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 5,
-    marginTop: 10,
+    marginTop: 50,
   },
   chatButtonText: {
     color: '#fff',
@@ -265,9 +268,9 @@ const styles = StyleSheet.create({
     color: '#fff', // White text
     padding: 10, // Padding for a larger touch target and better look
     borderRadius: 5, // Rounded corners
-    marginTop: 300, // Give it some space from the list items
+    marginTop: 100, // Give it some space from the list items
     alignSelf: 'center', // Center the button horizontally
     width: 120, // Set a fixed width
   },
-  
+
 });
