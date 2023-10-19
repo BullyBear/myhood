@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
     View, Text, TextInput, TouchableOpacity, 
     StyleSheet, ScrollView, KeyboardAvoidingView, Platform 
@@ -18,11 +18,18 @@ const Chat = ({ roomId, userId }) => {
   const chat = useSelector(state => state.chat.chats.find(chat => chat.id === roomId));
   const messages = chat ? chat.messages : [];
 
+  const scrollViewRef = useRef();
+
 
   const [usersInChat, setUsersInChat] = useState([]);
 
   const socket = io(API_URL); 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    scrollViewRef.current.scrollToEnd({ animated: true });
+}, [messages]);
+
 
   useEffect(() => {
     socket.emit('join', { username: userId, room: roomId });
@@ -81,10 +88,13 @@ const Chat = ({ roomId, userId }) => {
   return (
     <KeyboardAvoidingView 
         behavior={Platform.OS === "ios" ? "padding" : "height"} 
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -300}
         style={{flex: 1}}
     >
+
         <View style={styles.container}>
-            <ScrollView contentContainerStyle={styles.messageContainer}>
+            <ScrollView ref={scrollViewRef} contentContainerStyle={styles.messageContainer}>
+
                 {messages.map((message, index) => {
                     const isSender = userId === message.user;
                     return (
@@ -93,13 +103,15 @@ const Chat = ({ roomId, userId }) => {
                             style={isSender ? styles.senderMessage : styles.receiverMessage}
                         >
                             <View style={isSender ? styles.senderBubble : styles.receiverBubble}>
-                                <Text style={isSender ? styles.senderText : styles.messageText}>
+                                <Text style={isSender ? styles.senderText : styles.receiverText}>
                                     {message.message}
                                 </Text>
                             </View>
                         </View>
                     );
                 })}
+
+
             </ScrollView>
             <View style={styles.inputContainer}>
                 <TextInput
@@ -117,10 +129,12 @@ const Chat = ({ roomId, userId }) => {
   );
 };
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#6BCD9B',
+    flexDirection: 'column',
   },
   messageContainer: {
     padding: 10,
@@ -129,59 +143,88 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 5,
-    paddingBottom: 50,
+    //paddingBottom: 50,
     paddingTop: 10,
-  },
-  input: {
-    flex: 5.5,  
-    backgroundColor: '#fff',
-    borderRadius: 7,
-    paddingHorizontal: 15,
-    marginRight: 5,
+    backgroundColor: '#6BCD9B',  // Set the background color
+},
 
+  input: {
+    flex: 5.5,
+    backgroundColor: '#f2f2f7',
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    marginRight: 10,
+    borderColor: '#007BFF',
+    borderWidth: 1,
+    height: 45,
   },
   sendButton: {
     backgroundColor: '#007BFF',
-    borderRadius: 5,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    borderRadius: 25,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    elevation: 2,
+    shadowOpacity: 0.2,
+    shadowRadius: 1.5,
+    shadowOffset: { height: 1, width: 0 },
   },
   sendButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontWeight: '500',
   },
+
   senderMessage: {
     flexDirection: 'row',
     marginBottom: 10,
     justifyContent: 'flex-end',
     marginRight: 10,
-  },
-  receiverMessage: {
+},
+
+receiverMessage: {
     flexDirection: 'row',
     marginBottom: 10,
     justifyContent: 'flex-start',
     marginLeft: 10,
-  },
-  senderBubble: {
-    padding: 10,
-    backgroundColor: '#007BFF',
-    borderRadius: 20,
-    borderBottomRightRadius: 0,
-    maxWidth: '70%',
-  },
-  receiverBubble: {
-    padding: 10,
-    backgroundColor: '#E1E1E1',
-    borderRadius: 20,
-    borderBottomLeftRadius: 0,
-    maxWidth: '70%',
-  },
-  messageText: {
-    color: '#000',
-  },
-  senderText: {
-    color: '#fff',
-  },
+},
+
+
+senderBubble: {
+  padding: 10,
+  backgroundColor: '#007BFF',
+  borderRadius: 20,
+  borderBottomRightRadius: 0,
+  minWidth: '20%',  // Minimum width
+  maxWidth: '80%',  // Maximum width
+  alignSelf: 'flex-end'
+},
+
+receiverBubble: {
+  padding: 10,
+  backgroundColor: '#E1E1E1',
+  borderRadius: 20,
+  borderBottomLeftRadius: 0,
+  minWidth: '20%',  // Minimum width
+  maxWidth: '80%',  // Maximum width
+  alignSelf: 'flex-start'
+},
+
+
+receiverText: {
+  color: '#000',
+  flexWrap: 'wrap',   // Wrap the text
+},
+
+senderText: {
+  color: '#fff',
+  flexWrap: 'wrap',   // Wrap the text
+},
+
+
+
+
+
 });
+
 
 export default Chat;

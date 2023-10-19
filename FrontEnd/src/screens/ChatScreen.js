@@ -15,7 +15,8 @@ const ChatScreen = ({ route }) => {
       </View>
 
 
-      <Chat roomId={roomId} userId={userId} />
+      <Chat roomId={roomId} userId={userId} style={styles.chatContainer} />
+
 
       {/* <View style={styles.footer}>
         <TextInput style={styles.input} placeholder="Type a message..."/>
@@ -41,16 +42,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#6BCD9B',
+    flexDirection: 'column',
+  },
+  chatContainer: {
+    flex: 4,
   },
   header: {
     backgroundColor: '#007BFF',
     padding: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5,  // for Android
-    shadowOpacity: 0.3, // for iOS
-    shadowRadius: 2,    // for iOS
-    shadowOffset: { height: 2, width: 0 },  // for iOS
+    elevation: 5,
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    shadowOffset: { height: 2, width: 0 },
   },
   footer: {
     flexDirection: 'row',
@@ -62,50 +67,49 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#fff',
-    fontSize: 22,  // slightly larger for prominence
+    fontSize: 22,
     fontWeight: 'bold',
   },
   input: {
     flex: 1,
-    height: 45,  // slightly taller for better touch targets
+    height: 45,
     borderColor: '#007BFF',
     borderWidth: 1,
-    borderRadius: 25,  // larger radius for rounder corners
+    borderRadius: 25,
     paddingHorizontal: 20,
     marginRight: 10,
-    backgroundColor: '#f2f2f7',  // a light gray background
+    backgroundColor: '#f2f2f7',
   },
   sendButton: {
     backgroundColor: '#007BFF',
     paddingVertical: 12,
-    paddingHorizontal: 20,  // more horizontal padding for better appearance
+    paddingHorizontal: 20,
     borderRadius: 25,
-    elevation: 2,  // for Android
-    shadowOpacity: 0.2, // for iOS
-    shadowRadius: 1.5,  // for iOS
-    shadowOffset: { height: 1, width: 0 },  // for iOS
+    elevation: 2,
+    shadowOpacity: 0.2,
+    shadowRadius: 1.5,
+    shadowOffset: { height: 1, width: 0 },
   },
   sendButtonText: {
     color: '#fff',
-    fontSize: 18,  // made slightly larger
-    fontWeight: '500',  // made slightly less bold for a more modern look
+    fontSize: 18,
+    fontWeight: '500',
   },
   boldButtonText: {
     fontWeight: 'bold',
     fontSize: 16,
     textAlign: 'center',
-    backgroundColor: '#333', // Dark background for contrast
-    color: '#fff', // White text
-    padding: 10, // Padding for a larger touch target and better look
-    borderRadius: 5, // Rounded corners
-    marginTop: 300, // Give it some space from the list items
-    alignSelf: 'center', // Center the button horizontally
-    width: 120, // Set a fixed width
+    backgroundColor: '#333',
+    color: '#fff',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 50,
+    alignSelf: 'center',
+    width: 120,
+    marginBottom: 50
   },
-
-
-
 });
+
 
 
 export default ChatScreen;

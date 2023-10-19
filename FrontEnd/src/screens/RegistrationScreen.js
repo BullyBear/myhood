@@ -231,11 +231,9 @@ const RegistrationScreen = ({ navigation }) => {
         </Formik>
         </View>
         {/*<Button title="Go to Login" onPress={() => navigation.navigate('Login')} color="blue" style={styles.loginButton} />*/}
-        <TouchableOpacity 
-          style={{ marginTop: 50 }} 
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.boldButtonText}>Go Back</Text>
+
+        <TouchableOpacity style={styles.goBackButton} onPress={() => navigation.goBack()}>
+            <Text style={styles.boldButtonText}>Go Back</Text>
         </TouchableOpacity>
 
     </ScrollView>
@@ -325,7 +323,18 @@ boldButtonText: {
   padding: 10,  // or adjust as needed
 },
 
-
+boldButtonText: {
+  fontWeight: 'bold',
+  fontSize: 16,
+  textAlign: 'center',
+  backgroundColor: '#333', // Dark background for contrast
+  color: '#fff', // White text
+  padding: 10, // Padding for a larger touch target and better look
+  borderRadius: 5, // Rounded corners
+  marginTop: 150, // Give it some space from the list items
+  alignSelf: 'center', // Center the button horizontally
+  width: 120, // Set a fixed width
+},
 
 
 });
