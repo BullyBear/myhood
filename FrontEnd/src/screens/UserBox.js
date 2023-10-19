@@ -15,7 +15,16 @@ const selectUserBox = state => {
   return state.user.user.userBox;
 };
 
-const getUserBox = createSelector([selectUserBox], userBox => userBox || []);
+
+const EMPTY_ARRAY = [];
+
+//const getUserBox = createSelector([selectUserBox], userBox => userBox || []);
+
+const getUserBox = createSelector(
+  [selectUserBox],
+  (userBox) => userBox || EMPTY_ARRAY
+);
+
 
 
 function UserBox() {
@@ -46,18 +55,24 @@ function UserBox() {
 
 
 
+
+
+
+
 // const selectSwipedToysForUser = (state, userId) => {
-//   return state.userSwipedToys ? state.userSwipedToys[userId] || [] : [];
+//   console.log('USERBOX state.toy.userswipedtoy', state.toy.userSwipedToys)
+//   return state.toy.userSwipedToys ? state.toy.userSwipedToys[userId] || [] : [];
 // };
 
 
 
 
-const selectSwipedToysForUser = (state, userId) => {
-  console.log('USERBOX state.toy.userswipedtoy', state.toy.userSwipedToys)
-  return state.toy.userSwipedToys ? state.toy.userSwipedToys[userId] || [] : [];
-};
-
+const selectSwipedToysForUser = createSelector(
+  [state => state.toy.userSwipedToys],
+  (userSwipedToys) => {
+    return userSwipedToys ? userSwipedToys[userId] || EMPTY_ARRAY : EMPTY_ARRAY;
+  }
+);
 
 
 
@@ -178,21 +193,19 @@ const userSwipedToys = useSelector(state => selectSwipedToysForUser(state, userI
 
   return (
     <View style={styles.container}>
-      <View style={styles.contentContainer}>
-        {/*{usersToShow.map(renderThumbnail)}*/}
-        {/*{usersToShow.map(userDetail => userDetail && renderThumbnail(userDetail))}*/}
-        {usersToShow.map((userDetail, index) => userDetail && renderThumbnail(userDetail, index, swipedToy))}
 
-        <TouchableOpacity 
-        style={{ marginTop: 50 }} 
-        onPress={() => navigation.goBack()}
-      >
-        <Text style={styles.boldButtonText}>Go Back</Text>
-      </TouchableOpacity>
-
-      </View>
-      {/*{renderFooter()}*/}
+    <View style={styles.contentContainer}>
+      {usersToShow.map((userDetail, index) => userDetail && renderThumbnail(userDetail, index, swipedToy))}
     </View>
+    <TouchableOpacity 
+      style={{ marginTop: 50 }} 
+      onPress={() => navigation.goBack()}
+    >
+      <Text style={styles.boldButtonText}>Go Back</Text>
+    </TouchableOpacity>
+    </View>
+
+
   );
 }
 

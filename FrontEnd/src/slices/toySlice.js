@@ -313,12 +313,13 @@ const toySlice = createSlice({
     // .addCase(addToyToToybox.fulfilled, (state, action) => {
     //   console.log("Toy added to toybox:", state); 
     // })
+    builder
     .addCase(addToyToToybox.rejected, (state, action) => {
       console.error("Error adding toy to toybox:", action.error.message);
       state.error = action.error.message;
   })
   
-  
+    builder
     .addCase(fetchToysFromAPI.fulfilled, (state, action) => {
       state.toys = action.payload;
       state.toyImages = action.payload.toyImages;
@@ -326,22 +327,27 @@ const toySlice = createSlice({
       //console.log('toyslice action.payload.toys - fetchToysFromAPI.fulfilled', action.payload.toys)
       state.loading = false;
     })
+    builder
     .addCase(fetchToysWithinRadiusFromAPI.fulfilled, (state, action) => {
       state.toys = action.payload;
       console.log('toyslice action.payload - fetchToysWithinRadiusFromAPI.fulfilled', action.payload)
       //console.log('toyslice action.payload.toys - fetchToysWithinRadiusFromAPI.fulfilled', action.payload.toys)
       state.loading = false;
     })
+    builder
     .addCase(fetchToysFromAPI.pending, (state, action) => {
       state.loading = true;
     })
+    builder
     .addCase(fetchToysWithinRadiusFromAPI.pending, (state, action) => {
       state.loading = true;
     })
+    builder
     .addCase(fetchToysFromAPI.rejected, (state, action) => {
       state.loading = false;
       state.error = action.error;
     })
+    builder
     .addCase(fetchToysWithinRadiusFromAPI.rejected, (state, action) => {
       state.loading = false;
       state.error = action.error;
@@ -354,6 +360,7 @@ const toySlice = createSlice({
       //   };
       //   state.toys.push(newToy);
       // })
+      builder
       .addCase(createToyInAPI.fulfilled, (state, action) => {
         console.log('[createToyInAPI.fulfilled] - Toy created successfully');
         state.toys.push(action.payload);
@@ -369,6 +376,7 @@ const toySlice = createSlice({
       //     };
       //   }
       // })
+      builder
       .addCase(updateToyInAPI.fulfilled, (state, action) => {
         const index = state.toys.findIndex((toy) => toy.id === action.payload.id);
         if (index !== -1) {
@@ -376,6 +384,7 @@ const toySlice = createSlice({
         }
       })
       
+      builder
       .addCase(fetchToyByIdFromAPI.fulfilled, (state, action) => {
         console.log("Fetched toy by ID:", action.payload);
         const existingToyIndex = state.toys.findIndex(t => t.id === action.payload.id);
@@ -388,14 +397,16 @@ const toySlice = createSlice({
         
         state.loading = false;
         state.error = null;
-      }) 
+      })
+      builder
       .addCase(deleteToyInAPI.fulfilled, (state, action) => {
         console.log('[deleteToyInAPI.fulfilled] - Toy deleted successfully');
         const toyId = action.payload.id; // Assuming your action.payload has the id property
         state.toys = state.toys.filter(toy => toy.id !== toyId);
         state.loading = false;
         state.error = null;
-      }) 
+      })
+      builder
       .addCase(deleteToyInAPI.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error;
