@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Button } from '@rneui/base';
 import jwt_decode from 'jwt-decode';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import Carousel from '../components/Carousel';
 //import { fetchToysFromAPI } from '../slices/toySlice';
@@ -63,32 +64,31 @@ const FrontPage = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.carouselContainer}>
-
-        
-      <Carousel />
-
-
+        <Carousel />
       </View>
       <Text style={styles.userNameText}>Hello, {userName ? userName : 'No User'}</Text> 
       <View style={styles.buttonContainer}>
-        <Button
-          title="Go to Navigation"
-          onPress={() => navigation.navigate('NavigationPage')}
-          style={styles.button}
-        />
-        <Button title="Logout" onPress={handleLogout} style={styles.button} />
+        <TouchableOpacity onPress={() => navigation.navigate('NavigationPage')} style={styles.button}>
+          <Icon name="compass" size={20} color="#fff" />
+          <Text style={{color: "#fff"}}>Nav</Text> 
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleLogout} style={[styles.button, styles.outlinedButton]}>
+          <Icon name="sign-out" size={20} color="#fff" />
+          <Text style={{color: "#fff"}}>Logout</Text> 
+        </TouchableOpacity>
       </View>
+
     </View>
-  );
+);
 };
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#6BCD9B',
-    //backgroundColor: "white"
     fontFamily: 'Roboto-Regular',
-   },
+  },
 
   userNameText: {
     fontSize: 20,
@@ -108,7 +108,19 @@ const styles = StyleSheet.create({
   button: {
     width: 100,
     height: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    backgroundColor: '#FF6B6B', // Brighter color for the "Nav" button
+    borderRadius: 5,
+    paddingHorizontal: 10,
   },
+  outlinedButton: {
+    backgroundColor: '#666', // Subdued color for the "Logout" button
+    borderWidth: 1,
+    borderColor: '#333',
+  }
 });
+
 
 export default FrontPage;

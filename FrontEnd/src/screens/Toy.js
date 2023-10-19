@@ -14,6 +14,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { v4 as uuidv4 } from 'uuid';
 import * as Location from 'expo-location';
 import { useNavigation } from '@react-navigation/native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { S3Client, BUCKET_NAME, region, API_URL } from '../../config.js';
 import { getToysWithinRadius, getAllToys, createToy, updateToy, deleteToy } from '../API/toyAPI';
@@ -79,20 +80,22 @@ export default function Toy() {
 
   
 
-  const onSubmit = async () => {
-    if (images.length === 0 || !user || !user.id) {
-      return;
-    }
+const onSubmit = async () => {
+  if (images.length === 0 || !user || !user.id) {
+    return;
+  }
 
+  setIsCreatingToy(true); // <- Set to true here
+
+  try {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
+      setIsCreatingToy(false); // <- Set to false if we can't get permissions
       return;
     }
 
     let location = await Location.getCurrentPositionAsync({});
     const { latitude, longitude } = location.coords;
-
-    setIsCreatingToy(true);
 
     let imageUrls = [];
     for (const image of images) {
@@ -141,13 +144,16 @@ export default function Toy() {
 
     if (response.ok) {
       setImages([]);
-      setIsCreatingToy(false);
       navigation.navigate('NavigationPage');
       dispatch(fetchToysFromAPI());
-    } else {
-      setIsCreatingToy(false);
     }
-  };
+  } catch (error) {
+    console.error('Error during toy submission:', error);
+  } finally {
+    setIsCreatingToy(false); // <- Set to false in the finally block to ensure it's called in any case
+  }
+};
+
 
 
   const removeImage = async (uri) => {
@@ -207,52 +213,78 @@ export default function Toy() {
     }
   };
 
+  
+
   return (
     <View style={styles.container}>
-      <Text>{`Selected ${images.length} out of 5 images`}</Text>
+      <Text style={styles.boldText}>{`Selected ${images.length} out of 5 images`}</Text>
+
+      {/* Render the first row of images */}
       <FlatList
-        data={images}
-        keyExtractor={(item) => item}
-        renderItem={({ item }) => (
-          <View style={styles.imageContainer}>
-            <Image source={{ uri: item }} style={styles.image} />
-            <TouchableOpacity onPress={() => removeImage(item)}>
-              <Text>Remove</Text>
-            </TouchableOpacity>
-          </View>
+        data={images.length > 4 ? images.slice(0, 4) : images}
+        keyExtractor={(item, index) => item}
+        numColumns={2}
+        renderItem={({ item, index }) => (
+            <View style={styles.imageContainer}>
+                <Image source={{ uri: item }} style={styles.image} />
+                <TouchableOpacity onPress={() => removeImage(item)}>
+                    <Text>Remove</Text>
+                </TouchableOpacity>
+            </View>
         )}
       />
+
+
+      {images.length === 5 && (
+        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+            <View style={styles.imageContainer}>
+                <Image source={{ uri: images[4] }} style={styles.image} />
+                <TouchableOpacity onPress={() => removeImage(images[4])}>
+                    <Text>Remove</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+      )}
+      
+      
+
+
       {isCreatingToy && <ActivityIndicator size="large" color="#0000ff" />}
 
+      <TouchableOpacity style={[styles.uploadButton, styles.pushedDown]} onPress={pickImage}>
+        <MaterialIcons name="add-a-photo" size={24} color="white" />
+        <Text style={styles.uploadButtonText}>Upload Image</Text>
+      </TouchableOpacity>
 
-      <TouchableOpacity
-      style={[styles.button, images.length === 0 && styles.buttonDisabled]}
+
+    <TouchableOpacity
+      style={[styles.buttonWithIcon, images.length === 0 && styles.buttonDisabled]}
+      onPress={onSubmit}
+      disabled={images.length === 0 || isCreatingToy}
+    >
+      <MaterialIcons name="save" size={24} color="white" />
+      <Text style={styles.buttonTextWithIcon}>Submit</Text>
+    </TouchableOpacity>
+
+
+
+    <TouchableOpacity
+      style={[styles.deleteButton, images.length === 0 && styles.buttonDisabled]}
       onPress={() => onDelete(toyId)} 
       disabled={images.length === 0 || isCreatingToy}
     >
-      <Text style={styles.buttonText}>Delete Toy</Text>
+      <MaterialIcons name="delete" size={24} color="white" />
+      <Text style={styles.deleteButtonText}>Delete Toy</Text>
     </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={pickImage}
-      >
-        <Text style={styles.buttonText}>Upload Image</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.button, images.length === 0 && styles.buttonDisabled]}
-        onPress={onSubmit}
-        disabled={images.length === 0 || isCreatingToy}
-      >
-        <Text style={styles.buttonText}>Submit</Text>
-      </TouchableOpacity>
 
-      <TouchableOpacity 
-        style={{ marginTop: 50 }} 
-        onPress={() => navigation.goBack()}
-      >
-        <Text style={styles.boldButtonText}>Go Back</Text>
-      </TouchableOpacity>
+
+    <TouchableOpacity 
+      style={styles.goBackButton} 
+      onPress={() => navigation.goBack()}
+    >
+      <Text style={styles.goBackText}>Go Back</Text>
+    </TouchableOpacity>
 
     </View>
   );
@@ -264,12 +296,28 @@ export default function Toy() {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      padding: 100,
+      padding: 50,
       backgroundColor: '#6BCD9B',
     },
     imageContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: 'column',  // Change to column direction
+      margin: 10,               // Add some margin to separate the images in the grid
+      alignItems: 'center',     // Center align for image and remove button
+    },
+    removeButton: {
+      marginTop: 5,            // Add some top margin to separate the remove button from image
+    },
+    boldText: {
+      fontWeight: 'bold',
+    },
+    
+    image: {
+      width: 150,              // Increase width to make the image larger in the grid
+      height: 150,             // Increase height to keep aspect ratio 1:1
+      borderRadius: 10,        // Add some rounded corners for better aesthetics
+    },
+    flatListContent: {
+      padding: 10,             // Add some padding for the FlatList content
     },
     button: {
       backgroundColor: '#008CBA',
@@ -297,11 +345,88 @@ export default function Toy() {
       color: '#fff', // White text
       padding: 10, // Padding for a larger touch target and better look
       borderRadius: 5, // Rounded corners
-      marginTop: 300, // Give it some space from the list items
+      //marginTop: 300, // Give it some space from the list items
       alignSelf: 'center', // Center the button horizontally
       width: 120, // Set a fixed width
     },
+  oddList: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  lastOddImage: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  spacer: {
+    width: 100,   // This width should match the width of your image
+    height: 100,  // This height can be the same as your image height, or can be smaller if you only want a horizontal spacer
+    marginVertical: 10,  // Same margin as your image
+  },
+  header: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  uploadButton: {
+    flexDirection: 'row',
+    backgroundColor: '#4CAF50', // Green color for upload
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 50,   // <-- Add this line
+  },
+  pushedDown: {
+    marginTop: 50, // or whatever value you need
+},
 
+  uploadButtonText: {
+    color: '#fff',
+    marginLeft: 10,
+  },
+  buttonWithIcon: {
+    flexDirection: 'row',
+    backgroundColor: '#008CBA',
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonTextWithIcon: {
+    color: '#fff',
+    marginLeft: 10,
+  },
+  
+  
+  deleteButton: {
+    flexDirection: 'row',
+    backgroundColor: '#f44336', // Red for destructive actions
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deleteButtonText: {
+    color: '#fff',
+    marginLeft: 10,
+  },
+  goBackButton: {
+    marginTop: 50,
+  },
+  goBackText: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center',
+    backgroundColor: '#333',
+    color: '#fff',
+    padding: 10,
+    borderRadius: 5,
+    width: 120,
+  },
 
+  
 
   });

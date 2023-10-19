@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { removeUserFromBox, addProfileToUserBoxAsync, acceptUser  } from '../slices/userSlice';
 import { addToyToToybox, updateToyImages, addSwipedToy } from '../slices/toySlice';
@@ -193,9 +194,10 @@ const sendPushNotification = async (pushToken, message) => {
       )}
       
       {isUserAccepted && (
-        <TouchableOpacity style={styles.chatButton} onPress={onChatPressed}>
+      <TouchableOpacity style={styles.chatButton} onPress={onChatPressed}>
+          <MaterialIcons name="chat-bubble" size={75} color="#fff" style={{ marginRight: 5 }} />
           <Text style={styles.chatButtonText}>Chat</Text>
-        </TouchableOpacity>
+      </TouchableOpacity>
       )}
         <TouchableOpacity 
             style={{ marginTop: 50 }} 
@@ -213,7 +215,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',  // Changed this from 'center'
     alignItems: 'center',
     padding: 10,
-    paddingTop: 100,  // Added this line
+    paddingTop: 50,  // Added this line
     backgroundColor: '#6BCD9B',
 },
 
@@ -255,10 +257,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 5,
     marginTop: 50,
+
   },
   chatButtonText: {
     color: '#fff',
     fontSize: 18,
+    textAlign: 'center',
   },
   boldButtonText: {
     fontWeight: 'bold',
@@ -268,7 +272,7 @@ const styles = StyleSheet.create({
     color: '#fff', // White text
     padding: 10, // Padding for a larger touch target and better look
     borderRadius: 5, // Rounded corners
-    marginTop: 100, // Give it some space from the list items
+    marginTop: 25, // Give it some space from the list items
     alignSelf: 'center', // Center the button horizontally
     width: 120, // Set a fixed width
   },

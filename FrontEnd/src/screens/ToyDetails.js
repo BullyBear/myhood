@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { View, Animated, Image, Text, StyleSheet, TouchableOpacity, ScrollView, TouchableWithoutFeedback, Dimensions, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Modal from 'react-native-modal';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { generateRoomId } from '../components/utils'
 
@@ -127,8 +128,11 @@ export default function ToyDetails({ route }) {
       <ToyImageModal isVisible={isModalVisible} onClose={closeModal} images={toyImages} />
 
       <TouchableOpacity style={styles.chatButton} onPress={onChatPressed}>
+          <MaterialIcons name="chat-bubble" size={75} color="#fff" style={{ marginRight: 5 }} />
           <Text style={styles.chatButtonText}>Chat</Text>
       </TouchableOpacity>
+
+
 
       <TouchableOpacity 
             style={{ marginTop: 50 }} 
@@ -150,7 +154,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',  // Changed this from 'center'
     alignItems: 'center',
     padding: 10,
-    paddingTop: 100,  // Added this line
+    paddingTop: 50,  // Added this line
     backgroundColor: '#6BCD9B',
 },
 
@@ -184,6 +188,7 @@ const styles = StyleSheet.create({
   chatButtonText: {
     color: '#fff',
     fontSize: 18,
+    textAlign: 'center',
   },
   boldButtonText: {
     fontWeight: 'bold',
@@ -193,7 +198,7 @@ const styles = StyleSheet.create({
     color: '#fff', // White text
     padding: 10, // Padding for a larger touch target and better look
     borderRadius: 5, // Rounded corners
-    marginTop: 150, // Give it some space from the list items
+    marginTop: 100, // Give it some space from the list items
     alignSelf: 'center', // Center the button horizontally
     width: 120, // Set a fixed width
   },

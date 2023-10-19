@@ -121,6 +121,7 @@ export const updateToy = async (toyId, toyData) => {
   }
 };
 
+
 export const deleteToy = async (toyId) => {
   console.log("[deleteToy] - Called with toyId:", toyId);
   try {
@@ -132,7 +133,7 @@ export const deleteToy = async (toyId) => {
     if (error.response) {
       console.error('Server Response:', error.response);
     }
-    return null;
+    throw error; // throw the error so that the thunk knows the operation failed
   }
 };
 

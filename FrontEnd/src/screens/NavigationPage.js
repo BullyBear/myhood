@@ -76,9 +76,10 @@ const styles = StyleSheet.create({
     width: 120, // Set a fixed width
   },
   lottie: {
+    paddingTop: 10,
     width: 300,
     height: 300,
-    marginBottom: 30,
+    //marginBottom: 10,
     alignSelf: 'center',
   },
 

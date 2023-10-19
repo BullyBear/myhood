@@ -6,6 +6,7 @@ import * as yup from 'yup';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import { useDispatch, useSelector } from 'react-redux';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { fetchUserDataAction, updateUser } from '../slices/userSlice';
 import { S3Client, BUCKET_NAME_TWO } from '../../config.js'; 
@@ -102,54 +103,52 @@ const handleUpdate = async (values) => {
 
   return (
     <ScrollView style={styles.background} contentContainerStyle={styles.container}>
-        {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
-        {user ? (
+      {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
+      {user ? (
         <Formik
-            initialValues={{ bio: user.bio }}
-            onSubmit={handleUpdate}
-            validationSchema={validationSchema}
+          initialValues={{ bio: user.bio }}
+          onSubmit={handleUpdate}
+          validationSchema={validationSchema}
         >
-            {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+          {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
             <View style={styles.formContainer}>
-
-      <View style={styles.bioContainer}>
-          <Text style={styles.changeBioText}>Edit Bio</Text>
-
-          <TextInput
-              name="bio"
-              onChangeText={handleChange('bio')}
-              onBlur={handleBlur('bio')}
-              value={values.bio}
-              style={styles.input}
-              multiline
-          />
-          {touched.bio && errors.bio && <Text style={styles.errorText}>{errors.bio}</Text>}
-      </View>
-
-    {/* Modified the button here */}
-    <TouchableOpacity style={styles.changeImageButton} onPress={handleImagePick}>
-        <Text style={styles.buttonText}>Select Image</Text>
-    </TouchableOpacity>
-
-    {image && <Image source={{ uri: image }} style={styles.image} />}
-    {!image && user.profile_picture && <Image source={{ uri: user.profile_picture }} style={styles.image} />}
-
-    <TouchableOpacity style={styles.saveChangesButton} onPress={handleSubmit}>
-    <Text style={styles.buttonText}>Save Changes</Text>
-    </TouchableOpacity>
-
-    </View>
-            )}
+              <View style={styles.bioContainer}>
+                <Text style={styles.changeBioText}>Edit Bio</Text>
+                <TextInput
+                  name="bio"
+                  onChangeText={handleChange('bio')}
+                  onBlur={handleBlur('bio')}
+                  value={values.bio}
+                  style={styles.input}
+                  multiline
+                />
+                {touched.bio && errors.bio && <Text style={styles.errorText}>{errors.bio}</Text>}
+              </View>
+              
+              <TouchableOpacity style={styles.changeImageButton} onPress={handleImagePick}>
+                <MaterialIcons name="add-a-photo" size={24} color="white" /> 
+                <Text style={styles.buttonText}>Upload Image</Text>
+              </TouchableOpacity>
+  
+              {image && <Image source={{ uri: image }} style={styles.image} />}
+              {!image && user.profile_picture && <Image source={{ uri: user.profile_picture }} style={styles.image} />}
+  
+              <TouchableOpacity style={styles.saveChangesButton} onPress={handleSubmit}>
+                <MaterialIcons name="save" size={24} color="white" />
+                <Text style={styles.buttonText}>Save Changes</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </Formik>
-        ) : (
-            <Text>Loading user data...</Text>
-        )}
-
-        <TouchableOpacity style={styles.goBackButton} onPress={() => navigation.goBack()}>
-            <Text style={styles.boldButtonText}>Go Back</Text>
-        </TouchableOpacity>
+      ) : (
+        <Text>Loading user data...</Text>
+      )}
+  
+      <TouchableOpacity style={styles.goBackButton} onPress={() => navigation.goBack()}>
+        <Text style={styles.boldButtonText}>Go Back</Text>
+      </TouchableOpacity>
     </ScrollView>
-);
+  );
 };
 
 
@@ -182,22 +181,30 @@ input: {
   alignSelf: 'center' 
 },
 changeImageButton: {
-  marginTop: 40,
-  backgroundColor: '#333',
+  flexDirection: 'row', // Make sure icon and text are side-by-side
+  backgroundColor: '#4CAF50', // Green color for the button
   padding: 10,
   borderRadius: 5,
-  alignSelf: 'center',
-  width: 150, // Adjust this to the width you prefer
-  alignItems: 'center' // This ensures the text inside the button is centered
+  marginVertical: 10,
+  alignItems: 'center', // Vertically center the icon and text
+  justifyContent: 'center', // Horizontally center the icon and text
+  alignSelf: 'center', // Center the button itself
+  width: 150, // Define a specific width for the button, adjust as needed
+},
+
+uploadButtonText: {
+  color: '#fff',
+  marginLeft: 10,
 },
 saveChangesButton: {
-  marginTop: 50, // Add space between the image and the button
+  marginVertical: 20, // Adjust space above and below the button
   backgroundColor: 'blue',
   padding: 10,
   borderRadius: 5,
   alignSelf: 'center',
-  width: 150, // Adjust this to the width you prefer
-  alignItems: 'center' // This ensures the text inside the button is centered
+  width: 150,
+  alignItems: 'center',
+  marginBottom: -50
 },
 
 
