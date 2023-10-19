@@ -55,6 +55,9 @@ const validationSchema = yup.object().shape({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$/,
       'Password must have at least one uppercase letter, one lowercase letter, and one number.'
     ),
+    confirmPassword: yup.string()
+    .oneOf([yup.ref('password'), null], 'Passwords must match')
+    .required('Confirm Password is required'),
   bio: yup.string(),
 });
 
@@ -162,7 +165,9 @@ const RegistrationScreen = ({ navigation }) => {
       <View style={styles.formWrapper}>
         {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
         <Formik
-            initialValues={{ name: '', email: '', password: '', bio: '' }}
+            //initialValues={{ name: '', email: '', password: '', bio: '' }}
+            initialValues={{ name: '', email: '', password: '', confirmPassword: '', bio: '' }}
+
             onSubmit={handleRegister}
             validationSchema={validationSchema}
         >
@@ -201,6 +206,20 @@ const RegistrationScreen = ({ navigation }) => {
                         <Text style={styles.errorText}>{errors.password}</Text>
                     )}
 
+                    <Text style={styles.labelText}>Confirm Password</Text>
+                    <TextInput
+                        name="confirmPassword"
+                        onChangeText={handleChange('confirmPassword')}
+                        onBlur={handleBlur('confirmPassword')}
+                        value={values.confirmPassword}
+                        secureTextEntry
+                        style={styles.input}
+                    />
+                    {touched.confirmPassword && errors.confirmPassword && (
+                        <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+                    )}
+
+
                     <Text style={styles.labelText}>Bio</Text>
                     <TextInput
                         name="bio"
@@ -220,10 +239,10 @@ const RegistrationScreen = ({ navigation }) => {
                     {successMessage && <Text style={styles.successText}>{successMessage}</Text>}
 
                     <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={isLoading}>
-    <Text style={styles.buttonText}>
-        {isLoading ? 'Loading...' : 'Register'}
-    </Text>
-</TouchableOpacity>
+                      <Text style={styles.buttonText}>
+                          {isLoading ? 'Loading...' : 'Register'}
+                      </Text>
+                  </TouchableOpacity>
 
 
                 </View>
@@ -331,7 +350,7 @@ boldButtonText: {
   color: '#fff', // White text
   padding: 10, // Padding for a larger touch target and better look
   borderRadius: 5, // Rounded corners
-  marginTop: 150, // Give it some space from the list items
+  marginTop: 75, // Give it some space from the list items
   alignSelf: 'center', // Center the button horizontally
   width: 120, // Set a fixed width
 },

@@ -111,10 +111,16 @@ class ToyResourceTime(Resource):
 
 
     def delete(self, toy_id):
-        toy = Toy.query.get_or_404(toy_id)
-        db.session.delete(toy)
-        db.session.commit()
-        return {"message": 'Toy deleted successfully'}, 200
+        try:
+            toy = Toy.query.get_or_404(toy_id)
+            db.session.delete(toy)
+            db.session.commit()
+            return {"message": 'Toy deleted successfully'}, 200
+        except Exception as e:
+            print(f"Error details: {str(e)}")
+            return {"message": f"Error deleting toy: {str(e)}"}, 400
+
+
 
 
 class ToysInRadius(Resource):
