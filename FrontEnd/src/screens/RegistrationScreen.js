@@ -65,7 +65,8 @@ const validationSchema = yup.object().shape({
 const RegistrationScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const userState = useSelector((state) => state.user);
-  const { isLoading, error, successMessage, image } = userState;
+  const { error, successMessage, image } = userState;
+  const [isLoading, setIsLoading] = useState(false);
 
   // const [pushToken, setPushToken] = useState(null);
 
@@ -140,6 +141,7 @@ const RegistrationScreen = ({ navigation }) => {
   };
 
   const handleRegister = async (values) => {
+    setIsLoading(true);
     try {
       const location = await getLocation();
       values.user_latitude = location.coords.latitude;
@@ -155,6 +157,8 @@ const RegistrationScreen = ({ navigation }) => {
       navigation.navigate('Landing');
     } catch (error) {
       console.error("Error during registration:", error.message);
+    } finally {
+      setIsLoading(false); // <-- Stop loading after the registration process ends
     }
   };
 
@@ -322,7 +326,7 @@ submitButton: {
   justifyContent: 'center',
   alignItems: 'center',
   borderRadius: 25,
-  marginTop: 125  // Increased margin-top to move the button lower
+  marginTop: 75  // Increased margin-top to move the button lower
 },
 
 
@@ -350,7 +354,7 @@ boldButtonText: {
   color: '#fff', // White text
   padding: 10, // Padding for a larger touch target and better look
   borderRadius: 5, // Rounded corners
-  marginTop: 75, // Give it some space from the list items
+  marginTop: -50, // Give it some space from the list items
   alignSelf: 'center', // Center the button horizontally
   width: 120, // Set a fixed width
 },
