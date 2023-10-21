@@ -322,7 +322,7 @@ imageSelectedText: {
 submitButton: {
   width: '60%',  // Reduce the width for a smaller button
   height: 40,    // Reduce the height for a smaller button
-  backgroundColor: 'blue',
+  backgroundColor: '#CD6B7D',
   justifyContent: 'center',
   alignItems: 'center',
   borderRadius: 25,

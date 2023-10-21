@@ -22,11 +22,11 @@ const InviteUserScreen = () => {
     setInvitationSent(true);
   };
 
-  useEffect(() => {
-    if (user && !loading) {
-      navigation.navigate('Login');
-    }
-  }, [user, loading]);
+  // useEffect(() => {
+  //   if (user && !loading) {
+  //     navigation.navigate('Login');
+  //   }
+  // }, [user, loading]);
 
   return (
     <Formik
@@ -52,7 +52,7 @@ const InviteUserScreen = () => {
           ) : (
             <>
               <Button title="Invite User" onPress={handleSubmit} />
-              <Button title="Go Back" onPress={() => navigation.navigate('Login')} />
+              <Button title="Go Back" onPress={() => navigation.navigate('Landing')} />
             </>
           )}
           {error && <Text style={styles.errorText}>{error}</Text>}
@@ -66,12 +66,12 @@ const InviteUserScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#6BCD9B',
   },
   input: {
-    width: '100%',
+    width: '75%',
     height: 40,
     borderWidth: 1,
     borderColor: 'gray',
@@ -85,6 +85,27 @@ const styles = StyleSheet.create({
   messageText: {
     color: 'green',
     marginTop: 10,
+  },
+  boldButtonTextForgot: {
+    fontWeight: 'bold',
+    color: 'blue',
+    fontSize: 18,  // or any other size you prefer
+    textAlign: 'center',
+    padding: 10,  // or adjust as needed
+    margintop: 100
+  },
+  
+  boldButtonTextForgot: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center',
+    backgroundColor: '#333', // Dark background for contrast
+    color: '#fff', // White text
+    padding: 10, // Padding for a larger touch target and better look
+    borderRadius: 5, // Rounded corners
+    marginTop: -50, // Give it some space from the list items
+    alignSelf: 'center', // Center the button horizontally
+    width: 120, // Set a fixed width
   },
 });
 

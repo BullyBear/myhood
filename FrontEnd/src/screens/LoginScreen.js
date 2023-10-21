@@ -3,6 +3,8 @@ import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'rea
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
+
 import { loginUser, loginUserSuccess, loginUserFailure } from '../slices/userSlice';
 
 
@@ -12,11 +14,18 @@ const validationSchema = yup.object().shape({
 });
 
 const LoginScreen = ({ navigation }) => {
+
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const userFromStore = useSelector((state) => state.user.user);
+
+  // const navigation = useNavigation();
+
+
+ 
+
 
   const onSubmit = async (values) => {
     console.log('Submitting login with values:', values); 
@@ -45,6 +54,7 @@ const LoginScreen = ({ navigation }) => {
 
 
 return (
+  
   <View style={styles.container}>
     <Formik
       initialValues={{ email: '', password: '' }}
@@ -91,20 +101,38 @@ return (
       )}
     </Formik>
     <View style={{ marginTop: 200 }}> 
-    <Button 
+
+
+
+
+{/* <Button color="blue" title="Forgot Password?" onPress={() => navigation.navigate('AuthNavigator', { screen: 'ForgotPasswordScreen' })} /> */}
+
+
+
+    {/* <Button 
       title="Forgot Password?" 
-      onPress={() => navigation.navigate('ForgotPassword')} 
-      color="blue"
-    />
-    <Button 
-      title="Invite User" 
-      onPress={() => navigation.navigate('InviteUser')} 
+      onPress={() => {
+        navigation.navigate('ForgotPasswordScreen');
+        console.log("Navigating to ForgotPasswordScreen");
+      }} 
       color="blue"
     />
 
-        <TouchableOpacity style={styles.goBackButton} onPress={() => navigation.goBack()}>
-            <Text style={styles.boldButtonText}>Go Back</Text>
-        </TouchableOpacity>
+
+    <Button 
+      title="Invite User" 
+      onPress={() => {
+        navigation.navigate('InviteUserScreen');
+        console.log("Navigating to InviteUserScreen");
+      }} 
+      color="blue"
+    /> */}
+
+
+
+          <TouchableOpacity style={styles.goBackButton} onPress={() => navigation.goBack()}>
+              <Text style={styles.boldButtonText}>Go Back</Text>
+          </TouchableOpacity>
 
 
     </View>
@@ -160,7 +188,7 @@ const styles = StyleSheet.create({
 submitButton: {
     width: '85%',  // Reduce the width for a smaller button
     height: 45,    // Reduce the height for a smaller button
-    backgroundColor: 'blue',
+    backgroundColor: '#CD6B7D',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 25,
@@ -174,7 +202,8 @@ boldButtonText: {
   color: '#fff', // White text
   padding: 10, // Padding for a larger touch target and better look
   borderRadius: 5, // Rounded corners
-  marginTop: 50, // Give it some space from the list items
+  marginTop: 50,
+  marginBottom: -25, // Give it some space from the list items
   alignSelf: 'center', // Center the button horizontally
   width: 120, // Set a fixed width
 },

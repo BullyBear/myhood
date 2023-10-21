@@ -111,7 +111,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    backgroundColor: '#FF6B6B', // Brighter color for the "Nav" button
+    //backgroundColor: '#FF6B6B',
+    backgroundColor: '#CD6B7D',
     borderRadius: 5,
     paddingHorizontal: 10,
   },

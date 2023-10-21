@@ -20,6 +20,8 @@ import Profile from './src/screens/Profile';
 import UserBox from './src/screens/UserBox';
 import UserDetails from './src/screens/UserDetails';
 import ChatScreen from './src/screens/ChatScreen';
+// import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
+// import InviteUserScreen from './src/screens/InviteUserScreen';
 
 const Stack = createStackNavigator();
 
@@ -55,9 +57,9 @@ export default function App() {
       <PersistGate loading={null} persistor={persistor}>
         <PaperProvider>
         <NavigationContainer>
-        <Stack.Navigator initialRouteName="Landing">
+        <Stack.Navigator>
           <Stack.Screen name="Landing" component={LandingPage} options={{ headerShown: false }} />
-          <Stack.Screen name="Auth" component={AuthNavigator} options={{ headerShown: false }} />
+          <Stack.Screen name="AuthNavigator" component={AuthNavigator} options={{ headerShown: false }} />
           <Stack.Screen name="FrontPage" component={FrontPage} options={{ headerShown: false }} />
           <Stack.Screen name="NavigationPage" component={NavigationPage} options={{ headerShown: false }} />
           <Stack.Screen name="Toy" component={Toy} options={{ headerShown: false }} />

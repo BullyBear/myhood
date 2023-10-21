@@ -13,8 +13,8 @@ const AuthNavigator = () => {
     <Stack.Navigator>
       <Stack.Screen name="Registration" component={RegistrationScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="InviteUser" component={InviteUserScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="ForgotPasswordScreen" component={ForgotPasswordScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="InviteUserScreen" component={InviteUserScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 };
