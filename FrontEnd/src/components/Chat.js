@@ -28,8 +28,12 @@ const Chat = ({ roomId, userId }) => {
   const socket = io(API_URL);
   const dispatch = useDispatch();
 
+
   useEffect(() => {
-    scrollViewRef.current.scrollToEnd({ animated: true });
+    // Scroll to the end with a slight delay to ensure the layout is updated
+    setTimeout(() => {
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }, 100);
   }, [messages]);
 
   useEffect(() => {
