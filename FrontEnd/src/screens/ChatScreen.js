@@ -2,8 +2,11 @@ import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Chat from '../components/Chat';
+import { generateRoomId } from '../components/utils'; 
 
 const ChatScreen = ({ route }) => {
+  // const { toyId, userAId, userBId, userId } = route.params; 
+  // const roomId = generateRoomId(toyId, userAId, userBId); 
   const { roomId, userId } = route.params;
 
   const navigation = useNavigation();
@@ -14,18 +17,9 @@ const ChatScreen = ({ route }) => {
         <Text style={styles.text}>ChatRoom</Text>
       </View>
 
-
       <Chat roomId={roomId} userId={userId} style={styles.chatContainer} />
 
-
-      {/* <View style={styles.footer}>
-        <TextInput style={styles.input} placeholder="Type a message..."/>
-        <TouchableOpacity style={styles.sendButton}>
-          <Text style={styles.sendButtonText}>Send</Text>
-        </TouchableOpacity>
-      </View> */}
-
-<TouchableOpacity 
+      <TouchableOpacity 
         style={{ marginTop: 50 }} 
         onPress={() => navigation.goBack()}
       >
@@ -35,7 +29,6 @@ const ChatScreen = ({ route }) => {
     </View>
   );
 };
-
 
 
 const styles = StyleSheet.create({
@@ -48,7 +41,7 @@ const styles = StyleSheet.create({
     flex: 4,
   },
   header: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#6BCD9B',
     padding: 15,
     justifyContent: 'center',
     alignItems: 'center',
@@ -106,10 +99,9 @@ const styles = StyleSheet.create({
     marginTop: 50,
     alignSelf: 'center',
     width: 120,
-    marginBottom: 50
+    marginBottom: 50,
   },
 });
-
 
 
 export default ChatScreen;

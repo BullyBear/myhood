@@ -90,6 +90,7 @@ class ToyList(Resource):
             return {**serialized_toy, "caution": "A new toy has been created"}, 201
 
 
+
 class ToyResourceTime(Resource):
     def get(self, toy_id):
         toy = Toy.query.get_or_404(toy_id)
@@ -123,6 +124,8 @@ class ToyResourceTime(Resource):
 
 
 
+
+
 class ToysInRadius(Resource):
     def get(self):
         user_latitude = request.args.get('user_latitude')
@@ -151,6 +154,7 @@ class ToysInRadius(Resource):
                 toys_within_radius.append(toy)
 
         return toys_schema.dump(toys_within_radius), 200
+
 
 
 # class ToySwipe(Resource):

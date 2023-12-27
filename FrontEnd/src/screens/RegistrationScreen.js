@@ -290,9 +290,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 15,
     paddingHorizontal: 10,
-    fontFamily: 'Roboto-Regular', // Font family from LoginScreen
-    width: '100%',  // Stretching to full width
-  },
+    fontFamily: 'Roboto-Regular',
+    width: '100%',
+    borderRadius: 8,  // Add this line to round the corners
+},
+
   errorText: {
     color: 'red',
     fontFamily: 'Roboto-Regular',  // Font family from LoginScreen

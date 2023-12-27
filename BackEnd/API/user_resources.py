@@ -1,17 +1,19 @@
 from flask import current_app, request
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
+from emails import send_invite_email, send_forgot_email
 from models import User, UserSchema
 from extensions import bcrypt, db
 from sqlalchemy.exc import IntegrityError  
 import logging
 import json
+from botocore.exceptions import ClientError
 
 logging.basicConfig(level=logging.INFO)
 
 
 
-from emails import send_invite_email
+
 
 
 user_schema = UserSchema()  
@@ -322,9 +324,10 @@ class Invite(Resource):
         try:
             send_invite_email(email)
             return {'message': 'Invite sent successfully'}, 201
-        except Exception as e:
-            return {'message': f'An error occurred while sending the invite: {str(e)}'}, 500
-    
+
+        except ClientError as e:
+            print(e.response['Error']['Message'])
+
 
 
 
@@ -336,4 +339,51 @@ class Forgot(Resource):
 
         email = args['email']
 
-        return {'message': 'Password reset email sent successfully'}, 200
+        # Send the forgot email
+        try:
+            send_forgot_email(email)
+            return {'message': 'Forgot email sent successfully'}, 201
+
+        except ClientError as e:
+            print(e.response['Error']['Message'])
+
+
+
+# class Forgot(Resource):
+#     def post(self):
+#         parser = reqparse.RequestParser()
+#         parser.add_argument('email', type=str, required=True)
+#         args = parser.parse_args()
+
+#         user = User.query.filter_by(email=args['email']).first()
+#         if not user:
+#             return {'message': 'User not found'}, 404
+
+#         user.generate_password_reset_token()
+#         send_forgot_email(user.email, user.password_reset_token)
+        
+#         return {'message': 'Password reset email sent'}, 200
+
+
+
+
+
+# class ResetPassword(Resource):
+#     def post(self):
+#         parser = reqparse.RequestParser()
+#         parser.add_argument('token', type=str, required=True)
+#         parser.add_argument('new_password', type=str, required=True)
+#         args = parser.parse_args()
+
+#         user = User.verify_password_reset_token(args['token'])
+#         if user is None:
+#             return {'message': 'Invalid or expired token'}, 400
+        
+#         user.password = bcrypt.generate_password_hash(args['new_password']).decode('utf-8')
+#         user.password_reset_token = None
+#         user.password_reset_expiration = None
+#         db.session.commit()
+
+#         return {'message': 'Password has been reset'}, 200
+
+

@@ -4,6 +4,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Button } from '@rneui/base';
 import jwt_decode from 'jwt-decode';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import LinearGradient from 'react-native-linear-gradient';
 
 import Carousel from '../components/Carousel';
 //import { fetchToysFromAPI } from '../slices/toySlice';
@@ -77,7 +78,6 @@ const FrontPage = ({ navigation }) => {
           <Text style={{color: "#fff"}}>Logout</Text> 
         </TouchableOpacity>
       </View>
-
     </View>
 );
 };
@@ -89,6 +89,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#6BCD9B',
     fontFamily: 'Roboto-Regular',
   },
+  gradientBackground: {
+    flex: 1,
+    start: {x: 0, y: 0},
+    end: {x: 1, y: 1},
+    colors: ['#FF416C', '#FF4B2B'],
+  },
 
   userNameText: {
     fontSize: 20,
@@ -98,6 +104,15 @@ const styles = StyleSheet.create({
   },
   carouselContainer: {
     flex: 8,
+    shadowColor: "black", // Shadow color
+    shadowOffset: {
+        width: 10,
+        height: 10, // Shadow will appear at the bottom
+    },
+    shadowOpacity: 0.5, // Adjust the opacity for desired shadow intensity
+    shadowRadius: 10,
+
+
   },
   buttonContainer: {
     flex: 2,

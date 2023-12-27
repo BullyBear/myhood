@@ -154,15 +154,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',  // This will center the child items horizontally
 },
 
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 15,
-    paddingHorizontal: 10,
-    fontFamily: 'Roboto-Regular', // Using the same font family
-    width: '100%', // Optionally, you can set this to make sure the inputs stretch to full width
-  },
+input: {
+  height: 40,
+  borderColor: 'gray',
+  borderWidth: 1,
+  marginBottom: 15,
+  paddingHorizontal: 10,
+  fontFamily: 'Roboto-Regular',
+  width: '100%',
+  borderRadius: 8,  // Add this line to round the corners
+},
+
   errorText: {
     color: 'red',
     fontFamily: 'Roboto-Regular', // Using the same font family

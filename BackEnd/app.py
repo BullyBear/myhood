@@ -19,6 +19,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 app.config['JWT_SECRET_KEY'] = 'your-secret-key'
 
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
+
 db.init_app(app)
 ma.init_app(app)
 bcrypt.init_app(app)
@@ -85,6 +87,9 @@ api.add_resource(UsersByIds, '/fetchUsersByIds')
 api.add_resource(UserProfileBox, '/user/<int:user_id>/addProfile')
 api.add_resource(ToySwipe, '/api/toyswipe')
 api.add_resource(AddToyToToybox, '/user/<int:user_id>/toy/<int:toy_id>/add-toy-to-toybox')
+
+
+
 
 
 api.add_resource(ChatMessagesResource, '/chat-messages/<string:roomId>')

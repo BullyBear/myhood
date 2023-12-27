@@ -176,5 +176,3 @@ class UserToyActionSchema(ma.SQLAlchemyAutoSchema):
         model = UserToyAction
         fields = ('id', 'user_id', 'toy_id', 'action')
         load_instance = True
-
-

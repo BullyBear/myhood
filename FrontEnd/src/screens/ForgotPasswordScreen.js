@@ -47,6 +47,7 @@ const ForgotPasswordScreen = () => {
             onBlur={handleBlur('email')}
             value={values.email}
             style={styles.input}
+            placeholderTextColor="grey" 
           />
           {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
           {loading ? (

@@ -196,9 +196,6 @@ function Carousel() {
     const flatListRef = useRef();
     const [currentModalIndex, setCurrentModalIndex] = useState(0);
 
-
-
-
     return (
       <Modal isVisible={isVisible} backdropOpacity={0.5} onBackdropPress={onClose}>
         <TouchableWithoutFeedback onPress={onClose}>
@@ -723,8 +720,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   toyImage: {
-    width: 300,
-    height: 300,
+    width: 350,
+    height: 350,
     resizeMode: 'contain',
   },
   otherImagesStyle: {
@@ -738,6 +735,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalImage: {
+    bottom: '10%',
     width: '100%',
     height: '100%',
     resizeMode: 'contain'
