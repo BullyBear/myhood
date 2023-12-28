@@ -11,7 +11,9 @@ from geopy.distance import geodesic
 import requests
 from PIL import Image
 from io import BytesIO
-from sqlalchemy import and_
+from sqlalchemy import and_, delete
+
+
 
 
 toy_schema = ToySchema()
@@ -113,14 +115,21 @@ class ToyResourceTime(Resource):
 
     def delete(self, toy_id):
         try:
+            # Create a DELETE statement for all associations with the toy_id
+            delete_statement = delete(toybox_association).where(toybox_association.c.toy_id == toy_id)
+            
+            # Execute the DELETE statement
+            db.session.execute(delete_statement)
+
+            # Now, delete the toy from the toys table
             toy = Toy.query.get_or_404(toy_id)
             db.session.delete(toy)
             db.session.commit()
             return {"message": 'Toy deleted successfully'}, 200
         except Exception as e:
+            db.session.rollback()  # Rollback in case of error
             print(f"Error details: {str(e)}")
             return {"message": f"Error deleting toy: {str(e)}"}, 400
-
 
 
 

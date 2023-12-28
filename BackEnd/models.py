@@ -72,7 +72,9 @@ class User(db.Model):
         
 
 
-    toys = db.relationship('Toy', backref='owner', lazy='dynamic') 
+    toys = db.relationship('Toy', backref='user_toys', lazy='dynamic', cascade='all, delete-orphan', overlaps="user_toys")
+
+
 
     #toybox = db.relationship('Toy', secondary=toybox_association, backref='toyboxes', lazy='dynamic') 
 
@@ -103,6 +105,10 @@ class Toy(db.Model):
     toy_longitude = db.Column(db.Float, nullable=True)
 
     is_deleted = db.Column(db.Boolean, default=False)
+
+    user = db.relationship('User', back_populates='toys')
+    owner = db.relationship('User', back_populates='toys', foreign_keys=[user_id], overlaps="user_toys")
+
 
 
 
